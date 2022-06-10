@@ -1,0 +1,56 @@
+{
+  "name": "akadakograph",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "test": "jest",
+    "lint": "eslint src/** --fix --ext js,vue",
+    "prepare": "husky install"
+  },
+  "dependencies": {
+    "@serialport/stream": "^9.2.4",
+    "buefy": "^0.9.21",
+    "chart.js": "2.9.4",
+    "dayjs": "^1.11.3",
+    "firmata-io": "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s",
+    "long": "^5.2.0",
+    "sass-loader": "^13.0.0",
+    "vue": "^2.6.11",
+    "vue-chartjs": "3.5.0",
+    "vue-i18n": "8",
+    "vue-js-modal": "^2.0.1",
+    "vuex": "3.6.2",
+    "web-serial-binding": "github:jaz303/web-serial-binding"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.4",
+    "@vue/cli-plugin-eslint": "~5.0.4",
+    "@vue/cli-plugin-unit-jest": "~5.0.4",
+    "@vue/cli-service": "~5.0.4",
+    "@vue/test-utils": "^1.0.3",
+    "babel-jest": "^24.9.0",
+    "eslint": "^7.5.0",
+    "eslint-plugin-vue": "^8.6.0",
+    "flush-promises": "^1.0.2",
+    "husky": "^8.0.1",
+    "jest": "^27.5.1",
+    "jest-localstorage-mock": "^2.4.21",
+    "node-polyfill-webpack-plugin": "^1.1.4",
+    "node-sass": "^7.0.1",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
+  "engines": {
+    "node": ">=14 <15"
+  }
+}

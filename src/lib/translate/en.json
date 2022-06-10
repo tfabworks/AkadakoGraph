@@ -1,0 +1,29 @@
+{
+    "general": {
+        "reset": "Reset",
+        "playback": "Playback",
+        "stop": "Stop",
+        "download": "Download"
+    },
+    "device": {
+        "connect": "Connect the device",
+        "disconnect": "Disconnect the device"
+    },
+    "language": {
+        "cancel": "Cancel",
+        "ok": "Change",
+        "changeLocaleConfirm": "The micro:bit will be disconnected when you change the language, is that okay?"
+    },
+    "error": {
+        "microbit_connect": "Failed to connect micro:bit."
+    },
+    "footer": {
+        "help": "Help",
+        "privacy": "Privacy Policy",
+        "opinion": "Opinions・Requests",
+        "brand": "TFabWorks",
+        "makecode": "MakeCode",
+        "extensions": "New(extensions)",
+        "home": "Edit(Home)"
+    }
+}

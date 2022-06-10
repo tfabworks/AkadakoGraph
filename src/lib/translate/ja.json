@@ -1,0 +1,29 @@
+{
+    "general": {
+        "reset": "リセット",
+        "playback": "再生",
+        "stop": "停止",
+        "download": "ダウンロード"
+    },
+    "device": {
+        "connect": "デバイスを接続する",
+        "disconnect": "デバイスを切断する"
+    },
+    "language": {
+        "cancel": "キャンセル",
+        "ok": "変更する",
+        "changeLocaleConfirm": "言語を変更するとmicro:bitが切断されますがよろしいですか？"
+    },
+    "error": {
+        "microbit_connect": "micro:bitに接続できませんでした"
+    },
+    "footer": {
+        "help": "使い方",
+        "privacy": "プライバシーポリシー",
+        "opinion": "ご意見・ご要望",
+        "brand": "TFabWorks",
+        "makecode": "MakeCode",
+        "extensions": "新規(拡張機能)",
+        "home": "編集(Home)"
+    }
+}
