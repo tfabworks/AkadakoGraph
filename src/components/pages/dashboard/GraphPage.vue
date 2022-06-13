@@ -101,7 +101,7 @@
         <button 
           v-if="getSourceExist().main"
           class="btn-square-little-rich"
-          @click="downloadCSV(true)"
+          @click="exportData(true, 'csv')"
         >
           <img
             src="../../../../public/img/icon-csv.svg"
@@ -111,9 +111,17 @@
           <span class="btn-text">主軸データのCSV</span>
         </button>
         <button 
+          v-if="getSourceExist().main"
+          class="btn-square-little-rich"
+          @click="exportData(true, 'xlsx')"
+        >
+          <span class="icon"><i class="fas fa-file-csv fa-2x" /></span>
+          <span class="button_text">主軸データのXSLX</span>
+        </button>
+        <button 
           v-if="getSourceExist().sub"
           class="btn-square-little-rich"
-          @click="downloadCSV(false)"
+          @click="exportData(false, 'csv')"
         >
           <img
             src="../../../../public/img/icon-csv.svg"
@@ -121,6 +129,14 @@
             class="btn-icon"
           >
           <span class="btn-text">第2軸データのCSV</span>
+        </button>
+        <button 
+          v-if="getSourceExist().sub"
+          class="btn-square-little-rich"
+          @click="exportData(false, 'xlsx')"
+        >
+          <span class="icon"><i class="fas fa-file-csv fa-2x" /></span>
+          <span class="button_text">第2軸データのXLSX</span>
         </button>
         <span
           v-if="!getSourceExist().main && !getSourceExist().sub"
@@ -141,6 +157,7 @@ import Graph from '../../view/Graph'
 import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import VModal from 'vue-js-modal'
+import ExcelJS from 'exceljs'
 Vue.use(VModal)
 
 export default {
@@ -201,6 +218,34 @@ export default {
           date.getHours() + ':' +
           date.getMinutes() + ':' +
           date.getSeconds()
+    },
+    async exportData(isFirst, ext) {
+      let fileName, source
+      if (isFirst) {
+        source = this.source.main
+        fileName = 'AkadakoGraph'
+      }else {
+        source = this.source.sub
+        fileName = 'AkadakoGraph2nd'
+      }
+
+      const workbook = new ExcelJS.Workbook()
+      workbook.addWorksheet('AkadakoGraph')
+      const worksheet = workbook.getWorksheet('AkadakoGraph')
+
+      worksheet.columns = [
+        { header: '時刻', key: 'x' },
+        { header: '値', key: 'y' }
+      ]
+      worksheet.addRows(source)
+
+      const uint8Array = ext === 'xlsx' ? await workbook.xlsx.writeBuffer() : await workbook.csv.writeBuffer()
+      const blob = new Blob([uint8Array], { type: 'application/octet-binary' })
+      const link = document.createElement('a')
+      link.href = (window.URL || window.webkitURL).createObjectURL(blob)
+      link.download = `${fileName}.${ext}`
+      link.click()
+      link.remove()
     },
     downloadCSV(isFirst) {
       let source, fileName
