@@ -3,6 +3,8 @@ on:
   push:
     tags:
       - "test"
+    branches:
+      - "develop"
 jobs:
   CI:
     runs-on: ${{ matrix.os }}
