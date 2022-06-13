@@ -7,7 +7,11 @@
     },
     "device": {
         "connect": "Connect the device",
-        "disconnect": "Disconnect the device"
+        "disconnect": "Disconnect the device",
+        "brightness": "Brightness",
+        "temperture": "Temperture",
+        "pressure": "Pressure",
+        "humidity": "Humidity"
     },
     "language": {
         "cancel": "Cancel",

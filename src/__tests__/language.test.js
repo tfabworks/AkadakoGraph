@@ -12,7 +12,7 @@ describe('preference/localeの決定処理', () => {
   const localVue = createLocalVue()
   localVue.use(Vuex)
   const i18n = new VueI18n({
-    locale: '',
+    language: '',
     messages
   })
 
@@ -33,41 +33,41 @@ describe('preference/localeの決定処理', () => {
   })
 
   it('LSがenでnavigatorがjaの場合', async () => {
-    localStorage.setItem('preferences/locale', 'en')
+    localStorage.setItem('language', 'en')
     Object.defineProperty(window, 'navigator', {
       get: jest.fn().mockReturnValue({ languages: ['ja', 'ja-JP'] }),
     })
-    store.state.preferences.locale = localStorage.getItem('preferences/locale') ? localStorage.getItem('preferences/locale') : getUserLanguage()
+    store.state.language.language = localStorage.getItem('language') ? localStorage.getItem('language') : getUserLanguage()
     expect(wrapper.vm.isJapanese).toBeFalsy()
     expect(wrapper.vm.isEnglish).toBeTruthy()
   })
 
   it('LSがenでnavigatorがenの場合', async () => {
-    localStorage.setItem('preferences/locale', 'en')
+    localStorage.setItem('language', 'en')
     Object.defineProperty(window, 'navigator', {
       get: jest.fn().mockReturnValue({ languages: ['en', 'en-US'] }),
     })
-    store.state.preferences.locale = localStorage.getItem('preferences/locale') ? localStorage.getItem('preferences/locale') : getUserLanguage()
+    store.state.language.language = localStorage.getItem('language') ? localStorage.getItem('language') : getUserLanguage()
     expect(wrapper.vm.isJapanese).toBeFalsy()
     expect(wrapper.vm.isEnglish).toBeTruthy()
   })
 
   it('LSがjaでnavigatorがjaの場合', async () => {
-    localStorage.setItem('preferences/locale', 'ja')
+    localStorage.setItem('language', 'ja')
     Object.defineProperty(window, 'navigator', {
       get: jest.fn().mockReturnValue({ languages: ['ja', 'ja-JP'] }),
     })
-    store.state.preferences.locale = localStorage.getItem('preferences/locale') ? localStorage.getItem('preferences/locale') : getUserLanguage()
+    store.state.language.language = localStorage.getItem('language') ? localStorage.getItem('language') : getUserLanguage()
     expect(wrapper.vm.isJapanese).toBeTruthy()
     expect(wrapper.vm.isEnglish).toBeFalsy()
   })
   
   it('LSがjaでnavigatorがenの場合', async () => {
-    localStorage.setItem('preferences/locale', 'ja')
+    localStorage.setItem('language', 'ja')
     Object.defineProperty(window, 'navigator', {
       get: jest.fn().mockReturnValue({ languages: ['en', 'en-US'] }),
     })
-    store.state.preferences.locale = localStorage.getItem('preferences/locale') ? localStorage.getItem('preferences/locale') : getUserLanguage()
+    store.state.language.language = localStorage.getItem('language') ? localStorage.getItem('language') : getUserLanguage()
     expect(wrapper.vm.isJapanese).toBeTruthy()
     expect(wrapper.vm.isEnglish).toBeFalsy()
   })
@@ -76,7 +76,7 @@ describe('preference/localeの決定処理', () => {
     Object.defineProperty(window, 'navigator', {
       get: jest.fn().mockReturnValue({ languages: ['ja', 'ja-JP'] }),
     })
-    store.state.preferences.locale = localStorage.getItem('preferences/locale') ? localStorage.getItem('preferences/locale') : getUserLanguage()
+    store.state.language.language = localStorage.getItem('language') ? localStorage.getItem('language') : getUserLanguage()
     expect(wrapper.vm.isJapanese).toBeTruthy()
     expect(wrapper.vm.isEnglish).toBeFalsy()
   })
@@ -85,7 +85,7 @@ describe('preference/localeの決定処理', () => {
     Object.defineProperty(window, 'navigator', {
       get: jest.fn().mockReturnValue({ languages: ['en', 'en-US'] }),
     })
-    store.state.preferences.locale = localStorage.getItem('preferences/locale') ? localStorage.getItem('preferences/locale') : getUserLanguage()
+    store.state.language.language = localStorage.getItem('language') ? localStorage.getItem('language') : getUserLanguage()
     expect(wrapper.vm.isJapanese).toBeFalsy()
     expect(wrapper.vm.isEnglish).toBeTruthy()
   })

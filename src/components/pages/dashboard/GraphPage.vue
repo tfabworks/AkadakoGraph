@@ -14,16 +14,16 @@
         :disabled="!connected"
       >
         <option value="lux">
-          光
+          {{ $t("device.brightness") }}
         </option>
         <option value="temp">
-          気温
+          {{ $t("device.temperture") }}
         </option>
         <option value="pres">
-          気圧
+          {{ $t("device.pressure") }}
         </option>
         <option value="humi">
-          湿度
+          {{ $t("device.humidity") }}
         </option>
       </select>
       <a
@@ -74,16 +74,16 @@
         :disabled="!connected"
       >
         <option value="lux">
-          光
+          {{ $t("device.brightness") }}
         </option>
         <option value="temp">
-          気温
+          {{ $t("device.temperture") }}
         </option>
         <option value="pres">
-          気圧
+          {{ $t("device.pressure") }}
         </option>
         <option value="humi">
-          湿度
+          {{ $t("device.humidity") }}
         </option>
       </select>
     </div>
