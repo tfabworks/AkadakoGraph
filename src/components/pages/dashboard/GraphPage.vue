@@ -43,7 +43,7 @@
         ref="renderGraphRelative"
         style="background-color: #EEEEEE; padding: 10px;"
         :source="source"
-        :source-type="judgeSourceType()"
+        :source-type="getSourceExist()"
       />
     </section>
     <div class="button_bar">
@@ -99,7 +99,7 @@
       </div>
       <div class="modal-body">
         <button 
-          v-if="judgeSourceType().main"
+          v-if="getSourceExist().main"
           class="btn-square-little-rich"
           @click="downloadCSV(true)"
         >
@@ -111,7 +111,7 @@
           <span class="btn-text">主軸データのCSV</span>
         </button>
         <button 
-          v-if="judgeSourceType().sub"
+          v-if="getSourceExist().sub"
           class="btn-square-little-rich"
           @click="downloadCSV(false)"
         >
@@ -122,6 +122,10 @@
           >
           <span class="btn-text">第2軸データのCSV</span>
         </button>
+        <span
+          v-if="!getSourceExist().main && !getSourceExist().sub"
+          class="button_text"
+        >データが存在しません</span>
         <button 
           class="modal-close-btn"
           @click="modalClose"
@@ -219,7 +223,7 @@ export default {
       link.download = fileName
       link.click()
     },
-    judgeSourceType() {
+    getSourceExist() {
       let sourceType = {
         main: false,
         sub: false
