@@ -1,18 +1,17 @@
-const getUserLanguage = () => {
-  const language = (navigator.languages && navigator.languages[0]) ||
-    navigator.language ||
-    navigator.userLanguage ||
-    navigator.browserLanguage
+import VueI18n from 'vue-i18n'
+import Vue from 'vue'
 
-  return language == ('ja' || 'ja-JP') ? 'ja' : 'en'
+Vue.use(VueI18n)
+
+export const messages = {
+  'ja': require('./translate/ja.json'),
+  'en': require('./translate/en.json')
 }
 
-const messages = {
-  'en': require('./translate/en.json'),
-  'ja': require('./translate/ja.json')
-}
-
-export {
-  getUserLanguage,
+export const i18n = new VueI18n({
+  locale: 'ja',
+  fallbackLocale: 'ja',
   messages
-}
+})
+
+Vue.i18n = i18n

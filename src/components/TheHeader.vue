@@ -10,10 +10,10 @@
       <div class="select-language">
         <ul class="language-list">
           <li :class="{active: isJapanese}">
-            <a @click="setLocale(`ja`)">日本語</a>
+            <a @click="setLanguage(`ja`)">日本語</a>
           </li>
           <li :class="{active: isEnglish}">
-            <a @click="setLocale(`en`)">English</a>
+            <a @click="setLanguage(`en`)">English</a>
           </li>
         </ul>
       </div>
@@ -27,26 +27,17 @@ import { mapGetters } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
-      isJapanese: 'preferences/isJapanese',
-      isEnglish: 'preferences/isEnglish'
+      isJapanese: 'language/isJapanese',
+      isEnglish: 'language/isEnglish'
     })
   },
   methods: {
-    setLocale(locale) {
+    setLanguage(lang) {
       if (
-        (locale === 'ja' && this.isEnglish) ||
-        (locale === 'en' && this.isJapanese)
+        (lang === 'ja' && this.isEnglish) ||
+        (lang === 'en' && this.isJapanese)
       ) {
-        this.$buefy.dialog.confirm({
-          type: 'is-success',
-          cancelText: this.$t('language.cancel'),
-          confirmText: this.$t('language.ok'),
-          message: this.$t('language.changeLocaleConfirm'),
-          onConfirm: () => {
-            this.$store.commit('preferences/setPreferences', {locale: locale})
-            location.reload()
-          }
-        })
+        this.$store.commit('language/setLanguage', lang)
       }
     }
   }

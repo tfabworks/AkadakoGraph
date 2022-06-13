@@ -133,8 +133,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      isJapanese: 'preferences/isJapanese',
-      isEnglish: 'preferences/isEnglish',
+      isJapanese: 'language/isJapanese',
+      isEnglish: 'language/isEnglish',
     }),
   },
   methods: {

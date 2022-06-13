@@ -1,12 +1,10 @@
 import Vue from 'vue'
-import VueI18n from 'vue-i18n'
 import Buefy from 'buefy'
 import App from '@/components/App'
 import store from './store'
-import {messages} from './lib/language'
+import { i18n } from './lib/language'
 
 Vue.use(Buefy)
-Vue.use(VueI18n)
 
 Vue.config.productionTip = false
 // eslint-disable-next-line no-unused-vars
@@ -22,9 +20,6 @@ Vue.config.warnHandler = function (msg, vm, trace) {
 
 new Vue({
   store,
-  i18n: new VueI18n({
-    locale: store.state.preferences.locale,
-    messages
-  }),
+  i18n,
   render: h => h(App)
 }).$mount('#app')
