@@ -3,27 +3,6 @@
     <nav class="menu-area">
       <ConnnectStatus />
       <ul class="menu-area-btn-list">
-        <li class="makecode-icon">
-          <a>{{ $t("footer.makecode") }}</a>
-          <ul>
-            <li>
-              <a
-                href="http://tfab.jp/stem"
-                target="_blank"
-              >{{
-                $t("footer.extensions")
-              }}</a>
-            </li>
-            <li>
-              <a
-                href="https://makecode.microbit.org/"
-                target="_blank"
-              >{{
-                $t("footer.home")
-              }}</a>
-            </li>
-          </ul>
-        </li>
         <li
           v-if="isJapanese"
           class="help-icon"
@@ -48,28 +27,6 @@
         </li>
         <li
           v-if="isJapanese"
-          class="opinion-icon"
-        >
-          <a
-            href="https://forms.gle/dt2T1AtSZcD782uc9"
-            target="_blank"
-          >{{
-            $t("footer.opinion")
-          }}</a>
-        </li>
-        <li
-          v-if="isEnglish"
-          class="opinion-icon"
-        >
-          <a
-            href="https://forms.gle/9eZdo5f3ojzSzd8Y7"
-            target="_blank"
-          >{{
-            $t("footer.opinion")
-          }}</a>
-        </li>
-        <li
-          v-if="isJapanese"
           class="privacy-icon"
         >
           <a
@@ -90,29 +47,12 @@
             $t("footer.privacy")
           }}</a>
         </li>
-        <li class="tfabconnect-icon">
-          <a
-            href="https://beta.tfabconnect.com/dashboard/"
-            target="_blank"
-          >TFabConnect(IoT)</a>
-        </li>
         <li
           v-if="isJapanese"
           class="brand-icon"
         >
           <a
-            href="https://tfabworks.com/"
-            target="_blank"
-          >{{
-            $t("footer.brand")
-          }}</a>
-        </li>
-        <li
-          v-if="isEnglish"
-          class="brand-icon"
-        >
-          <a
-            href="https://tfabworks.com/en/"
+            href="https://akadako.com/"
             target="_blank"
           >{{
             $t("footer.brand")
