@@ -44,7 +44,7 @@ export default {
   top: 50%;
   left: 5px;
   transform: translateY(-50%);
-  width: 250px;
+  width: 380px;
 }
 
 @media (max-width: 485px) {
