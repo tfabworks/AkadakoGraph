@@ -98,38 +98,36 @@
         <h2>CSVダウンロード</h2>
       </div>
       <div class="modal-body">
-
-          <button 
-            v-if="judgeSourceType().main"
-            class="btn-square-little-rich"
-            @click="downloadCSV(true)"
-          >
-            <img
+        <button 
+          v-if="judgeSourceType().main"
+          class="btn-square-little-rich"
+          @click="downloadCSV(true)"
+        >
+          <img
             src="../../../../public/img/icon-csv.svg"
             alt="csvファイル"
             class="btn-icon"
-            >
-            <span class="btn-text">主軸データのCSV</span>
-          </button>
-          <button 
-            v-if="judgeSourceType().sub"
-            class="btn-square-little-rich"
-            @click="downloadCSV(false)"
           >
-            <img
+          <span class="btn-text">主軸データのCSV</span>
+        </button>
+        <button 
+          v-if="judgeSourceType().sub"
+          class="btn-square-little-rich"
+          @click="downloadCSV(false)"
+        >
+          <img
             src="../../../../public/img/icon-csv.svg"
             alt="csvファイル"
             class="btn-icon"
-            >
-            <span class="btn-text">第2軸データのCSV</span>
-          </button>
-          <button 
-            class="modal-close-btn"
-            @click="modalClose"
           >
-            <i class="far fa-times-circle fa-lg" />閉じる
-          </button>
-
+          <span class="btn-text">第2軸データのCSV</span>
+        </button>
+        <button 
+          class="modal-close-btn"
+          @click="modalClose"
+        >
+          <i class="far fa-times-circle fa-lg" />閉じる
+        </button>
       </div>  
     </modal>
   </div>
@@ -318,9 +316,6 @@ select{
     0% { transform: rotate(0deg)}
     50%  { transform: rotate(180deg)}
     100%   { transform: rotate(360deg)}
-}
-.modal-header{
-
 }
 .modal-header h2{
   padding:15px;
