@@ -6,18 +6,6 @@
         alt="AkadakoGraph"
       ></a>
     </h1>
-    <div class="header-info-area">
-      <div class="select-language">
-        <ul class="language-list">
-          <li :class="{active: isJapanese}">
-            <a @click="setLanguage(`ja`)">日本語</a>
-          </li>
-          <li :class="{active: isEnglish}">
-            <a @click="setLanguage(`en`)">English</a>
-          </li>
-        </ul>
-      </div>
-    </div>
   </header>
 </template>
 
@@ -56,7 +44,7 @@ export default {
   top: 50%;
   left: 5px;
   transform: translateY(-50%);
-  width: 250px;
+  width: 380px;
 }
 
 @media (max-width: 485px) {

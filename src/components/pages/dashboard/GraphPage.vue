@@ -1,6 +1,44 @@
 <template>
   <div class="content-area">
     <section class="content-box">
+      <div class="sensor-select-wrap">
+        <select
+          v-model="graphKind"
+          :disabled="!connected"
+        >
+          <option value="lux">
+            {{ $t("device.brightness") }}
+          </option>
+          <option value="temp">
+            {{ $t("device.temperture") }}
+          </option>
+          <option value="pres">
+            {{ $t("device.pressure") }}
+          </option>
+          <option value="humi">
+            {{ $t("device.humidity") }}
+          </option>
+        </select>
+
+        <select
+          v-model="graphKindSub"
+          :disabled="!connected"
+        >
+          <option value="lux">
+            {{ $t("device.brightness") }}
+          </option>
+          <option value="temp">
+            {{ $t("device.temperture") }}
+          </option>
+          <option value="pres">
+            {{ $t("device.pressure") }}
+          </option>
+          <option value="humi">
+            {{ $t("device.humidity") }}
+          </option>
+        </select>
+      </div>
+
       <Graph
         ref="renderGraphRelative"
         style="background-color: #EEEEEE; padding: 10px;"
@@ -9,23 +47,6 @@
       />
     </section>
     <div class="button_bar">
-      <select
-        v-model="graphKind"
-        :disabled="!connected"
-      >
-        <option value="lux">
-          {{ $t("device.brightness") }}
-        </option>
-        <option value="temp">
-          {{ $t("device.temperture") }}
-        </option>
-        <option value="pres">
-          {{ $t("device.pressure") }}
-        </option>
-        <option value="humi">
-          {{ $t("device.humidity") }}
-        </option>
-      </select>
       <a
         id="dl-csv"
         class="btn-square-little-rich"
@@ -69,23 +90,6 @@
         />
         <span class="button_text">{{ $t("general.reset") }}</span>
       </a>
-      <select
-        v-model="graphKindSub"
-        :disabled="!connected"
-      >
-        <option value="lux">
-          {{ $t("device.brightness") }}
-        </option>
-        <option value="temp">
-          {{ $t("device.temperture") }}
-        </option>
-        <option value="pres">
-          {{ $t("device.pressure") }}
-        </option>
-        <option value="humi">
-          {{ $t("device.humidity") }}
-        </option>
-      </select>
     </div>
     <modal
       name="download"
@@ -99,16 +103,24 @@
           class="btn-square-little-rich"
           @click="downloadCSV(true)"
         >
-          <span class="icon"><i class="fas fa-file-csv fa-2x" /></span>
-          <span class="button_text">主軸データのCSV</span>
+          <img
+            src="../../../../public/img/icon-csv.svg"
+            alt="csvファイル"
+            class="btn-icon"
+          >
+          <span class="btn-text">主軸データのCSV</span>
         </button>
         <button 
           v-if="judgeSourceType().sub"
           class="btn-square-little-rich"
           @click="downloadCSV(false)"
         >
-          <span class="icon"><i class="fas fa-file-csv fa-2x" /></span>
-          <span class="button_text">第2軸データのCSV</span>
+          <img
+            src="../../../../public/img/icon-csv.svg"
+            alt="csvファイル"
+            class="btn-icon"
+          >
+          <span class="btn-text">第2軸データのCSV</span>
         </button>
         <button 
           class="modal-close-btn"
@@ -235,6 +247,9 @@ export default {
   background-color: #EEEEEE;
   padding: 20px;
 }
+select{
+  outline: none;
+}
 .button_bar{
   text-align:center;
   display: flex;
@@ -264,10 +279,18 @@ export default {
   box-shadow: none;
   text-shadow: none;
 }
-.button_text{
+.btn-icon{
+  display:inline-block;
+  margin-right:3px;
+  width:20px;
+  height:auto;
+}
+
+.btn-text{
   padding: 0 5px;
   font-size:15px;
 }
+
 .content-box {
   text-align: center;
   width: 100%;
@@ -294,9 +317,6 @@ export default {
     50%  { transform: rotate(180deg)}
     100%   { transform: rotate(360deg)}
 }
-.modal-header{
-  margin-bottom:80px;
-}
 .modal-header h2{
   padding:15px;
   text-align:center;
@@ -308,6 +328,11 @@ export default {
 .modal-body{
   display:flex;
   justify-content:center;
+  flex-wrap:wrap;
+  align-items:center;
+  padding:40px 0;
+
+  min-height:250px;
 }
 .modal-body button{
   cursor:pointer;
@@ -320,12 +345,35 @@ export default {
   align-items:center;
   position:absolute;
   right:20px;
-  bottom:20px;
+  bottom:15px;
   font-size:16px;
   font-weight:bold;
   color:#999;
 }
 .modal-close-btn i{
   margin-right:4px;
+}
+.sensor-select-wrap{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:15px;
+}
+.sensor-select-wrap select{
+  position:relative;
+  min-width:100px;
+  padding:8px;
+  border:2px solid #333;
+  border-radius:4px;
+  color:#333;
+  font-weight:bold;
+  cursor:pointer;
+}
+.sensor-select-wrap select:nth-of-type(2){
+  border:2px solid #26AE60;
+  color:#26AE60;
+}
+select:disabled{
+  opacity:.5;
+  cursor:auto;
 }
 </style>

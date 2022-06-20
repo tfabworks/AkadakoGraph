@@ -3,7 +3,7 @@
     <img
       src="../../../public/img/blank.png"
       alt="akadako"
-      :class="{active: connected, 'mb-icon': true}"
+      :class="{active: connected, 'akadako-icon': true}"
     >
     <div class="group-select-box">
       <button @click="toggleConnection">
@@ -58,15 +58,15 @@ export default {
 
 </script>
 <style scoped>
-.mb-icon {
+.akadako-icon {
   display: block;
   width: 120px;
-  height: 100px;
+  height: 180px;
   margin: 0 auto 15px auto;
-  background: url("../../../public/img/status-microbit.png");
+  background: url("../../../public/img/status-akadako.png");
 }
-.mb-icon.active {
-  background: url("../../../public/img/status-microbit.png") 120px 0;
+.akadako-icon.active {
+  background: url("../../../public/img/status-akadako.png") 120px 0;
 }
 .group-select-box {
   height: 30px;
