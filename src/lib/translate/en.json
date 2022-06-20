@@ -8,10 +8,10 @@
     "device": {
         "connect": "Connect the device",
         "disconnect": "Disconnect the device",
-        "brightness": "Brightness",
-        "temperture": "Temperture",
-        "pressure": "Pressure",
-        "humidity": "Humidity"
+        "brightness": "Brightness[lux]",
+        "temperture": "Temperture[℃]",
+        "pressure": "Pressure[hPa]",
+        "humidity": "Humidity[%]"
     },
     "language": {
         "cancel": "Cancel",

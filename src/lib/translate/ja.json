@@ -8,10 +8,10 @@
     "device": {
         "connect": "デバイスを接続する",
         "disconnect": "デバイスを切断する",
-        "brightness": "明るさ",
-        "temperture": "気温",
-        "pressure": "気圧",
-        "humidity": "湿度"
+        "brightness": "明るさ[lux]",
+        "temperture": "気温[℃]",
+        "pressure": "気圧[hPa]",
+        "humidity": "湿度[%]"
     },
     "language": {
         "cancel": "キャンセル",
