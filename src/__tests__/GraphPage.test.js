@@ -9,7 +9,7 @@ import GraphPage from '@/components/pages/dashboard/GraphPage.vue'
 
 Vue.use(VueI18n)
 const i18n = new VueI18n({
-  locale: 'ja',
+  language: 'ja',
   messages
 })
 

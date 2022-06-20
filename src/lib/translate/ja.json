@@ -7,7 +7,11 @@
     },
     "device": {
         "connect": "デバイスを接続する",
-        "disconnect": "デバイスを切断する"
+        "disconnect": "デバイスを切断する",
+        "brightness": "明るさ",
+        "temperture": "気温",
+        "pressure": "気圧",
+        "humidity": "湿度"
     },
     "language": {
         "cancel": "キャンセル",
@@ -21,7 +25,7 @@
         "help": "使い方",
         "privacy": "プライバシーポリシー",
         "opinion": "ご意見・ご要望",
-        "brand": "TFabWorks",
+        "brand": "Akadako.com",
         "makecode": "MakeCode",
         "extensions": "新規(拡張機能)",
         "home": "編集(Home)"

@@ -7,7 +7,11 @@
     },
     "device": {
         "connect": "Connect the device",
-        "disconnect": "Disconnect the device"
+        "disconnect": "Disconnect the device",
+        "brightness": "Brightness",
+        "temperture": "Temperture",
+        "pressure": "Pressure",
+        "humidity": "Humidity"
     },
     "language": {
         "cancel": "Cancel",
@@ -21,7 +25,7 @@
         "help": "Help",
         "privacy": "Privacy Policy",
         "opinion": "Opinions・Requests",
-        "brand": "TFabWorks",
+        "brand": "Akadako.com",
         "makecode": "MakeCode",
         "extensions": "New(extensions)",
         "home": "Edit(Home)"
