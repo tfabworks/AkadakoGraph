@@ -18,8 +18,17 @@ const state = {
   firmata: null,
   nativePort: null,
   port: null,
-  intervalTimer: null,
-  intervalTimerSub: null,
+  renderInfo: {
+    main: {
+      shouldRender: false,
+      kind: ''
+    },
+    sub: {
+      shouldRender: false,
+      kind: ''
+    }
+  },
+  renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
   pauseFlag: false
@@ -42,14 +51,12 @@ const getters = {
 
 const mutations = {
   addValue(state, { isMain, newValue }) {
-    if (!state.pauseFlag) {
-      if (isMain) {
-        state.graphValue.push(newValue)
-        localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
-      } else {
-        state.graphValueSub.push(newValue)
-        localStorage.setItem('graphValueSub', JSON.stringify(state.graphValueSub))
-      }
+    if (isMain) {
+      state.graphValue.push(newValue)
+      localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
+    } else {
+      state.graphValueSub.push(newValue)
+      localStorage.setItem('graphValueSub', JSON.stringify(state.graphValueSub))
     }
   },
   resetValue(state, target) {
@@ -106,38 +113,78 @@ const actions = {
   disConnect(ctx) {
     ctx.state.port.close()
     ctx.state.firmata.on('close', () => {})
-    
-    clearInterval(ctx.state.intervalTimer)
-    clearInterval(ctx.state.intervalTimerSub)
-    ctx.state.intervalTimer = null
-    ctx.state.intervalTimerSub = null
     ctx.state.nativePort = null
     ctx.state.port = null
     ctx.state.firmata = null
+    clearInterval(ctx.state.renderTimer)
+    ctx.state.renderTimer = null
   },
   render(ctx, { kind, axis }) {
-    const addValueCallback = async () => {
-      ctx.commit('addValue', {
-        isMain: axis == 'main' ? true : false,
-        newValue: {
-          y: await getData(ctx.state.firmata, kind),
-          x: dayjs().tz().format()
-        }
-      })
+    if (ctx.state.renderTimer) {
+      clearInterval(ctx.state.renderTimer)
+      ctx.state.renderTimer = null
     }
 
     ctx.commit('resetValue', axis)
-    if (axis == 'main') {
-      if (ctx.state.intervalTimer != null) {
-        clearInterval(ctx.state.intervalTimer)
-      }
-      ctx.state.intervalTimer = setInterval(addValueCallback, milliSeconds)
-    } else if (axis == 'sub') {
-      if (ctx.state.intervalTimerSub != null) {
-        clearInterval(ctx.state.intervalTimerSub)
-      }
-      ctx.state.intervalTimerSub = setInterval(addValueCallback, milliSeconds)
+
+    if (axis === 'main') {
+      ctx.state.renderInfo.main.shouldRender = true
+      ctx.state.renderInfo.main.kind = kind
+    } else {
+      ctx.state.renderInfo.sub.shouldRender = true
+      ctx.state.renderInfo.sub.kind = kind
     }
+
+    const addValueCallback = async () => {
+      if (!ctx.state.pauseFlag) {
+        const date = dayjs().tz().format()
+
+        if (ctx.state.renderInfo.main.shouldRender && ctx.state.renderInfo.sub.shouldRender) {
+          Promise.all([
+            getData(ctx.state.firmata, ctx.state.renderInfo.main.kind),
+            getData(ctx.state.firmata, ctx.state.renderInfo.sub.kind)
+          ])
+            .then((res) => {
+              ctx.commit('addValue', {
+                isMain: true,
+                newValue: {
+                  y: res[0],
+                  x: date
+                }
+              })
+
+              ctx.commit('addValue', {
+                isMain: false,
+                newValue: {
+                  y: res[1],
+                  x: date
+                }
+              })
+            })
+            .catch((e) => {
+              console.error(e)
+            })
+        } else if (ctx.state.renderInfo.main.shouldRender) {
+          ctx.commit('addValue', {
+            isMain: true,
+            newValue: {
+              y: await getData(ctx.state.firmata, ctx.state.renderInfo.main.kind),
+              x: date
+            }
+          })
+        } else if (ctx.state.renderInfo.sub.shouldRender) {
+          ctx.commit('addValue', {
+            isMain: false,
+            newValue: {
+              y: await getData(ctx.state.firmata, ctx.state.renderInfo.sub.kind),
+              x: date
+            }
+          })
+        }
+      }
+    }
+
+    ctx.state.renderTimer = setInterval(addValueCallback, milliSeconds)
   }
 }
 
