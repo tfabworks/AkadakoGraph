@@ -43,7 +43,10 @@
         ref="renderGraphRelative"
         style="background-color: #EEEEEE; padding: 10px;"
         :source="source"
-        :source-type="hasSource()"
+        :source-type="{
+          main: source.main.length,
+          sub: source.sub.length
+        }"
       />
     </section>
     <div class="button_bar">
@@ -291,12 +294,6 @@ export default {
       link.download = `${name}.${isCsv ? 'csv' : 'xlsx'}`
       link.click()
       link.remove()
-    },
-    hasSource() {
-      return {
-        main: this.source.main.length ? true : false,
-        sub: this.source.sub.length ? true : false
-      }
     },
     modalOpen() {
       this.$modal.show('download')
