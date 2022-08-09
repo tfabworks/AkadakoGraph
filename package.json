@@ -14,6 +14,7 @@
     "buefy": "^0.9.21",
     "chart.js": "2.9.4",
     "dayjs": "^1.11.3",
+    "encoding-japanese": "^2.0.0",
     "exceljs": "^4.3.0",
     "firmata-io": "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s",
     "long": "^5.2.0",

@@ -43,7 +43,7 @@
         ref="renderGraphRelative"
         style="background-color: #EEEEEE; padding: 10px;"
         :source="source"
-        :source-type="getSourceExist()"
+        :source-type="hasSource()"
       />
     </section>
     <div class="button_bar">
@@ -95,59 +95,63 @@
       name="download"
     >
       <div class="modal-header">
-        <h2>CSVダウンロード</h2>
+        <h2>ダウンロード</h2>
       </div>
-      <div class="modal-body">
-        <button 
-          v-if="getSourceExist().main"
-          class="btn-square-little-rich"
-          @click="exportData(true, 'csv')"
+      <div>
+        <div
+          v-if="source.main.length || source.sub.length"
+          class="modal-body"
         >
-          <img
-            src="../../../../public/img/icon-csv.svg"
-            alt="csvファイル"
-            class="btn-icon"
+          <button
+            class="btn-square-little-rich"
+            @click="exportData(true, false)"
           >
-          <span class="btn-text">主軸データのCSV</span>
-        </button>
-        <button 
-          v-if="getSourceExist().main"
-          class="btn-square-little-rich"
-          @click="exportData(true, 'xlsx')"
-        >
-          <span class="icon"><i class="fas fa-file-csv fa-2x" /></span>
-          <span class="button_text">主軸データのXSLX</span>
-        </button>
-        <button 
-          v-if="getSourceExist().sub"
-          class="btn-square-little-rich"
-          @click="exportData(false, 'csv')"
-        >
-          <img
-            src="../../../../public/img/icon-csv.svg"
-            alt="csvファイル"
-            class="btn-icon"
+            <img
+              src="../../../../public/img/icon-csv.svg"
+              alt="csvファイル"
+              class="btn-icon"
+            >
+            <span class="btn-text">csv形式(UTF-8)</span>
+          </button>
+          <button
+            class="btn-square-little-rich"
+            @click="exportData(true, true)"
           >
-          <span class="btn-text">第2軸データのCSV</span>
-        </button>
-        <button 
-          v-if="getSourceExist().sub"
-          class="btn-square-little-rich"
-          @click="exportData(false, 'xlsx')"
+            <img
+              src="../../../../public/img/icon-csv.svg"
+              alt="csvファイル"
+              class="btn-icon"
+            >
+            <span class="btn-text">csv形式(SJIS)</span>
+          </button>
+          <button 
+            class="btn-square-little-rich"
+            @click="exportData(false, false)"
+          >
+            <img
+              src="../../../../public/img/icon-xlsx.svg"
+              alt="xlsxファイル"
+              class="btn-icon"
+            >
+            <span class="button_text">xlsx形式</span>
+          </button>
+        </div>
+        <div
+          v-else
+          class="modal-body"
         >
-          <span class="icon"><i class="fas fa-file-csv fa-2x" /></span>
-          <span class="button_text">第2軸データのXLSX</span>
-        </button>
-        <span
-          v-if="!getSourceExist().main && !getSourceExist().sub"
-          class="button_text"
-        >データが存在しません</span>
-        <button 
-          class="modal-close-btn"
-          @click="modalClose"
-        >
-          <i class="far fa-times-circle fa-lg" />閉じる
-        </button>
+          <span
+            class="button_text"
+          >データが存在しません</span>
+        </div>
+        <div class="modal-body">
+          <button 
+            class="modal-close-btn"
+            @click="modalClose"
+          >
+            <i class="far fa-times-circle fa-lg" />閉じる
+          </button>
+        </div>
       </div>  
     </modal>
   </div>
@@ -158,6 +162,7 @@ import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import VModal from 'vue-js-modal'
 import ExcelJS from 'exceljs'
+import encoding from 'encoding-japanese'
 Vue.use(VModal)
 
 export default {
@@ -219,68 +224,79 @@ export default {
           date.getMinutes() + ':' +
           date.getSeconds()
     },
-    async exportData(isFirst, ext) {
-      let fileName, source
-      if (isFirst) {
-        source = this.source.main
-        fileName = 'AkadakoGraph'
-      }else {
-        source = this.source.sub
-        fileName = 'AkadakoGraph2nd'
-      }
+    async exportData(isCsv, isSJIS) {
+      const name = 'AkaDakoGraph'
 
+      // ワークシート全体の設定
       const workbook = new ExcelJS.Workbook()
-      workbook.addWorksheet('AkadakoGraph')
-      const worksheet = workbook.getWorksheet('AkadakoGraph')
-
+      workbook.addWorksheet(name)
+      const worksheet = workbook.getWorksheet(name)
       worksheet.columns = [
         { header: '時刻', key: 'x' },
-        { header: '値', key: 'y' }
+        { header: '主軸の値', key: 'yMain' },
+        { header: '第2軸の値', key: 'ySub' }
       ]
-      worksheet.addRows(source)
 
-      const uint8Array = ext === 'xlsx' ? await workbook.xlsx.writeBuffer() : await workbook.csv.writeBuffer()
+      // ファイルの元となるデータの配列
+      // 両軸のデータを統合したものを格納する
+      let sourceForDL = []
+
+      // 主軸のデータをまずはそのまま格納
+      this.source.main.forEach(e => {
+        sourceForDL.push({
+          x: e.x,
+          yMain: e.y,
+          ySub: null
+        })
+      })
+
+      // 第2軸のデータを格納
+      this.source.sub.forEach(e => {
+        // 両軸で時刻が一致しているものを見つける
+        const found = sourceForDL.find(el => el.x == e.x)
+
+        // 一致したデータがあった場合はその要素にプロパティとして第2軸のデータを格納
+        if (found) {
+          found.ySub = e.y
+        }else {
+          // 一致したデータがなかった場合は新規要素として第2軸のデータを格納
+          sourceForDL.push({
+            x: e.x,
+            yMain: null,
+            ySub: e.y
+          })
+        }
+      })
+
+      // 統合した後の配列を時系列順にソート
+      sourceForDL.sort((a, b) => {
+        return (a.x < b.x) ? -1 : 1
+      })
+
+      // データをシートに追加
+      worksheet.addRows(sourceForDL)
+
+      // 3通りのファイル形式を引数に応じて生成
+      const uint8Array = isCsv ? (isSJIS ? new Uint8Array(
+        encoding.convert(await workbook.csv.writeBuffer(), {
+          from: 'UTF8',
+          to: 'SJIS'
+        })
+      ) : await workbook.csv.writeBuffer()) : await workbook.xlsx.writeBuffer()
+
+      // DLするための処理
       const blob = new Blob([uint8Array], { type: 'application/octet-binary' })
       const link = document.createElement('a')
       link.href = (window.URL || window.webkitURL).createObjectURL(blob)
-      link.download = `${fileName}.${ext}`
+      link.download = `${name}.${isCsv ? 'csv' : 'xlsx'}`
       link.click()
       link.remove()
     },
-    downloadCSV(isFirst) {
-      let source, fileName
-      let csv = '\ufeff'
-
-      if (isFirst) {
-        source = this.source.main
-        fileName = 'AkadakoGraph.csv'
-      }else {
-        source = this.source.sub
-        fileName = 'AkadakoGraph2nd.csv'
+    hasSource() {
+      return {
+        main: this.source.main.length ? true : false,
+        sub: this.source.sub.length ? true : false
       }
-
-      source.forEach(el => {
-        csv += this.transDate(el.x) + ',' + el.y + '\n'
-      })
-      const blob = new Blob([csv], { type: 'text/csv' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = fileName
-      link.click()
-    },
-    getSourceExist() {
-      let sourceType = {
-        main: false,
-        sub: false
-      }
-      if (this.source.main.length) {
-        sourceType.main = true
-      }
-      if (this.source.sub.length) {
-        sourceType.sub = true
-      }
-
-      return sourceType
     },
     modalOpen() {
       this.$modal.show('download')
