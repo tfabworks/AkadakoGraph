@@ -116,14 +116,62 @@ const actions = {
     ctx.state.nativePort = null
     ctx.state.port = null
     ctx.state.firmata = null
-    clearInterval(ctx.state.renderTimer)
+    if (ctx.state.renderTimer) {
+      clearTimeout(ctx.state.renderTimer)
+    }
     ctx.state.renderTimer = null
   },
-  render(ctx, { kind, axis }) {
-    if (ctx.state.renderTimer) {
-      clearInterval(ctx.state.renderTimer)
-      ctx.state.renderTimer = null
+  async setValueToAdd(ctx) {
+    const date = dayjs().tz().format()
+
+    if (ctx.state.renderInfo.main.shouldRender && ctx.state.renderInfo.sub.shouldRender) {
+      Promise.all([
+        getData(ctx.state.firmata, ctx.state.renderInfo.main.kind),
+        getData(ctx.state.firmata, ctx.state.renderInfo.sub.kind)
+      ])
+        .then((res) => {
+          ctx.commit('addValue', {
+            isMain: true,
+            newValue: {
+              y: res[0],
+              x: date
+            }
+          })
+
+          ctx.commit('addValue', {
+            isMain: false,
+            newValue: {
+              y: res[1],
+              x: date
+            }
+          })
+        })
+        .catch((e) => {
+          console.error(e)
+        })
+    } else if (ctx.state.renderInfo.main.shouldRender) {
+      ctx.commit('addValue', {
+        isMain: true,
+        newValue: {
+          y: await getData(ctx.state.firmata, ctx.state.renderInfo.main.kind),
+          x: date
+        }
+      })
+    } else if (ctx.state.renderInfo.sub.shouldRender) {
+      ctx.commit('addValue', {
+        isMain: false,
+        newValue: {
+          y: await getData(ctx.state.firmata, ctx.state.renderInfo.sub.kind),
+          x: date
+        }
+      })
     }
+  },
+  async render(ctx, { kind, axis }) {
+    if (ctx.state.renderTimer) {
+      clearTimeout(ctx.state.renderTimer)
+    }
+    ctx.state.renderTimer = null
 
     ctx.commit('resetValue', axis)
 
@@ -135,56 +183,15 @@ const actions = {
       ctx.state.renderInfo.sub.kind = kind
     }
 
-    const addValueCallback = async () => {
+    const addValueLoop = async () => {
       if (!ctx.state.pauseFlag) {
-        const date = dayjs().tz().format()
-
-        if (ctx.state.renderInfo.main.shouldRender && ctx.state.renderInfo.sub.shouldRender) {
-          Promise.all([
-            getData(ctx.state.firmata, ctx.state.renderInfo.main.kind),
-            getData(ctx.state.firmata, ctx.state.renderInfo.sub.kind)
-          ])
-            .then((res) => {
-              ctx.commit('addValue', {
-                isMain: true,
-                newValue: {
-                  y: res[0],
-                  x: date
-                }
-              })
-
-              ctx.commit('addValue', {
-                isMain: false,
-                newValue: {
-                  y: res[1],
-                  x: date
-                }
-              })
-            })
-            .catch((e) => {
-              console.error(e)
-            })
-        } else if (ctx.state.renderInfo.main.shouldRender) {
-          ctx.commit('addValue', {
-            isMain: true,
-            newValue: {
-              y: await getData(ctx.state.firmata, ctx.state.renderInfo.main.kind),
-              x: date
-            }
-          })
-        } else if (ctx.state.renderInfo.sub.shouldRender) {
-          ctx.commit('addValue', {
-            isMain: false,
-            newValue: {
-              y: await getData(ctx.state.firmata, ctx.state.renderInfo.sub.kind),
-              x: date
-            }
-          })
-        }
+        await ctx.dispatch('setValueToAdd')
       }
+      ctx.state.renderTimer = setTimeout(async () => {
+        await addValueLoop()
+      }, milliSeconds)
     }
-
-    ctx.state.renderTimer = setInterval(addValueCallback, milliSeconds)
+    await addValueLoop()
   }
 }
 

@@ -180,17 +180,17 @@ export default {
     })
   },
   watch: {
-    graphKind: function() {
+    graphKind: async function() {
       if (this.graphKind != null) {
-        this.$store.dispatch('serial/render', {
+        await this.$store.dispatch('serial/render', {
           kind: this.graphKind,
           axis: 'main'
         })
       }
     },
-    graphKindSub: function() {
+    graphKindSub: async function() {
       if (this.graphKindSub != null) {
-        this.$store.dispatch('serial/render', {
+        await this.$store.dispatch('serial/render', {
           kind: this.graphKindSub,
           axis: 'sub'
         })
