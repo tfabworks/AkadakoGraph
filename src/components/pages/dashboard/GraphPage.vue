@@ -21,6 +21,24 @@
         </select>
 
         <select
+          v-model="interval"
+          :disabled="!connected"
+        >
+          <option value="1000">
+            1秒
+          </option>
+          <option value="3000">
+            3秒
+          </option>
+          <option value="5000">
+            5秒
+          </option>
+          <option value="10000">
+            10秒
+          </option>
+        </select>
+
+        <select
           v-model="graphKindSub"
           :disabled="!connected"
         >
@@ -175,7 +193,8 @@ export default {
   data() {
     return {
       graphKind: null,
-      graphKindSub: null
+      graphKindSub: null,
+      interval: '5000'
     }
   },
   computed: {
@@ -203,6 +222,9 @@ export default {
           axis: 'sub'
         })
       }
+    },
+    interval: function() {
+      this.$store.commit('serial/setMilliSeconds', Number(this.interval))
     },
     connected: function() {
       if (!this.connected) {

@@ -11,13 +11,14 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault(dayjs.tz.guess())
 
-const milliSeconds = 1000
+// const milliSeconds = 1000
 
 const state = {
   connectState: 'disConnect',
   firmata: null,
   nativePort: null,
   port: null,
+  milliSeconds: 5000,
   axisInfo: {
     main: {
       shouldRender: false,
@@ -75,6 +76,13 @@ const mutations = {
   },
   pause(state) {
     state.pauseFlag = !state.pauseFlag
+  },
+  setMilliSeconds(state, m) {
+    if ([1000, 3000, 5000, 10000].includes(m)) {
+      state.milliSeconds = m
+    } else {
+      console.error('unexpected interval.')
+    }
   }
 }
 
@@ -208,7 +216,7 @@ const actions = {
       }
       ctx.state.renderTimer = setTimeout(async () => {
         await addValueLoop()
-      }, milliSeconds)
+      }, ctx.state.milliSeconds)
     }
     await addValueLoop()
   }
