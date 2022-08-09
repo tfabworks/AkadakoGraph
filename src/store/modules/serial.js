@@ -18,8 +18,17 @@ const state = {
   firmata: null,
   nativePort: null,
   port: null,
-  intervalTimer: null,
-  intervalTimerSub: null,
+  axisInfo: {
+    main: {
+      shouldRender: false,
+      kind: ''
+    },
+    sub: {
+      shouldRender: false,
+      kind: ''
+    }
+  },
+  renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
   pauseFlag: false
@@ -42,14 +51,12 @@ const getters = {
 
 const mutations = {
   addValue(state, { isMain, newValue }) {
-    if (!state.pauseFlag) {
-      if (isMain) {
-        state.graphValue.push(newValue)
-        localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
-      } else {
-        state.graphValueSub.push(newValue)
-        localStorage.setItem('graphValueSub', JSON.stringify(state.graphValueSub))
-      }
+    if (isMain) {
+      state.graphValue.push(newValue)
+      localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
+    } else {
+      state.graphValueSub.push(newValue)
+      localStorage.setItem('graphValueSub', JSON.stringify(state.graphValueSub))
     }
   },
   resetValue(state, target) {
@@ -106,38 +113,104 @@ const actions = {
   disConnect(ctx) {
     ctx.state.port.close()
     ctx.state.firmata.on('close', () => {})
-    
-    clearInterval(ctx.state.intervalTimer)
-    clearInterval(ctx.state.intervalTimerSub)
-    ctx.state.intervalTimer = null
-    ctx.state.intervalTimerSub = null
     ctx.state.nativePort = null
     ctx.state.port = null
     ctx.state.firmata = null
+
+    // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
+    if (ctx.state.renderTimer) {
+      clearTimeout(ctx.state.renderTimer)
+    }
+    ctx.state.renderTimer = null
   },
-  render(ctx, { kind, axis }) {
-    const addValueCallback = async () => {
-      ctx.commit('addValue', {
-        isMain: axis == 'main' ? true : false,
-        newValue: {
-          y: await getData(ctx.state.firmata, kind),
-          x: dayjs().tz().format()
-        }
-      })
+  async setValueToAdd(ctx) {
+    // 両軸で描画する場合に同じ時間でプロットするためにここで時間を取得
+    const date = dayjs().tz().format()
+
+    if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) { // 両方の軸で描画する場合
+      // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に映る
+      // どちらかの取得に失敗した場合は描画しない
+      Promise.all([
+        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind),
+        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+      ])
+        .then((res) => {
+          if (res[0] != null && res[1] != null) {
+            ctx.commit('addValue', {
+              isMain: true,
+              newValue: {
+                y: res[0],
+                x: date
+              }
+            })
+
+            ctx.commit('addValue', {
+              isMain: false,
+              newValue: {
+                y: res[1],
+                x: date
+              }
+            })
+          }
+        })
+        .catch((e) => {
+          console.error(e)
+        })
+    } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind)
+      if (data != null) {
+        ctx.commit('addValue', {
+          isMain: true,
+          newValue: {
+            y: data,
+            x: date
+          }
+        })
+      }
+    } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+      if (data != null) {
+        ctx.commit('addValue', {
+          isMain: false,
+          newValue: {
+            y: data,
+            x: date
+          }
+        })
+      }
+    }
+  },
+  async render(ctx, { kind, axis }) {
+    // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
+    if (ctx.state.renderTimer) {
+      clearTimeout(ctx.state.renderTimer)
+    }
+    ctx.state.renderTimer = null
+
+    // 選択された軸のデータを消去
+    ctx.commit('resetValue', axis)
+
+    // 軸情報を更新
+    if (axis === 'main') {
+      ctx.state.axisInfo.main.shouldRender = true
+      ctx.state.axisInfo.main.kind = kind
+    } else {
+      ctx.state.axisInfo.sub.shouldRender = true
+      ctx.state.axisInfo.sub.kind = kind
     }
 
-    ctx.commit('resetValue', axis)
-    if (axis == 'main') {
-      if (ctx.state.intervalTimer != null) {
-        clearInterval(ctx.state.intervalTimer)
+    // ループさせる関数を定義
+    // ポーズ状態でなければ描画し、一定時間後にタイマーで再実行する
+    // disConnectするまではループが続く
+    const addValueLoop = async () => {
+      if (!ctx.state.pauseFlag) {
+        await ctx.dispatch('setValueToAdd')
       }
-      ctx.state.intervalTimer = setInterval(addValueCallback, milliSeconds)
-    } else if (axis == 'sub') {
-      if (ctx.state.intervalTimerSub != null) {
-        clearInterval(ctx.state.intervalTimerSub)
-      }
-      ctx.state.intervalTimerSub = setInterval(addValueCallback, milliSeconds)
+      ctx.state.renderTimer = setTimeout(async () => {
+        await addValueLoop()
+      }, milliSeconds)
     }
+    await addValueLoop()
   }
 }
 

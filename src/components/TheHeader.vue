@@ -3,7 +3,7 @@
     <h1 class="header-logo">
       <a><img
         src="../../public/img/header-tfc-logo.png"
-        alt="AkadakoGraph"
+        alt="AkaDakoGraph"
       ></a>
     </h1>
   </header>
