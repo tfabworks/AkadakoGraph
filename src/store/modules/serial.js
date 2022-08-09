@@ -135,41 +135,49 @@ const actions = {
         getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
       ])
         .then((res) => {
-          ctx.commit('addValue', {
-            isMain: true,
-            newValue: {
-              y: res[0],
-              x: date
-            }
-          })
+          if (res[0] != null && res[1] != null) {
+            ctx.commit('addValue', {
+              isMain: true,
+              newValue: {
+                y: res[0],
+                x: date
+              }
+            })
 
-          ctx.commit('addValue', {
-            isMain: false,
-            newValue: {
-              y: res[1],
-              x: date
-            }
-          })
+            ctx.commit('addValue', {
+              isMain: false,
+              newValue: {
+                y: res[1],
+                x: date
+              }
+            })
+          }
         })
         .catch((e) => {
           console.error(e)
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
-      ctx.commit('addValue', {
-        isMain: true,
-        newValue: {
-          y: await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind),
-          x: date
-        }
-      })
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind)
+      if (data != null) {
+        ctx.commit('addValue', {
+          isMain: true,
+          newValue: {
+            y: data,
+            x: date
+          }
+        })
+      }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
-      ctx.commit('addValue', {
-        isMain: false,
-        newValue: {
-          y: await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind),
-          x: date
-        }
-      })
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+      if (data != null) {
+        ctx.commit('addValue', {
+          isMain: false,
+          newValue: {
+            y: data,
+            x: date
+          }
+        })
+      }
     }
   },
   async render(ctx, { kind, axis }) {

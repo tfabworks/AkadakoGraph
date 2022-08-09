@@ -322,10 +322,10 @@ export const getData = async (firmata, kind) => {
       return await getPressure(firmata)
     } else if (kind == 'humi') {
       return await getHumidity(firmata)
-    } else {
-      return 0
     }
+    return null
   } catch (e) {
     console.error(e)
+    return null
   }
 }
