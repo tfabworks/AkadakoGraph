@@ -211,7 +211,8 @@ export default {
     return {
       graphKind: null,
       graphKindSub: null,
-      interval: '5000'
+      interval: '5000',
+      shouldReDo: true
     }
   },
   computed: {
@@ -240,8 +241,17 @@ export default {
         })
       }
     },
-    interval: function() {
-      this.$store.commit('serial/setMilliSeconds', Number(this.interval))
+    interval: function(_, oldValue) {
+      if (this.shouldReDo) {
+        this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
+          .catch(() => {
+            console.error('unexpected interval value.')
+            this.shouldReDo = false
+            this.interval = oldValue
+          })
+      }else {
+        this.shouldReDo = true
+      }
     },
     connected: function() {
       if (!this.connected) {

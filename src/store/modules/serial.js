@@ -87,13 +87,6 @@ const mutations = {
   },
   pause(state) {
     state.pauseFlag = !state.pauseFlag
-  },
-  setMilliSeconds(state, m) {
-    if (milliSecondsList.includes(m)) {
-      state.milliSeconds = m
-    } else {
-      console.error('unexpected interval.')
-    }
   }
 }
 
@@ -230,6 +223,15 @@ const actions = {
       }, ctx.state.milliSeconds)
     }
     await addValueLoop()
+  },
+  setMilliSeconds(ctx, payload) {
+    return new Promise((resolve, reject) => {
+      if (milliSecondsList.includes(payload)) {
+        ctx.state.milliSeconds = payload
+        resolve()
+      }
+      reject()
+    })
   }
 }
 
