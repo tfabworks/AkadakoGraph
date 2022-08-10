@@ -105,6 +105,8 @@ const getTemperature = async (firmata, noLoop) => {
 }
 
 const getPressure = async (firmata) => {
+  firmata.i2cConfig()
+
   const address = 118
   let adc = 0
   let dig_P1 = 0
@@ -222,6 +224,8 @@ const getPressure = async (firmata) => {
 }
 
 const getHumidity = async (firmata) => {
+  firmata.i2cConfig()
+  
   const address = 118
   let adc = 0
   let dig_H1 = 0
