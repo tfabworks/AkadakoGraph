@@ -277,7 +277,7 @@ export default {
           date.getSeconds()
     },
     async exportData(isCsv, isSJIS) {
-      const name = 'AkaDakoGraph'
+      const name = 'TFabGraph[AkaDako版]'
 
       // ワークシート全体の設定
       const workbook = new ExcelJS.Workbook()
