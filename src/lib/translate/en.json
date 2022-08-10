@@ -1,7 +1,7 @@
 {
     "general": {
         "reset": "Reset",
-        "playback": "Playback",
+        "playback": "Start",
         "stop": "Stop",
         "download": "Download"
     },
