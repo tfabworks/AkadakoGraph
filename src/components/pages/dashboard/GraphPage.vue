@@ -58,6 +58,41 @@
         <b-icon icon="file-download" />
         <span class="button_text">{{ $t("general.download") }}</span>
       </a>
+      <select
+        v-model="interval"
+        :disabled="!connected"
+      >
+        <option value="1000">
+          1秒
+        </option>
+        <option value="3000">
+          3秒
+        </option>
+        <option value="5000">
+          5秒
+        </option>
+        <option value="10000">
+          10秒
+        </option>
+        <option value="30000">
+          30秒
+        </option>
+        <option value="60000">
+          1分
+        </option>
+        <option value="180000">
+          3分
+        </option>
+        <option value="300000">
+          5分
+        </option>
+        <option value="600000">
+          10分
+        </option>
+        <option value="1800000">
+          30分
+        </option>
+      </select>
       <a
         v-if="!pauseFlag"
         id="pause-btn"
@@ -175,7 +210,9 @@ export default {
   data() {
     return {
       graphKind: null,
-      graphKindSub: null
+      graphKindSub: null,
+      interval: '5000',
+      shouldReDo: true
     }
   },
   computed: {
@@ -202,6 +239,18 @@ export default {
           kind: this.graphKindSub,
           axis: 'sub'
         })
+      }
+    },
+    interval: function(_, oldValue) {
+      if (this.shouldReDo) {
+        this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
+          .catch(() => {
+            console.error('unexpected interval value.')
+            this.shouldReDo = false
+            this.interval = oldValue
+          })
+      }else {
+        this.shouldReDo = true
       }
     },
     connected: function() {

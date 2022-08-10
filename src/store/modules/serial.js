@@ -11,13 +11,25 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault(dayjs.tz.guess())
 
-const milliSeconds = 1000
+const milliSecondsList = [
+  1000,
+  3000,
+  5000,
+  10000,
+  30000,
+  60000,
+  180000,
+  300000,
+  600000,
+  1800000
+]
 
 const state = {
   connectState: 'disConnect',
   firmata: null,
   nativePort: null,
   port: null,
+  milliSeconds: 5000,
   axisInfo: {
     main: {
       shouldRender: false,
@@ -208,9 +220,18 @@ const actions = {
       }
       ctx.state.renderTimer = setTimeout(async () => {
         await addValueLoop()
-      }, milliSeconds)
+      }, ctx.state.milliSeconds)
     }
     await addValueLoop()
+  },
+  setMilliSeconds(ctx, payload) {
+    return new Promise((resolve, reject) => {
+      if (milliSecondsList.includes(payload)) {
+        ctx.state.milliSeconds = payload
+        resolve()
+      }
+      reject()
+    })
   }
 }
 
