@@ -11,7 +11,18 @@ dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault(dayjs.tz.guess())
 
-// const milliSeconds = 1000
+const milliSecondsList = [
+  1000,
+  3000,
+  5000,
+  10000,
+  30000,
+  60000,
+  180000,
+  300000,
+  600000,
+  1800000
+]
 
 const state = {
   connectState: 'disConnect',
@@ -78,7 +89,7 @@ const mutations = {
     state.pauseFlag = !state.pauseFlag
   },
   setMilliSeconds(state, m) {
-    if ([1000, 3000, 5000, 10000].includes(m)) {
+    if (milliSecondsList.includes(m)) {
       state.milliSeconds = m
     } else {
       console.error('unexpected interval.')
