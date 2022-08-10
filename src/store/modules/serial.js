@@ -43,7 +43,7 @@ const state = {
   renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
-  pauseFlag: true
+  shouldPause: true
 }
 
 const getters = {
@@ -85,8 +85,8 @@ const mutations = {
       localStorage.setItem('graphValueSub', JSON.stringify([]))
     }
   },
-  pause(state) {
-    state.pauseFlag = !state.pauseFlag
+  setShouldPause(state, payload) {
+    state.shouldPause = payload
   }
 }
 
@@ -215,7 +215,7 @@ const actions = {
     // ポーズ状態でなければ描画し、一定時間後にタイマーで再実行する
     // disConnectするまではループが続く
     const addValueLoop = async () => {
-      if (!ctx.state.pauseFlag) {
+      if (!ctx.state.shouldPause) {
         await ctx.dispatch('setValueToAdd')
       }
       ctx.state.renderTimer = setTimeout(async () => {

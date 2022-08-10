@@ -94,10 +94,10 @@
         </option>
       </select>
       <a
-        v-if="!pauseFlag"
+        v-if="!shouldPause"
         id="pause-btn"
         class="btn-square-little-rich"
-        @click="pause"
+        @click="reverseShouldPause"
       >
         <b-icon
           pack="fas"
@@ -109,7 +109,7 @@
         v-else
         id="play-btn"
         class="btn-square-little-rich"
-        @click="pause"
+        @click="reverseShouldPause"
       >
         <b-icon
           pack="fas"
@@ -217,7 +217,7 @@ export default {
   },
   computed: {
     ...mapState({
-      pauseFlag: state => state.serial.pauseFlag
+      shouldPause: state => state.serial.shouldPause
     }),
     ...mapGetters({
       source: 'serial/values',
@@ -226,6 +226,8 @@ export default {
   },
   watch: {
     graphKind: async function() {
+      this.reset()
+      this.$store.commit('serial/setShouldPause', true)
       if (this.graphKind != null) {
         await this.$store.dispatch('serial/render', {
           kind: this.graphKind,
@@ -234,6 +236,8 @@ export default {
       }
     },
     graphKindSub: async function() {
+      this.reset()
+      this.$store.commit('serial/setShouldPause', true)
       if (this.graphKindSub != null) {
         await this.$store.dispatch('serial/render', {
           kind: this.graphKindSub,
@@ -264,8 +268,8 @@ export default {
     reset() {
       this.$store.commit('serial/resetValue', 'all')
     },
-    pause() {
-      this.$store.commit('serial/pause')
+    reverseShouldPause() {
+      this.$store.commit('serial/setShouldPause', !this.shouldPause)
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)
