@@ -43,7 +43,7 @@ const state = {
   renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
-  pauseFlag: false
+  pauseFlag: true
 }
 
 const getters = {
