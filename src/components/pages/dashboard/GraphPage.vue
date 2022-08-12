@@ -53,7 +53,7 @@
       <a
         id="dl-csv"
         class="btn-square-little-rich"
-        @click="modalOpen"
+        @click="DLModalOpen"
       >
         <b-icon icon="file-download" />
         <span class="button_text">{{ $t("general.download") }}</span>
@@ -120,7 +120,7 @@
       <a
         id="delete-btn"
         class="btn-square-little-rich"
-        @click="reset"
+        @click="deleteModalOpen"
       >
         <b-icon
           pack="fas"
@@ -129,6 +129,29 @@
         <span class="button_text">{{ $t("general.reset") }}</span>
       </a>
     </div>
+    <modal name="delete-confirm">
+      <div class="modal-header">
+        <h2>確認</h2>
+      </div>
+      <div class="modal-body">
+        <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
+        <p>データを保存したい場合はこの処理をキャンセルし、「ダウンロード」から適切な形式でデータをダウンロードした上で再度実行してください</p>
+        <a
+          id="delete-btn"
+          class="btn-square-little-rich"
+          @click="reset(); deleteModalClose()"
+        >
+          <span class="button_text">実行</span>
+        </a>
+        <a
+          id="delete-btn"
+          class="btn-square-little-rich"
+          @click="deleteModalClose"
+        >
+          <span class="button_text">キャンセル</span>
+        </a>
+      </div>
+    </modal>
     <modal
       name="download"
     >
@@ -185,7 +208,7 @@
         <div class="modal-body">
           <button 
             class="modal-close-btn"
-            @click="modalClose"
+            @click="DLModalClose"
           >
             <i class="far fa-times-circle fa-lg" />閉じる
           </button>
@@ -348,10 +371,16 @@ export default {
       link.click()
       link.remove()
     },
-    modalOpen() {
+    deleteModalOpen() {
+      this.$modal.show('delete-confirm')
+    },
+    deleteModalClose() {
+      this.$modal.hide('delete-confirm')
+    },
+    DLModalOpen() {
       this.$modal.show('download')
     },
-    modalClose() {
+    DLModalClose() {
       this.$modal.hide('download')
     }
   }
