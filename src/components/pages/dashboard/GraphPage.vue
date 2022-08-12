@@ -12,12 +12,12 @@
           <option value="temp">
             {{ $t("device.temperture") }}
           </option>
-          <option value="pres">
+          <!-- <option value="pres">
             {{ $t("device.pressure") }}
           </option>
           <option value="humi">
             {{ $t("device.humidity") }}
-          </option>
+          </option> -->
         </select>
 
         <select
@@ -30,12 +30,12 @@
           <option value="temp">
             {{ $t("device.temperture") }}
           </option>
-          <option value="pres">
+          <!-- <option value="pres">
             {{ $t("device.pressure") }}
           </option>
           <option value="humi">
-            {{ $t("device.humidity") }}
-          </option>
+            {{ $t("device.humidity") }} -->
+          <!-- </option> -->
         </select>
       </div>
 
