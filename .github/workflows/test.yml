@@ -33,9 +33,9 @@ jobs:
           name: dist
           path: ./dist
           retention-days: 1
-  deployToS3:
+  CD:
     runs-on: ${{ matrix.os }}
-    name: "deploy to S3"
+    name: "Deploy to S3 & Invalidate CloudFront"
     strategy:
       matrix:
         os: [ubuntu-latest]
@@ -53,18 +53,4 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ matrix.region }}
       - run: aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME_TEST }}/
-  InvalidateCloudFront:
-    runs-on: ${{ matrix.os }}
-    name: "Invalidate CloudFront"
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-        region: [ap-northeast-1]
-    needs: deployToS3
-    steps:
-      - uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ matrix.region }}
       - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_DISTRIBUTION_TEST }} --paths "/*"
