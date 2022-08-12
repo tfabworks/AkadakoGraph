@@ -43,6 +43,8 @@ const state = {
   renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
+  graphKind: '',
+  graphKindSub: '',
   shouldPause: true
 }
 
@@ -84,6 +86,14 @@ const mutations = {
       state.graphValueSub = []
       localStorage.setItem('graphValueSub', JSON.stringify([]))
     }
+  },
+  changeKind(state, payload) {
+    state.graphKind = payload
+    localStorage.setItem('graphKind', payload)
+  },
+  changeKindSub(state, payload) {
+    state.graphKindSub = payload
+    localStorage.setItem('graphKindSub', payload)
   },
   setShouldPause(state, payload) {
     state.shouldPause = payload
@@ -140,7 +150,7 @@ const actions = {
     const date = dayjs().tz().format()
 
     if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) { // 両方の軸で描画する場合
-      // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に映る
+      // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
       Promise.all([
         getData(ctx.state.firmata, ctx.state.axisInfo.main.kind),

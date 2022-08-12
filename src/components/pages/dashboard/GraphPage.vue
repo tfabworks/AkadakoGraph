@@ -6,16 +6,16 @@
           v-model="graphKind"
           :disabled="!connected"
         >
-          <option value="lux">
+          <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
-          <option value="temp">
+          <option value="気温[℃]">
             {{ $t("device.temperture") }}
           </option>
-          <!-- <option value="pres">
+          <!-- <option value="気圧[hPa]">
             {{ $t("device.pressure") }}
           </option>
-          <option value="humi">
+          <option value="湿度[%]">
             {{ $t("device.humidity") }}
           </option> -->
         </select>
@@ -24,16 +24,16 @@
           v-model="graphKindSub"
           :disabled="!connected"
         >
-          <option value="lux">
+          <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
-          <option value="temp">
+          <option value="気温[℃]">
             {{ $t("device.temperture") }}
           </option>
-          <!-- <option value="pres">
+          <!-- <option value="気圧[hPa]">
             {{ $t("device.pressure") }}
           </option>
-          <option value="humi">
+          <option value="湿度[%]">
             {{ $t("device.humidity") }} -->
           <!-- </option> -->
         </select>
@@ -232,20 +232,36 @@ export default {
   },
   data() {
     return {
-      graphKind: null,
-      graphKindSub: null,
       interval: '5000',
       shouldReDo: true
     }
   },
   computed: {
     ...mapState({
-      shouldPause: state => state.serial.shouldPause
+      shouldPause: state => state.serial.shouldPause,
+      graphValue: state => state.serial.graphValue,
+      graphValueSub: state => state.serial.graphValueSub
     }),
     ...mapGetters({
       source: 'serial/values',
       connected: 'serial/connected'
-    })
+    }),
+    graphKind: {
+      get() {
+        return this.$store.state.serial.graphKind
+      },
+      set(payload) {
+        this.$store.commit('serial/changeKind', payload)
+      }
+    },
+    graphKindSub: {
+      get() {
+        return this.$store.state.serial.graphKindSub
+      },
+      set(payload) {
+        this.$store.commit('serial/changeKindSub', payload)
+      }
+    }
   },
   watch: {
     graphKind: async function() {
@@ -304,7 +320,15 @@ export default {
           date.getSeconds()
     },
     async exportData(isCsv, isSJIS) {
-      const name = 'TFabGraph[AkaDako版]'
+      const name = 'TFabGraph_AkaDako版'
+
+      // それぞれの軸のデータがあればローカルストレージから項目名を取得
+      // ローカルストレージに値がなければ「主軸」等の名前を付ける
+      // データが無い場合は空欄にする
+      const valueHeader = {
+        main: this.graphValue.length ? localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '主軸' : '',
+        sub: this.graphValueSub.length ? localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : '第2軸' : '',
+      }
 
       // ワークシート全体の設定
       const workbook = new ExcelJS.Workbook()
@@ -312,8 +336,8 @@ export default {
       const worksheet = workbook.getWorksheet(name)
       worksheet.columns = [
         { header: '時刻', key: 'x' },
-        { header: '主軸の値', key: 'yMain' },
-        { header: '第2軸の値', key: 'ySub' }
+        { header: valueHeader.main, key: 'yMain' },
+        { header: valueHeader.sub, key: 'ySub' }
       ]
 
       // ファイルの元となるデータの配列
