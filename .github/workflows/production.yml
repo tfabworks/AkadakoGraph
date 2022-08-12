@@ -16,11 +16,7 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.nodeVersion }}
-      - uses: actions/cache@v2
-        id: node_modules_cache
-        with:
-          path: node_modules
-          key: ${{ matrix.os }}-node-v${{ matrix.nodeVersion }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          cache: 'yarn'
       - if: steps.node_modules_cache.outputs.cache-hit != 'true'
         run: yarn
       - run: yarn lint
