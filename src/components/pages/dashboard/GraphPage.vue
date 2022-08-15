@@ -6,6 +6,7 @@
           v-model="graphKind"
           :disabled="!connected"
         >
+          <option value="" />
           <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
@@ -24,6 +25,7 @@
           v-model="graphKindSub"
           :disabled="!connected"
         >
+          <option value="" />
           <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
@@ -261,40 +263,34 @@ export default {
     }),
     graphKind: {
       get() {
-        return this.$store.state.serial.graphKind
+        return this.$store.state.serial.axisInfo.main.kind
       },
       set(payload) {
-        this.$store.commit('serial/changeKind', payload)
+        this.$store.commit('serial/setKind', payload)
       }
     },
     graphKindSub: {
       get() {
-        return this.$store.state.serial.graphKindSub
+        return this.$store.state.serial.axisInfo.sub.kind
       },
       set(payload) {
-        this.$store.commit('serial/changeKindSub', payload)
+        this.$store.commit('serial/setKindSub', payload)
       }
     }
   },
   watch: {
     graphKind: async function() {
       this.reset()
-      this.$store.commit('serial/setShouldPause', true)
-      if (this.graphKind != null) {
-        await this.$store.dispatch('serial/render', {
-          kind: this.graphKind,
-          axis: 'main'
-        })
+      this.$store.dispatch('serial/setShouldPause', true)
+      if (this.graphKind) {
+        await this.$store.dispatch('serial/render', true)
       }
     },
     graphKindSub: async function() {
       this.reset()
-      this.$store.commit('serial/setShouldPause', true)
-      if (this.graphKindSub != null) {
-        await this.$store.dispatch('serial/render', {
-          kind: this.graphKindSub,
-          axis: 'sub'
-        })
+      this.$store.dispatch('serial/setShouldPause', true)
+      if (this.graphKindSub) {
+        await this.$store.dispatch('serial/render', false)
       }
     },
     interval: function(_, oldValue) {
@@ -308,12 +304,6 @@ export default {
       }else {
         this.shouldReDo = true
       }
-    },
-    connected: function() {
-      if (!this.connected) {
-        this.graphKind = null
-        this.graphKindSub = null
-      }
     }
   },
   methods: {
@@ -321,7 +311,7 @@ export default {
       this.$store.commit('serial/resetValue', 'all')
     },
     reverseShouldPause() {
-      this.$store.commit('serial/setShouldPause', !this.shouldPause)
+      this.$store.dispatch('serial/setShouldPause', !this.shouldPause)
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)

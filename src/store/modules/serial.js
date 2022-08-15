@@ -24,6 +24,11 @@ const milliSecondsList = [
   1800000
 ]
 
+const tmpAxisInfo = {
+  main: localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '',
+  sub: localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : ''
+}
+
 const state = {
   connectState: 'disConnect',
   firmata: null,
@@ -32,19 +37,17 @@ const state = {
   milliSeconds: 5000,
   axisInfo: {
     main: {
-      shouldRender: false,
-      kind: ''
+      shouldRender: tmpAxisInfo.main ? true : false,
+      kind: tmpAxisInfo.main
     },
     sub: {
-      shouldRender: false,
-      kind: ''
+      shouldRender: tmpAxisInfo.sub ? true : false,
+      kind: tmpAxisInfo.sub
     }
   },
   renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
-  graphKind: '',
-  graphKindSub: '',
   shouldPause: true
 }
 
@@ -87,16 +90,26 @@ const mutations = {
       localStorage.setItem('graphValueSub', JSON.stringify([]))
     }
   },
-  changeKind(state, payload) {
-    state.graphKind = payload
+  setKind(state, payload) {
+    state.axisInfo.main.kind = payload
     localStorage.setItem('graphKind', payload)
+    if (!payload) {
+      state.axisInfo.main.shouldRender = false
+    }
   },
-  changeKindSub(state, payload) {
-    state.graphKindSub = payload
+  setKindSub(state, payload) {
+    state.axisInfo.sub.kind = payload
     localStorage.setItem('graphKindSub', payload)
+    if (!payload) {
+      state.axisInfo.sub.shouldRender = false
+    }
   },
-  setShouldPause(state, payload) {
-    state.shouldPause = payload
+  setShouldRender(state, { isMain, payload }) {
+    if (isMain) {
+      state.axisInfo.main.shouldRender = payload
+    } else {
+      state.axisInfo.sub.shouldRender = payload
+    }
   }
 }
 
@@ -138,6 +151,9 @@ const actions = {
     ctx.state.nativePort = null
     ctx.state.port = null
     ctx.state.firmata = null
+    ctx.state.axisInfo.main.shouldRender = false
+    ctx.state.axisInfo.sub.shouldRender = false
+    ctx.state.shouldPause = true
 
     // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
     if (ctx.state.renderTimer) {
@@ -202,7 +218,7 @@ const actions = {
       }
     }
   },
-  async render(ctx, { kind, axis }) {
+  async render(ctx, isMain) {
     // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
     if (ctx.state.renderTimer) {
       clearTimeout(ctx.state.renderTimer)
@@ -210,29 +226,50 @@ const actions = {
     ctx.state.renderTimer = null
 
     // 選択された軸のデータを消去
-    ctx.commit('resetValue', axis)
+    ctx.commit('resetValue', isMain ? 'main' : 'sub')
 
-    // 軸情報を更新
-    if (axis === 'main') {
-      ctx.state.axisInfo.main.shouldRender = true
-      ctx.state.axisInfo.main.kind = kind
-    } else {
-      ctx.state.axisInfo.sub.shouldRender = true
-      ctx.state.axisInfo.sub.kind = kind
-    }
+    // 各軸で描画すべきかどうかを更新
+    ctx.commit('setShouldRender', {
+      isMain: isMain,
+      payload: isMain ? (ctx.state.axisInfo.main.kind === '' ? false : true) : (ctx.state.axisInfo.main.kind === '' ? false : true)
+    })
 
     // ループさせる関数を定義
     // ポーズ状態でなければ描画し、一定時間後にタイマーで再実行する
     // disConnectするまではループが続く
-    const addValueLoop = async () => {
-      if (!ctx.state.shouldPause) {
-        await ctx.dispatch('setValueToAdd')
-      }
-      ctx.state.renderTimer = setTimeout(async () => {
-        await addValueLoop()
-      }, ctx.state.milliSeconds)
+
+    await ctx.dispatch('addValueLoop')
+  },
+  async addValueLoop(ctx) {
+    if (!ctx.state.shouldPause) {
+      await ctx.dispatch('setValueToAdd')
     }
-    await addValueLoop()
+    ctx.state.renderTimer = setTimeout(async () => {
+      await ctx.dispatch('addValueLoop')
+    }, ctx.state.milliSeconds)
+  },
+  async setShouldPause(ctx, payload) {
+    ctx.state.shouldPause = payload
+
+    if (state.firmata && state.firmata.isReady) {
+      // 各軸で描画すべきかどうかを更新
+      ctx.commit('setShouldRender', {
+        isMain: true,
+        payload: ctx.state.axisInfo.main.kind === '' ? false : true
+      })
+      ctx.commit('setShouldRender', {
+        isMain: false,
+        payload: ctx.state.axisInfo.sub.kind === '' ? false : true
+      })
+
+      if (!payload) {
+        // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
+        if (ctx.state.renderTimer) {
+          clearTimeout(ctx.state.renderTimer)
+        }
+        await ctx.dispatch('addValueLoop')
+      }
+    }
   },
   setMilliSeconds(ctx, payload) {
     return new Promise((resolve, reject) => {
