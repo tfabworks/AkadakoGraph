@@ -55,77 +55,86 @@
         class="btn-square-little-rich"
         @click="DLModalOpen"
       >
-        <b-icon icon="file-download" />
+        <img
+          src="../../../../public/img/icon-download.svg"
+          alt="ダウンロード"
+          class="button_icon"
+        >
         <span class="button_text">{{ $t("general.download") }}</span>
       </a>
-      <select
-        v-model="interval"
-        :disabled="!connected"
-      >
-        <option value="1000">
-          1秒
-        </option>
-        <option value="3000">
-          3秒
-        </option>
-        <option value="5000">
-          5秒
-        </option>
-        <option value="10000">
-          10秒
-        </option>
-        <option value="30000">
-          30秒
-        </option>
-        <option value="60000">
-          1分
-        </option>
-        <option value="180000">
-          3分
-        </option>
-        <option value="300000">
-          5分
-        </option>
-        <option value="600000">
-          10分
-        </option>
-        <option value="1800000">
-          30分
-        </option>
-      </select>
-      <a
-        v-if="!shouldPause"
-        id="pause-btn"
-        class="btn-square-little-rich"
-        @click="reverseShouldPause"
-      >
-        <b-icon
-          pack="fas"
-          icon="pause"
-        />
-        <span class="button_text">{{ $t("general.stop") }}</span>
-      </a>
-      <a
-        v-else
-        id="play-btn"
-        class="btn-square-little-rich"
-        @click="reverseShouldPause"
-      >
-        <b-icon
-          pack="fas"
-          icon="play"
-        />
-        <span class="button_text">{{ $t("general.playback") }}</span>
-      </a>
+      <div class="play_button_wrap">
+        <select
+          v-model="interval"
+          :disabled="!connected"
+        >
+          <option value="1000">
+            1秒
+          </option>
+          <option value="3000">
+            3秒
+          </option>
+          <option value="5000">
+            5秒
+          </option>
+          <option value="10000">
+            10秒
+          </option>
+          <option value="30000">
+            30秒
+          </option>
+          <option value="60000">
+            1分
+          </option>
+          <option value="180000">
+            3分
+          </option>
+          <option value="300000">
+            5分
+          </option>
+          <option value="600000">
+            10分
+          </option>
+          <option value="1800000">
+            30分
+          </option>
+        </select>
+        <a
+          v-if="!shouldPause"
+          id="pause-btn"
+          class="btn-square-little-rich"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-pause.svg"
+            alt="取得停止"
+            class="button_icon"
+          >
+          <span class="button_text">{{ $t("general.stop") }}</span>
+        </a>
+        <a
+          v-else
+          id="play-btn"
+          class="btn-square-little-rich"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-play.svg"
+            alt="取得開始"
+            class="button_icon"
+          >
+          <span class="button_text">{{ $t("general.playback") }}</span>
+        </a>
+      </div>
       <a
         id="delete-btn"
         class="btn-square-little-rich"
         @click="deleteModalOpen"
       >
-        <b-icon
-          pack="fas"
-          icon="trash"
-        />
+        <img
+          src="../../../../public/img/icon-reset.svg"
+          alt="リセット"
+          class="button_icon"
+        >
         <span class="button_text">{{ $t("general.reset") }}</span>
       </a>
     </div>
@@ -141,13 +150,23 @@
           class="btn-square-little-rich"
           @click="reset(); deleteModalClose()"
         >
+          <img
+            src="../../../../public/img/icon-exe.svg"
+            alt="実行"
+            class="button_icon"
+          >
           <span class="button_text">実行</span>
         </a>
         <a
           id="delete-btn"
-          class="btn-square-little-rich"
+          class="btn-square-little-rich cancel"
           @click="deleteModalClose"
         >
+          <img
+            src="../../../../public/img/icon-cancel.svg"
+            alt="キャンセル"
+            class="button_icon"
+          >
           <span class="button_text">キャンセル</span>
         </a>
       </div>
@@ -170,9 +189,9 @@
             <img
               src="../../../../public/img/icon-csv.svg"
               alt="csvファイル"
-              class="btn-icon"
+              class="button_icon"
             >
-            <span class="btn-text">csv形式(UTF-8)</span>
+            <span class="button_text">csv形式(UTF-8)</span>
           </button>
           <button
             class="btn-square-little-rich"
@@ -181,9 +200,9 @@
             <img
               src="../../../../public/img/icon-csv.svg"
               alt="csvファイル"
-              class="btn-icon"
+              class="button_icon"
             >
-            <span class="btn-text">csv形式(SJIS)</span>
+            <span class="button_text">csv形式(SJIS)</span>
           </button>
           <button 
             class="btn-square-little-rich"
@@ -192,7 +211,7 @@
             <img
               src="../../../../public/img/icon-xlsx.svg"
               alt="xlsxファイル"
-              class="btn-icon"
+              class="button_icon"
             >
             <span class="button_text">xlsx形式</span>
           </button>
@@ -429,17 +448,20 @@ select{
   display: flex;
   align-items:center;
   justify-content:center;
-  padding: 10px 5px;
+  padding: 10px 15px;
   text-decoration: none;
   color: #FFF;
   background:#27ae60;/*色*/
   border: solid 1px #27ae60;/*線色*/
   border-radius: 4px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
   text-shadow: 0 1px 0 rgba(0,0,0,0.2);
   margin: 10px 15px;
-  min-width: 180px;
   height: 50px;
+}
+.btn-square-little-rich.cancel {
+  background:#ff0000;
+  border: solid 1px #ff0000;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.2);
 }
 .btn-square-little-rich:active {
   /*押したとき*/
@@ -447,18 +469,39 @@ select{
   box-shadow: none;
   text-shadow: none;
 }
-.btn-icon{
+.button_icon{
   display:inline-block;
   margin-right:3px;
   width:20px;
   height:auto;
 }
-
-.btn-text{
+.button_text{
   padding: 0 5px;
   font-size:15px;
+  font-weight:bold;
 }
-
+.play_button_wrap{
+  display:flex;
+  align-items:center;
+  margin:0 15px;
+}
+.play_button_wrap select{
+  position: relative;
+  padding: 0 5px;
+  margin-right:5px;
+  height:50px;
+  line-height:50px;
+  border: 2px solid #26AE60;
+  border-radius: 4px;
+  color: #26AE60;
+  font-size:16px;
+  font-weight:bold;
+  text-align:center;
+  cursor: pointer;
+}
+.play_button_wrap .btn-square-little-rich{
+  margin:0;
+}
 .content-box {
   text-align: center;
   width: 100%;
@@ -468,8 +511,7 @@ select{
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-#loader
-{
+#loader{
   display: inline-block;
   position: relative;
   width: 30px;
@@ -479,8 +521,7 @@ select{
   border-right-color: transparent;
   animation: spin 1s linear infinite;
 }
-@keyframes spin
-{
+@keyframes spin{
     0% { transform: rotate(0deg)}
     50%  { transform: rotate(180deg)}
     100%   { transform: rotate(360deg)}
@@ -498,9 +539,13 @@ select{
   justify-content:center;
   flex-wrap:wrap;
   align-items:center;
-  padding:40px 0;
-
+  padding:25px;
   min-height:250px;
+}
+.modal-body p{
+  margin-bottom:1em;
+  font-size:16px;
+  line-height:1.6;
 }
 .modal-body button{
   cursor:pointer;
