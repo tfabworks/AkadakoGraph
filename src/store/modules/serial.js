@@ -43,7 +43,9 @@ const state = {
   renderTimer: null,
   graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
   graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
-  pauseFlag: false
+  graphKind: '',
+  graphKindSub: '',
+  shouldPause: true
 }
 
 const getters = {
@@ -85,8 +87,16 @@ const mutations = {
       localStorage.setItem('graphValueSub', JSON.stringify([]))
     }
   },
-  pause(state) {
-    state.pauseFlag = !state.pauseFlag
+  changeKind(state, payload) {
+    state.graphKind = payload
+    localStorage.setItem('graphKind', payload)
+  },
+  changeKindSub(state, payload) {
+    state.graphKindSub = payload
+    localStorage.setItem('graphKindSub', payload)
+  },
+  setShouldPause(state, payload) {
+    state.shouldPause = payload
   }
 }
 
@@ -140,7 +150,7 @@ const actions = {
     const date = dayjs().tz().format()
 
     if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) { // 両方の軸で描画する場合
-      // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に映る
+      // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
       Promise.all([
         getData(ctx.state.firmata, ctx.state.axisInfo.main.kind),
@@ -215,7 +225,7 @@ const actions = {
     // ポーズ状態でなければ描画し、一定時間後にタイマーで再実行する
     // disConnectするまではループが続く
     const addValueLoop = async () => {
-      if (!ctx.state.pauseFlag) {
+      if (!ctx.state.shouldPause) {
         await ctx.dispatch('setValueToAdd')
       }
       ctx.state.renderTimer = setTimeout(async () => {

@@ -1,8 +1,8 @@
 {
     "general": {
         "reset": "リセット",
-        "playback": "再生",
-        "stop": "停止",
+        "playback": "取得開始",
+        "stop": "取得停止",
         "download": "ダウンロード"
     },
     "device": {

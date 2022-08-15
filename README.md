@@ -1,4 +1,4 @@
-# AkaDakoGraph
+# TFabGraph[AkaDako版]
 
 ## インストール
 

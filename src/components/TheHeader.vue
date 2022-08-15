@@ -3,7 +3,7 @@
     <h1 class="header-logo">
       <a><img
         src="../../public/img/header-tfc-logo.png"
-        alt="AkaDakoGraph"
+        alt="TFabGraph[AkaDako版]"
       ></a>
     </h1>
   </header>

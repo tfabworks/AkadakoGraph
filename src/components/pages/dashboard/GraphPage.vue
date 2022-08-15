@@ -6,36 +6,36 @@
           v-model="graphKind"
           :disabled="!connected"
         >
-          <option value="lux">
+          <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
-          <option value="temp">
+          <option value="気温[℃]">
             {{ $t("device.temperture") }}
           </option>
-          <option value="pres">
+          <!-- <option value="気圧[hPa]">
             {{ $t("device.pressure") }}
           </option>
-          <option value="humi">
+          <option value="湿度[%]">
             {{ $t("device.humidity") }}
-          </option>
+          </option> -->
         </select>
 
         <select
           v-model="graphKindSub"
           :disabled="!connected"
         >
-          <option value="lux">
+          <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
-          <option value="temp">
+          <option value="気温[℃]">
             {{ $t("device.temperture") }}
           </option>
-          <option value="pres">
+          <!-- <option value="気圧[hPa]">
             {{ $t("device.pressure") }}
           </option>
-          <option value="humi">
-            {{ $t("device.humidity") }}
-          </option>
+          <option value="湿度[%]">
+            {{ $t("device.humidity") }} -->
+          <!-- </option> -->
         </select>
       </div>
 
@@ -53,7 +53,7 @@
       <a
         id="dl-csv"
         class="btn-square-little-rich"
-        @click="modalOpen"
+        @click="DLModalOpen"
       >
         <b-icon icon="file-download" />
         <span class="button_text">{{ $t("general.download") }}</span>
@@ -94,10 +94,10 @@
         </option>
       </select>
       <a
-        v-if="!pauseFlag"
+        v-if="!shouldPause"
         id="pause-btn"
         class="btn-square-little-rich"
-        @click="pause"
+        @click="reverseShouldPause"
       >
         <b-icon
           pack="fas"
@@ -109,7 +109,7 @@
         v-else
         id="play-btn"
         class="btn-square-little-rich"
-        @click="pause"
+        @click="reverseShouldPause"
       >
         <b-icon
           pack="fas"
@@ -120,7 +120,7 @@
       <a
         id="delete-btn"
         class="btn-square-little-rich"
-        @click="reset"
+        @click="deleteModalOpen"
       >
         <b-icon
           pack="fas"
@@ -129,6 +129,29 @@
         <span class="button_text">{{ $t("general.reset") }}</span>
       </a>
     </div>
+    <modal name="delete-confirm">
+      <div class="modal-header">
+        <h2>確認</h2>
+      </div>
+      <div class="modal-body">
+        <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
+        <p>データを保存したい場合はこの処理をキャンセルし、「ダウンロード」から適切な形式でデータをダウンロードした上で再度実行してください</p>
+        <a
+          id="delete-btn"
+          class="btn-square-little-rich"
+          @click="reset(); deleteModalClose()"
+        >
+          <span class="button_text">実行</span>
+        </a>
+        <a
+          id="delete-btn"
+          class="btn-square-little-rich"
+          @click="deleteModalClose"
+        >
+          <span class="button_text">キャンセル</span>
+        </a>
+      </div>
+    </modal>
     <modal
       name="download"
     >
@@ -185,7 +208,7 @@
         <div class="modal-body">
           <button 
             class="modal-close-btn"
-            @click="modalClose"
+            @click="DLModalClose"
           >
             <i class="far fa-times-circle fa-lg" />閉じる
           </button>
@@ -209,23 +232,41 @@ export default {
   },
   data() {
     return {
-      graphKind: null,
-      graphKindSub: null,
       interval: '5000',
       shouldReDo: true
     }
   },
   computed: {
     ...mapState({
-      pauseFlag: state => state.serial.pauseFlag
+      shouldPause: state => state.serial.shouldPause,
+      graphValue: state => state.serial.graphValue,
+      graphValueSub: state => state.serial.graphValueSub
     }),
     ...mapGetters({
       source: 'serial/values',
       connected: 'serial/connected'
-    })
+    }),
+    graphKind: {
+      get() {
+        return this.$store.state.serial.graphKind
+      },
+      set(payload) {
+        this.$store.commit('serial/changeKind', payload)
+      }
+    },
+    graphKindSub: {
+      get() {
+        return this.$store.state.serial.graphKindSub
+      },
+      set(payload) {
+        this.$store.commit('serial/changeKindSub', payload)
+      }
+    }
   },
   watch: {
     graphKind: async function() {
+      this.reset()
+      this.$store.commit('serial/setShouldPause', true)
       if (this.graphKind != null) {
         await this.$store.dispatch('serial/render', {
           kind: this.graphKind,
@@ -234,6 +275,8 @@ export default {
       }
     },
     graphKindSub: async function() {
+      this.reset()
+      this.$store.commit('serial/setShouldPause', true)
       if (this.graphKindSub != null) {
         await this.$store.dispatch('serial/render', {
           kind: this.graphKindSub,
@@ -264,8 +307,8 @@ export default {
     reset() {
       this.$store.commit('serial/resetValue', 'all')
     },
-    pause() {
-      this.$store.commit('serial/pause')
+    reverseShouldPause() {
+      this.$store.commit('serial/setShouldPause', !this.shouldPause)
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)
@@ -277,7 +320,15 @@ export default {
           date.getSeconds()
     },
     async exportData(isCsv, isSJIS) {
-      const name = 'AkaDakoGraph'
+      const name = 'TFabGraph_AkaDako版'
+
+      // それぞれの軸のデータがあればローカルストレージから項目名を取得
+      // ローカルストレージに値がなければ「主軸」等の名前を付ける
+      // データが無い場合は空欄にする
+      const valueHeader = {
+        main: this.graphValue.length ? localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '主軸' : '',
+        sub: this.graphValueSub.length ? localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : '第2軸' : '',
+      }
 
       // ワークシート全体の設定
       const workbook = new ExcelJS.Workbook()
@@ -285,8 +336,8 @@ export default {
       const worksheet = workbook.getWorksheet(name)
       worksheet.columns = [
         { header: '時刻', key: 'x' },
-        { header: '主軸の値', key: 'yMain' },
-        { header: '第2軸の値', key: 'ySub' }
+        { header: valueHeader.main, key: 'yMain' },
+        { header: valueHeader.sub, key: 'ySub' }
       ]
 
       // ファイルの元となるデータの配列
@@ -344,10 +395,16 @@ export default {
       link.click()
       link.remove()
     },
-    modalOpen() {
+    deleteModalOpen() {
+      this.$modal.show('delete-confirm')
+    },
+    deleteModalClose() {
+      this.$modal.hide('delete-confirm')
+    },
+    DLModalOpen() {
       this.$modal.show('download')
     },
-    modalClose() {
+    DLModalClose() {
       this.$modal.hide('download')
     }
   }
