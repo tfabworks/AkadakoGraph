@@ -6,6 +6,7 @@
           v-model="graphKind"
           :disabled="!connected"
         >
+          <option value="" />
           <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
@@ -24,6 +25,7 @@
           v-model="graphKindSub"
           :disabled="!connected"
         >
+          <option value="" />
           <option value="明るさ[lux]">
             {{ $t("device.brightness") }}
           </option>
@@ -87,18 +89,9 @@
       </select> -->
       <div class="control-btn">
         <a
-          v-if="!shouldPause"
-          id="pause-btn"
-          @click="reverseShouldPause"
-        >
-          <img
-            src="../../../../public/img/icon-pause.svg"
-            alt="取得停止"
-          >
-        </a>
-        <a
-          v-else
+          v-if="shouldPause"
           id="play-btn"
+          :class="connected ? '' : 'disable'"
           @click="reverseShouldPause"
         >
           <img
@@ -106,12 +99,24 @@
             alt="取得開始"
           >
         </a>
+        <a
+          v-else
+          id="pause-btn"
+          :class="connected ? '' : 'disable'"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-pause.svg"
+            alt="取得停止"
+          >
+        </a>
       </div>
       <ul class="right-btn-list">
         <li>
           <a
             id="delete-btn"
-            @click="deleteModalOpen"
+            :class="existValue ? '' : 'disable'"
+            @click="deleteCallFrom = 'reset'; deleteModalOpen()"
           >
             <img
               src="../../../../public/img/icon-reset.svg"
@@ -122,6 +127,7 @@
         <li>
           <a
             id="dl-csv"
+            :class="existValue ? '' : 'disable'"
             @click="DLModalOpen"
           >
             <img
@@ -138,11 +144,10 @@
       </div>
       <div class="modal-body">
         <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
-        <p>データを保存したい場合はこの処理をキャンセルし、「ダウンロード」から適切な形式でデータをダウンロードした上で再度実行してください</p>
         <a
           id="delete-btn"
           class="btn-square-little-rich"
-          @click="reset(); deleteModalClose()"
+          @click="deleteModalOK"
         >
           <img
             src="../../../../public/img/icon-exe.svg"
@@ -154,7 +159,7 @@
         <a
           id="delete-btn"
           class="btn-square-little-rich cancel"
-          @click="deleteModalClose"
+          @click="deleteModalNG"
         >
           <img
             src="../../../../public/img/icon-cancel.svg"
@@ -246,7 +251,20 @@ export default {
   data() {
     return {
       interval: '5000',
-      shouldReDo: true
+      shouldReDo: {
+        main: true,
+        sub: true,
+        interval: true
+      },
+      deleteCallFrom: '',
+      newKindValue: {
+        main: '',
+        sub: ''
+      },
+      oldKindValue: {
+        main: '',
+        sub: ''
+      }
     }
   },
   computed: {
@@ -257,71 +275,80 @@ export default {
     }),
     ...mapGetters({
       source: 'serial/values',
-      connected: 'serial/connected'
+      connected: 'serial/connected',
+      existValue: 'serial/existValue'
     }),
     graphKind: {
       get() {
-        return this.$store.state.serial.graphKind
+        return this.$store.state.serial.axisInfo.main.kind
       },
       set(payload) {
-        this.$store.commit('serial/changeKind', payload)
+        this.$store.commit('serial/setKind', payload)
       }
     },
     graphKindSub: {
       get() {
-        return this.$store.state.serial.graphKindSub
+        return this.$store.state.serial.axisInfo.sub.kind
       },
       set(payload) {
-        this.$store.commit('serial/changeKindSub', payload)
+        this.$store.commit('serial/setKindSub', payload)
       }
     }
   },
   watch: {
-    graphKind: async function() {
-      this.reset()
-      this.$store.commit('serial/setShouldPause', true)
-      if (this.graphKind != null) {
-        await this.$store.dispatch('serial/render', {
-          kind: this.graphKind,
-          axis: 'main'
-        })
+    graphKind: async function(newVal, oldVal) {
+      if (this.existValue) {
+        if (this.shouldReDo.main) {
+          this.deleteCallFrom = 'main'
+          this.newKindValue.main = newVal
+          this.oldKindValue.main = oldVal
+          this.shouldReDo.main = false
+          this.graphKind = oldVal
+          this.deleteModalOpen()
+        }else {
+          this.shouldReDo.main = true
+        }
       }
     },
-    graphKindSub: async function() {
-      this.reset()
-      this.$store.commit('serial/setShouldPause', true)
-      if (this.graphKindSub != null) {
-        await this.$store.dispatch('serial/render', {
-          kind: this.graphKindSub,
-          axis: 'sub'
-        })
+    graphKindSub: async function(newVal, oldVal) {
+      if (this.existValue) {
+        if (this.shouldReDo.sub) {
+          this.deleteCallFrom = 'sub'
+          this.newKindValue.sub = newVal
+          this.oldKindValue.sub = oldVal
+          this.shouldReDo.sub = false
+          this.graphKindSub = oldVal
+          this.deleteModalOpen()
+        }else {
+          this.shouldReDo.sub = true
+        }
       }
     },
-    interval: function(_, oldValue) {
-      if (this.shouldReDo) {
-        this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
-          .catch(() => {
-            console.error('unexpected interval value.')
-            this.shouldReDo = false
-            this.interval = oldValue
-          })
-      }else {
-        this.shouldReDo = true
-      }
-    },
-    connected: function() {
-      if (!this.connected) {
-        this.graphKind = null
-        this.graphKindSub = null
-      }
-    }
+    // interval: function(_, oldValue) {
+    //   if (this.shouldReDo.interval) {
+    //     this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
+    //       .catch(() => {
+    //         console.error('unexpected interval value.')
+    //         this.shouldReDo = false
+    //         this.interval = oldValue
+    //       })
+    //   }else {
+    //     this.shouldReDo.interval = true
+    //   }
+    // }
+  },
+  mounted() {
+    this.oldKindValue.main = this.graphKind
+    this.oldKindValue.sub = this.graphKindSub
   },
   methods: {
     reset() {
       this.$store.commit('serial/resetValue', 'all')
     },
     reverseShouldPause() {
-      this.$store.commit('serial/setShouldPause', !this.shouldPause)
+      if (this.connected) {
+        this.$store.dispatch('serial/setShouldPause', !this.shouldPause)
+      }
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)
@@ -408,7 +435,39 @@ export default {
       link.click()
       link.remove()
     },
+    async deleteModalOK() {
+      if (this.deleteCallFrom === 'main') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+        this.shouldReDo.main = false
+        this.graphKind = this.newKindValue.main
+        if (this.graphKind) {
+          await this.$store.dispatch('serial/render', true)
+        }
+      }else if(this.deleteCallFrom === 'sub') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+        this.shouldReDo.sub = false
+        this.graphKindSub = this.newKindValue.sub
+        if (this.graphKindSub) {
+          await this.$store.dispatch('serial/render', false)
+        }
+      }else if(this.deleteCallFrom === 'reset') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+      }
+      this.deleteModalClose()
+    },
+    deleteModalNG() {
+      if (this.deleteCallFrom === 'main') {
+        this.shouldReDo.main = true
+      }else if(this.deleteCallFrom === 'sub') {
+        this.shouldReDo.sub = true
+      }
+      this.deleteModalClose()
+    },
     deleteModalOpen() {
+      this.$store.dispatch('serial/setShouldPause', true)
       this.$modal.show('delete-confirm')
     },
     deleteModalClose() {
@@ -468,6 +527,11 @@ select{
   display:block;
   padding:8px;
   height:100%;
+}
+.right-btn-list a.disable{
+  pointer-events:none;
+  opacity:.3;
+  filter: grayscale(100%);
 }
 .right-btn-list li a img{
   display:block;
