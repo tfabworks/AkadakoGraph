@@ -399,17 +399,20 @@ select{
 .btn-bar{
   position:relative;
   display:flex;
-
 }
 .control-btn{
   width:64px;
   height:64px;
   margin:auto;
 }
+.control-btn a.disable{
+  pointer-events:none;
+  opacity:.3;
+  filter: grayscale(100%);
+}
 .control-btn img{
   width:100%;
 }
-
 .right-btn-list{
   position:absolute;
   right:0;
