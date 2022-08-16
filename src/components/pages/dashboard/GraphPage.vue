@@ -89,23 +89,25 @@
       </select> -->
       <div class="control-btn">
         <a
-          v-if="!shouldPause"
-          id="pause-btn"
-          @click="reverseShouldPause"
-        >
-          <img
-            src="../../../../public/img/icon-pause.svg"
-            alt="取得停止"
-          >
-        </a>
-        <a
-          v-else
+          v-if="shouldPause"
           id="play-btn"
+          :class="connected ? '' : 'disable'"
           @click="reverseShouldPause"
         >
           <img
             src="../../../../public/img/icon-play.svg"
             alt="取得開始"
+          >
+        </a>
+        <a
+          v-else
+          id="pause-btn"
+          :class="connected ? '' : 'disable'"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-pause.svg"
+            alt="取得停止"
           >
         </a>
       </div>
