@@ -49,94 +49,53 @@
         }"
       />
     </section>
-    <div class="button_bar">
-      <a
-        id="dl-csv"
-        class="btn-square-little-rich"
-        @click="DLModalOpen"
-      >
-        <img
-          src="../../../../public/img/icon-download.svg"
-          alt="ダウンロード"
-          class="button_icon"
-        >
-        <span class="button_text">{{ $t("general.download") }}</span>
-      </a>
-      <div class="play_button_wrap">
-        <select
-          v-model="interval"
-          :disabled="!connected"
-        >
-          <option value="1000">
-            1秒
-          </option>
-          <option value="3000">
-            3秒
-          </option>
-          <option value="5000">
-            5秒
-          </option>
-          <option value="10000">
-            10秒
-          </option>
-          <option value="30000">
-            30秒
-          </option>
-          <option value="60000">
-            1分
-          </option>
-          <option value="180000">
-            3分
-          </option>
-          <option value="300000">
-            5分
-          </option>
-          <option value="600000">
-            10分
-          </option>
-          <option value="1800000">
-            30分
-          </option>
-        </select>
+    <div class="btn-bar">
+      <div class="control-btn">
         <a
           v-if="!shouldPause"
           id="pause-btn"
-          class="btn-square-little-rich"
           @click="reverseShouldPause"
         >
           <img
             src="../../../../public/img/icon-pause.svg"
             alt="取得停止"
-            class="button_icon"
           >
-          <span class="button_text">{{ $t("general.stop") }}</span>
         </a>
         <a
           v-else
           id="play-btn"
-          class="btn-square-little-rich"
           @click="reverseShouldPause"
         >
           <img
             src="../../../../public/img/icon-play.svg"
             alt="取得開始"
-            class="button_icon"
           >
-          <span class="button_text">{{ $t("general.playback") }}</span>
         </a>
       </div>
-      <a
-        id="delete-btn"
-        class="btn-square-little-rich"
-        @click="deleteModalOpen"
-      >
-        <img
-          src="../../../../public/img/icon-reset.svg"
-          alt="リセット"
-          class="button_icon"
-        >
-        <span class="button_text">{{ $t("general.reset") }}</span>
-      </a>
+      <ul class="right-btn-list">
+        <li>
+          <a
+            id="delete-btn"
+            @click="deleteModalOpen"
+          >
+            <img
+              src="../../../../public/img/icon-reset.svg"
+              alt="リセット"
+            >
+          </a>
+        </li>
+        <li>
+          <a
+            id="dl-csv"
+            @click="DLModalOpen"
+          >
+            <img
+              src="../../../../public/img/icon-download.svg"
+              alt="ダウンロード"
+            >
+          </a>
+        </li>
+      </ul>
     </div>
     <modal name="delete-confirm">
       <div class="modal-header">
@@ -153,9 +112,9 @@
           <img
             src="../../../../public/img/icon-exe.svg"
             alt="実行"
-            class="button_icon"
+            class="btn-icon"
           >
-          <span class="button_text">実行</span>
+          <span class="btn-text">実行</span>
         </a>
         <a
           id="delete-btn"
@@ -165,9 +124,9 @@
           <img
             src="../../../../public/img/icon-cancel.svg"
             alt="キャンセル"
-            class="button_icon"
+            class="btn-icon"
           >
-          <span class="button_text">キャンセル</span>
+          <span class="btn-text">キャンセル</span>
         </a>
       </div>
     </modal>
@@ -189,9 +148,9 @@
             <img
               src="../../../../public/img/icon-csv.svg"
               alt="csvファイル"
-              class="button_icon"
+              class="btn-icon"
             >
-            <span class="button_text">csv形式(UTF-8)</span>
+            <span class="btn-text">csv形式(UTF-8)</span>
           </button>
           <button
             class="btn-square-little-rich"
@@ -200,9 +159,9 @@
             <img
               src="../../../../public/img/icon-csv.svg"
               alt="csvファイル"
-              class="button_icon"
+              class="btn-icon"
             >
-            <span class="button_text">csv形式(SJIS)</span>
+            <span class="btn-text">csv形式(SJIS)</span>
           </button>
           <button 
             class="btn-square-little-rich"
@@ -211,9 +170,9 @@
             <img
               src="../../../../public/img/icon-xlsx.svg"
               alt="xlsxファイル"
-              class="button_icon"
+              class="btn-icon"
             >
-            <span class="button_text">xlsx形式</span>
+            <span class="btn-text">xlsx形式</span>
           </button>
         </div>
         <div
@@ -221,7 +180,7 @@
           class="modal-body"
         >
           <span
-            class="button_text"
+            class="btn-text"
           >データが存在しません</span>
         </div>
         <div class="modal-body">
@@ -437,11 +396,45 @@ export default {
 select{
   outline: none;
 }
-.button_bar{
-  text-align:center;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+.btn-bar{
+  position:relative;
+  display:flex;
+
+}
+.control-btn{
+  width:64px;
+  height:64px;
+  margin:auto;
+}
+.control-btn img{
+  width:100%;
+}
+
+.right-btn-list{
+  position:absolute;
+  right:0;
+  display:flex;
+  border:2px solid #ccc;
+  border-radius:6px;
+  background:#fff;
+  padding:5px 0;
+}
+.right-btn-list li{
+  width:65px;
+  border-right:2px solid #ccc;
+}
+.right-btn-list li:last-of-type{
+  border-right:none;
+}
+.right-btn-list li a{
+  display:block;
+  padding:8px;
+  height:100%;
+}
+.right-btn-list li a img{
+  display:block;
+  width:26px;
+  margin:auto;
 }
 .btn-square-little-rich {
   position: relative;
@@ -469,38 +462,16 @@ select{
   box-shadow: none;
   text-shadow: none;
 }
-.button_icon{
+.btn-icon{
   display:inline-block;
   margin-right:3px;
   width:20px;
   height:auto;
 }
-.button_text{
+.btn-text{
   padding: 0 5px;
   font-size:15px;
   font-weight:bold;
-}
-.play_button_wrap{
-  display:flex;
-  align-items:center;
-  margin:0 15px;
-}
-.play_button_wrap select{
-  position: relative;
-  padding: 0 5px;
-  margin-right:5px;
-  height:50px;
-  line-height:50px;
-  border: 2px solid #26AE60;
-  border-radius: 4px;
-  color: #26AE60;
-  font-size:16px;
-  font-weight:bold;
-  text-align:center;
-  cursor: pointer;
-}
-.play_button_wrap .btn-square-little-rich{
-  margin:0;
 }
 .content-box {
   text-align: center;
