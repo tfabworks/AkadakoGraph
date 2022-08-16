@@ -93,16 +93,12 @@ const mutations = {
   setKind(state, payload) {
     state.axisInfo.main.kind = payload
     localStorage.setItem('graphKind', payload)
-    if (!payload) {
-      state.axisInfo.main.shouldRender = false
-    }
+    state.axisInfo.main.shouldRender = payload ? true : false
   },
   setKindSub(state, payload) {
     state.axisInfo.sub.kind = payload
     localStorage.setItem('graphKindSub', payload)
-    if (!payload) {
-      state.axisInfo.sub.shouldRender = false
-    }
+    state.axisInfo.sub.shouldRender = payload ? true : false
   },
   setShouldRender(state, { isMain, payload }) {
     if (isMain) {

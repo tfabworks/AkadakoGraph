@@ -115,7 +115,7 @@
         <li>
           <a
             id="delete-btn"
-            @click="deleteModalOpen"
+            @click="isCallFromKind = false; deleteModalOpen()"
           >
             <img
               src="../../../../public/img/icon-reset.svg"
@@ -146,7 +146,7 @@
         <a
           id="delete-btn"
           class="btn-square-little-rich"
-          @click="reset(); deleteModalClose()"
+          @click="deleteModalOK"
         >
           <img
             src="../../../../public/img/icon-exe.svg"
@@ -158,7 +158,7 @@
         <a
           id="delete-btn"
           class="btn-square-little-rich cancel"
-          @click="deleteModalClose"
+          @click="deleteModalNG"
         >
           <img
             src="../../../../public/img/icon-cancel.svg"
@@ -250,7 +250,20 @@ export default {
   data() {
     return {
       interval: '5000',
-      shouldReDo: true
+      shouldReDo: {
+        main: true,
+        sub: true,
+        interval: true
+      },
+      deleteCallFrom: '',
+      newKindValue: {
+        main: '',
+        sub: ''
+      },
+      oldKindValue: {
+        main: '',
+        sub: ''
+      }
     }
   },
   computed: {
@@ -281,32 +294,46 @@ export default {
     }
   },
   watch: {
-    graphKind: async function() {
-      this.reset()
-      this.$store.dispatch('serial/setShouldPause', true)
-      if (this.graphKind) {
-        await this.$store.dispatch('serial/render', true)
-      }
-    },
-    graphKindSub: async function() {
-      this.reset()
-      this.$store.dispatch('serial/setShouldPause', true)
-      if (this.graphKindSub) {
-        await this.$store.dispatch('serial/render', false)
-      }
-    },
-    interval: function(_, oldValue) {
-      if (this.shouldReDo) {
-        this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
-          .catch(() => {
-            console.error('unexpected interval value.')
-            this.shouldReDo = false
-            this.interval = oldValue
-          })
+    graphKind: async function(newVal, oldVal) {
+      if (this.shouldReDo.main) {
+        this.deleteCallFrom = 'main'
+        this.newKindValue.main = newVal
+        this.oldKindValue.main = oldVal
+        this.shouldReDo.main = false
+        this.graphKind = oldVal
+        this.deleteModalOpen()
       }else {
-        this.shouldReDo = true
+        this.shouldReDo.main = true
       }
-    }
+    },
+    graphKindSub: async function(newVal, oldVal) {
+      if (this.shouldReDo.sub) {
+        this.deleteCallFrom = 'sub'
+        this.newKindValue.sub = newVal
+        this.oldKindValue.sub = oldVal
+        this.shouldReDo.sub = false
+        this.graphKindSub = oldVal
+        this.deleteModalOpen()
+      }else {
+        this.shouldReDo.sub = true
+      }
+    },
+    // interval: function(_, oldValue) {
+    //   if (this.shouldReDo.interval) {
+    //     this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
+    //       .catch(() => {
+    //         console.error('unexpected interval value.')
+    //         this.shouldReDo = false
+    //         this.interval = oldValue
+    //       })
+    //   }else {
+    //     this.shouldReDo.interval = true
+    //   }
+    // }
+  },
+  mounted() {
+    this.oldKindValue.main = this.graphKind
+    this.oldKindValue.sub = this.graphKindSub
   },
   methods: {
     reset() {
@@ -402,7 +429,39 @@ export default {
       link.click()
       link.remove()
     },
+    async deleteModalOK() {
+      if (this.deleteCallFrom === 'main') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+        this.shouldReDo.main = false
+        this.graphKind = this.newKindValue.main
+        if (this.graphKind) {
+          await this.$store.dispatch('serial/render', true)
+        }
+      }else if(this.deleteCallFrom === 'sub') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+        this.shouldReDo.sub = false
+        this.graphKindSub = this.newKindValue.sub
+        if (this.graphKindSub) {
+          await this.$store.dispatch('serial/render', false)
+        }
+      }else {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+      }
+      this.deleteModalClose()
+    },
+    deleteModalNG() {
+      if (this.deleteCallFrom === 'main') {
+        this.shouldReDo.main = true
+      }else if(this.deleteCallFrom === 'sub') {
+        this.shouldReDo.sub = true
+      }
+      this.deleteModalClose()
+    },
     deleteModalOpen() {
+      this.$store.dispatch('serial/setShouldPause', true)
       this.$modal.show('delete-confirm')
     },
     deleteModalClose() {
