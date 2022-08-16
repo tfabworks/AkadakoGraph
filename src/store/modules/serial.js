@@ -63,6 +63,9 @@ const getters = {
       main: state.graphValue,
       sub: state.graphValueSub
     }
+  },
+  existValue() {
+    return state.graphValue.length || state.graphValueSub.length ? true : false
   }
 }
 

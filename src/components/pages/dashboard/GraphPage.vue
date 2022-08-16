@@ -115,7 +115,8 @@
         <li>
           <a
             id="delete-btn"
-            @click="isCallFromKind = false; deleteModalOpen()"
+            :class="existValue ? '' : 'disable'"
+            @click="deleteCallFrom = 'reset'; deleteModalOpen()"
           >
             <img
               src="../../../../public/img/icon-reset.svg"
@@ -126,6 +127,7 @@
         <li>
           <a
             id="dl-csv"
+            :class="existValue ? '' : 'disable'"
             @click="DLModalOpen"
           >
             <img
@@ -274,7 +276,8 @@ export default {
     }),
     ...mapGetters({
       source: 'serial/values',
-      connected: 'serial/connected'
+      connected: 'serial/connected',
+      existValue: 'serial/existValue'
     }),
     graphKind: {
       get() {
@@ -295,27 +298,31 @@ export default {
   },
   watch: {
     graphKind: async function(newVal, oldVal) {
-      if (this.shouldReDo.main) {
-        this.deleteCallFrom = 'main'
-        this.newKindValue.main = newVal
-        this.oldKindValue.main = oldVal
-        this.shouldReDo.main = false
-        this.graphKind = oldVal
-        this.deleteModalOpen()
-      }else {
-        this.shouldReDo.main = true
+      if (this.existValue) {
+        if (this.shouldReDo.main) {
+          this.deleteCallFrom = 'main'
+          this.newKindValue.main = newVal
+          this.oldKindValue.main = oldVal
+          this.shouldReDo.main = false
+          this.graphKind = oldVal
+          this.deleteModalOpen()
+        }else {
+          this.shouldReDo.main = true
+        }
       }
     },
     graphKindSub: async function(newVal, oldVal) {
-      if (this.shouldReDo.sub) {
-        this.deleteCallFrom = 'sub'
-        this.newKindValue.sub = newVal
-        this.oldKindValue.sub = oldVal
-        this.shouldReDo.sub = false
-        this.graphKindSub = oldVal
-        this.deleteModalOpen()
-      }else {
-        this.shouldReDo.sub = true
+      if (this.existValue) {
+        if (this.shouldReDo.sub) {
+          this.deleteCallFrom = 'sub'
+          this.newKindValue.sub = newVal
+          this.oldKindValue.sub = oldVal
+          this.shouldReDo.sub = false
+          this.graphKindSub = oldVal
+          this.deleteModalOpen()
+        }else {
+          this.shouldReDo.sub = true
+        }
       }
     },
     // interval: function(_, oldValue) {
@@ -446,7 +453,7 @@ export default {
         if (this.graphKindSub) {
           await this.$store.dispatch('serial/render', false)
         }
-      }else {
+      }else if(this.deleteCallFrom === 'reset') {
         this.reset()
         this.$store.dispatch('serial/setShouldPause', true)
       }
@@ -521,6 +528,11 @@ select{
   display:block;
   padding:8px;
   height:100%;
+}
+.right-btn-list a.disable{
+  pointer-events:none;
+  opacity:.3;
+  filter: grayscale(100%);
 }
 .right-btn-list li a img{
   display:block;
