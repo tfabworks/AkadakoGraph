@@ -50,6 +50,41 @@
       />
     </section>
     <div class="btn-bar">
+      <!-- <select
+        v-model="interval"
+        :disabled="!connected"
+      >
+        <option value="1000">
+          1秒
+        </option>
+        <option value="3000">
+          3秒
+        </option>
+        <option value="5000">
+          5秒
+        </option>
+        <option value="10000">
+          10秒
+        </option>
+        <option value="30000">
+          30秒
+        </option>
+        <option value="60000">
+          1分
+        </option>
+        <option value="180000">
+          3分
+        </option>
+        <option value="300000">
+          5分
+        </option>
+        <option value="600000">
+          10分
+        </option>
+        <option value="1800000">
+          30分
+        </option>
+      </select> -->
       <div class="control-btn">
         <a
           v-if="!shouldPause"
