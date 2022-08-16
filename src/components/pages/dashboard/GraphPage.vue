@@ -49,16 +49,8 @@
         }"
       />
     </section>
-    <div class="button_bar">
-      <a
-        id="dl-csv"
-        class="btn-square-little-rich"
-        @click="DLModalOpen"
-      >
-        <b-icon icon="file-download" />
-        <span class="button_text">{{ $t("general.download") }}</span>
-      </a>
-      <select
+    <div class="btn-bar">
+      <!-- <select
         v-model="interval"
         :disabled="!connected"
       >
@@ -92,42 +84,53 @@
         <option value="1800000">
           30分
         </option>
-      </select>
-      <a
-        v-if="!shouldPause"
-        id="pause-btn"
-        class="btn-square-little-rich"
-        @click="reverseShouldPause"
-      >
-        <b-icon
-          pack="fas"
-          icon="pause"
-        />
-        <span class="button_text">{{ $t("general.stop") }}</span>
-      </a>
-      <a
-        v-else
-        id="play-btn"
-        class="btn-square-little-rich"
-        @click="reverseShouldPause"
-      >
-        <b-icon
-          pack="fas"
-          icon="play"
-        />
-        <span class="button_text">{{ $t("general.playback") }}</span>
-      </a>
-      <a
-        id="delete-btn"
-        class="btn-square-little-rich"
-        @click="deleteModalOpen"
-      >
-        <b-icon
-          pack="fas"
-          icon="trash"
-        />
-        <span class="button_text">{{ $t("general.reset") }}</span>
-      </a>
+      </select> -->
+      <div class="control-btn">
+        <a
+          v-if="!shouldPause"
+          id="pause-btn"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-pause.svg"
+            alt="取得停止"
+          >
+        </a>
+        <a
+          v-else
+          id="play-btn"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-play.svg"
+            alt="取得開始"
+          >
+        </a>
+      </div>
+      <ul class="right-btn-list">
+        <li>
+          <a
+            id="delete-btn"
+            @click="deleteModalOpen"
+          >
+            <img
+              src="../../../../public/img/icon-reset.svg"
+              alt="リセット"
+            >
+          </a>
+        </li>
+        <li>
+          <a
+            id="dl-csv"
+            @click="DLModalOpen"
+          >
+            <img
+              src="../../../../public/img/icon-download.svg"
+              alt="ダウンロード"
+            >
+          </a>
+        </li>
+      </ul>
     </div>
     <modal name="delete-confirm">
       <div class="modal-header">
@@ -141,14 +144,24 @@
           class="btn-square-little-rich"
           @click="reset(); deleteModalClose()"
         >
-          <span class="button_text">実行</span>
+          <img
+            src="../../../../public/img/icon-exe.svg"
+            alt="実行"
+            class="btn-icon"
+          >
+          <span class="btn-text">実行</span>
         </a>
         <a
           id="delete-btn"
-          class="btn-square-little-rich"
+          class="btn-square-little-rich cancel"
           @click="deleteModalClose"
         >
-          <span class="button_text">キャンセル</span>
+          <img
+            src="../../../../public/img/icon-cancel.svg"
+            alt="キャンセル"
+            class="btn-icon"
+          >
+          <span class="btn-text">キャンセル</span>
         </a>
       </div>
     </modal>
@@ -194,7 +207,7 @@
               alt="xlsxファイル"
               class="btn-icon"
             >
-            <span class="button_text">xlsx形式</span>
+            <span class="btn-text">xlsx形式</span>
           </button>
         </div>
         <div
@@ -202,7 +215,7 @@
           class="modal-body"
         >
           <span
-            class="button_text"
+            class="btn-text"
           >データが存在しません</span>
         </div>
         <div class="modal-body">
@@ -418,28 +431,68 @@ export default {
 select{
   outline: none;
 }
-.button_bar{
-  text-align:center;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+.btn-bar{
+  position:relative;
+  display:flex;
+}
+.control-btn{
+  width:64px;
+  height:64px;
+  margin:auto;
+}
+.control-btn a.disable{
+  pointer-events:none;
+  opacity:.3;
+  filter: grayscale(100%);
+}
+.control-btn img{
+  width:100%;
+}
+.right-btn-list{
+  position:absolute;
+  right:0;
+  display:flex;
+  border:2px solid #ccc;
+  border-radius:6px;
+  background:#fff;
+  padding:5px 0;
+}
+.right-btn-list li{
+  width:65px;
+  border-right:2px solid #ccc;
+}
+.right-btn-list li:last-of-type{
+  border-right:none;
+}
+.right-btn-list li a{
+  display:block;
+  padding:8px;
+  height:100%;
+}
+.right-btn-list li a img{
+  display:block;
+  width:26px;
+  margin:auto;
 }
 .btn-square-little-rich {
   position: relative;
   display: flex;
   align-items:center;
   justify-content:center;
-  padding: 10px 5px;
+  padding: 10px 15px;
   text-decoration: none;
   color: #FFF;
   background:#27ae60;/*色*/
   border: solid 1px #27ae60;/*線色*/
   border-radius: 4px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
   text-shadow: 0 1px 0 rgba(0,0,0,0.2);
   margin: 10px 15px;
-  min-width: 180px;
   height: 50px;
+}
+.btn-square-little-rich.cancel {
+  background:#ff0000;
+  border: solid 1px #ff0000;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.2);
 }
 .btn-square-little-rich:active {
   /*押したとき*/
@@ -453,12 +506,11 @@ select{
   width:20px;
   height:auto;
 }
-
 .btn-text{
   padding: 0 5px;
   font-size:15px;
+  font-weight:bold;
 }
-
 .content-box {
   text-align: center;
   width: 100%;
@@ -468,8 +520,7 @@ select{
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-#loader
-{
+#loader{
   display: inline-block;
   position: relative;
   width: 30px;
@@ -479,8 +530,7 @@ select{
   border-right-color: transparent;
   animation: spin 1s linear infinite;
 }
-@keyframes spin
-{
+@keyframes spin{
     0% { transform: rotate(0deg)}
     50%  { transform: rotate(180deg)}
     100%   { transform: rotate(360deg)}
@@ -498,9 +548,13 @@ select{
   justify-content:center;
   flex-wrap:wrap;
   align-items:center;
-  padding:40px 0;
-
+  padding:25px;
   min-height:250px;
+}
+.modal-body p{
+  margin-bottom:1em;
+  font-size:16px;
+  line-height:1.6;
 }
 .modal-body button{
   cursor:pointer;
