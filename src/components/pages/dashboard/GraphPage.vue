@@ -311,7 +311,9 @@ export default {
       this.$store.commit('serial/resetValue', 'all')
     },
     reverseShouldPause() {
-      this.$store.dispatch('serial/setShouldPause', !this.shouldPause)
+      if (this.connected) {
+        this.$store.dispatch('serial/setShouldPause', !this.shouldPause)
+      }
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)
