@@ -6,36 +6,38 @@
           v-model="graphKind"
           :disabled="!connected"
         >
-          <option value="lux">
-            {{ $t("device.brightness") }}
+          <option value="" />
+          <option value="明るさ[lux]">
+            明るさ[lux]
           </option>
-          <option value="temp">
-            {{ $t("device.temperture") }}
+          <option value="気温[℃]">
+            気温[℃]
           </option>
-          <option value="pres">
-            {{ $t("device.pressure") }}
+          <!-- <option value="気圧[hPa]">
+            気圧[hPa]
           </option>
-          <option value="humi">
-            {{ $t("device.humidity") }}
-          </option>
+          <option value="湿度[%]">
+            湿度[%]
+          </option> -->
         </select>
 
         <select
           v-model="graphKindSub"
           :disabled="!connected"
         >
-          <option value="lux">
-            {{ $t("device.brightness") }}
+          <option value="" />
+          <option value="明るさ[lux]">
+            明るさ[lux]
           </option>
-          <option value="temp">
-            {{ $t("device.temperture") }}
+          <option value="気温[℃]">
+            気温[℃]
           </option>
-          <option value="pres">
-            {{ $t("device.pressure") }}
+          <!-- <option value="気圧[hPa]">
+            気圧[hPa]
           </option>
-          <option value="humi">
-            {{ $t("device.humidity") }}
-          </option>
+          <option value="湿度[%]">
+            湿度[%] -->
+          <!-- </option> -->
         </select>
       </div>
 
@@ -43,91 +45,192 @@
         ref="renderGraphRelative"
         style="background-color: #EEEEEE; padding: 10px;"
         :source="source"
-        :source-type="judgeSourceType()"
+        :source-type="{
+          main: source.main.length,
+          sub: source.sub.length
+        }"
       />
     </section>
-    <div class="button_bar">
-      <a
-        id="dl-csv"
-        class="btn-square-little-rich"
-        @click="modalOpen"
+    <div class="btn-bar">
+      <!-- <select
+        v-model="interval"
+        :disabled="!connected"
       >
-        <b-icon icon="file-download" />
-        <span class="button_text">{{ $t("general.download") }}</span>
-      </a>
-      <a
-        v-if="!pauseFlag"
-        id="pause-btn"
-        class="btn-square-little-rich"
-        @click="pause"
-      >
-        <b-icon
-          pack="fas"
-          icon="pause"
-        />
-        <span class="button_text">{{ $t("general.stop") }}</span>
-      </a>
-      <a
-        v-else
-        id="play-btn"
-        class="btn-square-little-rich"
-        @click="pause"
-      >
-        <b-icon
-          pack="fas"
-          icon="play"
-        />
-        <span class="button_text">{{ $t("general.playback") }}</span>
-      </a>
-      <a
-        id="delete-btn"
-        class="btn-square-little-rich"
-        @click="reset"
-      >
-        <b-icon
-          pack="fas"
-          icon="trash"
-        />
-        <span class="button_text">{{ $t("general.reset") }}</span>
-      </a>
+        <option value="1000">
+          1秒
+        </option>
+        <option value="3000">
+          3秒
+        </option>
+        <option value="5000">
+          5秒
+        </option>
+        <option value="10000">
+          10秒
+        </option>
+        <option value="30000">
+          30秒
+        </option>
+        <option value="60000">
+          1分
+        </option>
+        <option value="180000">
+          3分
+        </option>
+        <option value="300000">
+          5分
+        </option>
+        <option value="600000">
+          10分
+        </option>
+        <option value="1800000">
+          30分
+        </option>
+      </select> -->
+      <div class="control-btn">
+        <a
+          v-if="shouldPause"
+          id="play-btn"
+          :class="connected ? '' : 'disable'"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-play.svg"
+            alt="取得開始"
+          >
+        </a>
+        <a
+          v-else
+          id="pause-btn"
+          :class="connected ? '' : 'disable'"
+          @click="reverseShouldPause"
+        >
+          <img
+            src="../../../../public/img/icon-pause.svg"
+            alt="取得停止"
+          >
+        </a>
+      </div>
+      <ul class="right-btn-list">
+        <li>
+          <a
+            id="delete-btn"
+            :class="existValue ? '' : 'disable'"
+            @click="deleteCallFrom = 'reset'; deleteModalOpen()"
+          >
+            <img
+              src="../../../../public/img/icon-reset.svg"
+              alt="リセット"
+            >
+          </a>
+        </li>
+        <li>
+          <a
+            id="dl-csv"
+            :class="existValue ? '' : 'disable'"
+            @click="DLModalOpen"
+          >
+            <img
+              src="../../../../public/img/icon-download.svg"
+              alt="ダウンロード"
+            >
+          </a>
+        </li>
+      </ul>
     </div>
+    <modal name="delete-confirm">
+      <div class="modal-header">
+        <h2>確認</h2>
+      </div>
+      <div class="modal-body">
+        <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
+        <a
+          id="delete-btn"
+          class="btn-square-little-rich"
+          @click="deleteModalOK"
+        >
+          <img
+            src="../../../../public/img/icon-exe.svg"
+            alt="実行"
+            class="btn-icon"
+          >
+          <span class="btn-text">実行</span>
+        </a>
+        <a
+          id="delete-btn"
+          class="btn-square-little-rich cancel"
+          @click="deleteModalNG"
+        >
+          <img
+            src="../../../../public/img/icon-cancel.svg"
+            alt="キャンセル"
+            class="btn-icon"
+          >
+          <span class="btn-text">キャンセル</span>
+        </a>
+      </div>
+    </modal>
     <modal
       name="download"
     >
       <div class="modal-header">
-        <h2>CSVダウンロード</h2>
+        <h2>ダウンロード</h2>
       </div>
-      <div class="modal-body">
-        <button 
-          v-if="judgeSourceType().main"
-          class="btn-square-little-rich"
-          @click="downloadCSV(true)"
+      <div>
+        <div
+          v-if="source.main.length || source.sub.length"
+          class="modal-body"
         >
-          <img
-            src="../../../../public/img/icon-csv.svg"
-            alt="csvファイル"
-            class="btn-icon"
+          <button
+            class="btn-square-little-rich"
+            @click="exportData(true, false)"
           >
-          <span class="btn-text">主軸データのCSV</span>
-        </button>
-        <button 
-          v-if="judgeSourceType().sub"
-          class="btn-square-little-rich"
-          @click="downloadCSV(false)"
-        >
-          <img
-            src="../../../../public/img/icon-csv.svg"
-            alt="csvファイル"
-            class="btn-icon"
+            <img
+              src="../../../../public/img/icon-csv.svg"
+              alt="csvファイル"
+              class="btn-icon"
+            >
+            <span class="btn-text">csv形式(UTF-8)</span>
+          </button>
+          <button
+            class="btn-square-little-rich"
+            @click="exportData(true, true)"
           >
-          <span class="btn-text">第2軸データのCSV</span>
-        </button>
-        <button 
-          class="modal-close-btn"
-          @click="modalClose"
+            <img
+              src="../../../../public/img/icon-csv.svg"
+              alt="csvファイル"
+              class="btn-icon"
+            >
+            <span class="btn-text">csv形式(SJIS)</span>
+          </button>
+          <button 
+            class="btn-square-little-rich"
+            @click="exportData(false, false)"
+          >
+            <img
+              src="../../../../public/img/icon-xlsx.svg"
+              alt="xlsxファイル"
+              class="btn-icon"
+            >
+            <span class="btn-text">xlsx形式</span>
+          </button>
+        </div>
+        <div
+          v-else
+          class="modal-body"
         >
-          <i class="far fa-times-circle fa-lg" />閉じる
-        </button>
+          <span
+            class="btn-text"
+          >データが存在しません</span>
+        </div>
+        <div class="modal-body">
+          <button 
+            class="modal-close-btn"
+            @click="DLModalClose"
+          >
+            <i class="far fa-times-circle fa-lg" />閉じる
+          </button>
+        </div>
       </div>  
     </modal>
   </div>
@@ -137,6 +240,8 @@ import Graph from '../../view/Graph'
 import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import VModal from 'vue-js-modal'
+import ExcelJS from 'exceljs'
+import encoding from 'encoding-japanese'
 Vue.use(VModal)
 
 export default {
@@ -145,49 +250,105 @@ export default {
   },
   data() {
     return {
-      graphKind: null,
-      graphKindSub: null
+      interval: '5000',
+      shouldReDo: {
+        main: true,
+        sub: true,
+        interval: true
+      },
+      deleteCallFrom: '',
+      newKindValue: {
+        main: '',
+        sub: ''
+      },
+      oldKindValue: {
+        main: '',
+        sub: ''
+      }
     }
   },
   computed: {
     ...mapState({
-      pauseFlag: state => state.serial.pauseFlag
+      shouldPause: state => state.serial.shouldPause,
+      graphValue: state => state.serial.graphValue,
+      graphValueSub: state => state.serial.graphValueSub
     }),
     ...mapGetters({
       source: 'serial/values',
-      connected: 'serial/connected'
-    })
-  },
-  watch: {
-    graphKind: function() {
-      if (this.graphKind != null) {
-        this.$store.dispatch('serial/render', {
-          kind: this.graphKind,
-          axis: 'main'
-        })
+      connected: 'serial/connected',
+      existValue: 'serial/existValue'
+    }),
+    graphKind: {
+      get() {
+        return this.$store.state.serial.axisInfo.main.kind
+      },
+      set(payload) {
+        this.$store.commit('serial/setKind', payload)
       }
     },
-    graphKindSub: function() {
-      if (this.graphKindSub != null) {
-        this.$store.dispatch('serial/render', {
-          kind: this.graphKindSub,
-          axis: 'sub'
-        })
-      }
-    },
-    connected: function() {
-      if (!this.connected) {
-        this.graphKind = null
-        this.graphKindSub = null
+    graphKindSub: {
+      get() {
+        return this.$store.state.serial.axisInfo.sub.kind
+      },
+      set(payload) {
+        this.$store.commit('serial/setKindSub', payload)
       }
     }
+  },
+  watch: {
+    graphKind: function(newVal, oldVal) {
+      if (this.existValue) {
+        if (this.shouldReDo.main) {
+          this.deleteCallFrom = 'main'
+          this.newKindValue.main = newVal
+          this.oldKindValue.main = oldVal
+          this.shouldReDo.main = false
+          this.graphKind = oldVal
+          this.deleteModalOpen()
+        }else {
+          this.shouldReDo.main = true
+        }
+      }
+    },
+    graphKindSub: function(newVal, oldVal) {
+      if (this.existValue) {
+        if (this.shouldReDo.sub) {
+          this.deleteCallFrom = 'sub'
+          this.newKindValue.sub = newVal
+          this.oldKindValue.sub = oldVal
+          this.shouldReDo.sub = false
+          this.graphKindSub = oldVal
+          this.deleteModalOpen()
+        }else {
+          this.shouldReDo.sub = true
+        }
+      }
+    },
+    // interval: function(_, oldValue) {
+    //   if (this.shouldReDo.interval) {
+    //     this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
+    //       .catch(() => {
+    //         console.error('unexpected interval value.')
+    //         this.shouldReDo = false
+    //         this.interval = oldValue
+    //       })
+    //   }else {
+    //     this.shouldReDo.interval = true
+    //   }
+    // }
+  },
+  mounted() {
+    this.oldKindValue.main = this.graphKind
+    this.oldKindValue.sub = this.graphKindSub
   },
   methods: {
     reset() {
       this.$store.commit('serial/resetValue', 'all')
     },
-    pause() {
-      this.$store.commit('serial/pause')
+    reverseShouldPause() {
+      if (this.connected) {
+        this.$store.dispatch('serial/setShouldPause', !this.shouldPause)
+      }
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)
@@ -198,45 +359,126 @@ export default {
           date.getMinutes() + ':' +
           date.getSeconds()
     },
-    downloadCSV(isFirst) {
-      let source, fileName
-      let csv = '\ufeff'
+    async exportData(isCsv, isSJIS) {
+      const name = 'TFabGraph_AkaDako版'
 
-      if (isFirst) {
-        source = this.source.main
-        fileName = 'AkadakoGraph.csv'
-      }else {
-        source = this.source.sub
-        fileName = 'AkadakoGraph2nd.csv'
+      // それぞれの軸のデータがあればローカルストレージから項目名を取得
+      // ローカルストレージに値がなければ「主軸」等の名前を付ける
+      // データが無い場合は空欄にする
+      const valueHeader = {
+        main: this.graphValue.length ? localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '主軸' : '',
+        sub: this.graphValueSub.length ? localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : '第2軸' : '',
       }
 
-      source.forEach(el => {
-        csv += this.transDate(el.x) + ',' + el.y + '\n'
+      // ワークシート全体の設定
+      const workbook = new ExcelJS.Workbook()
+      workbook.addWorksheet(name)
+      const worksheet = workbook.getWorksheet(name)
+      worksheet.columns = [
+        { header: '時刻', key: 'x' },
+        { header: valueHeader.main, key: 'yMain' },
+        { header: valueHeader.sub, key: 'ySub' }
+      ]
+
+      // ファイルの元となるデータの配列
+      // 両軸のデータを統合したものを格納する
+      let sourceForDL = []
+
+      // 主軸のデータをまずはそのまま格納
+      this.source.main.forEach(e => {
+        sourceForDL.push({
+          x: e.x,
+          yMain: e.y,
+          ySub: null
+        })
       })
-      const blob = new Blob([csv], { type: 'text/csv' })
-      const link = document.createElement('a')
-      link.href = URL.createObjectURL(blob)
-      link.download = fileName
-      link.click()
-    },
-    judgeSourceType() {
-      let sourceType = {
-        main: false,
-        sub: false
-      }
-      if (this.source.main.length) {
-        sourceType.main = true
-      }
-      if (this.source.sub.length) {
-        sourceType.sub = true
-      }
 
-      return sourceType
+      // 第2軸のデータを格納
+      this.source.sub.forEach(e => {
+        // 両軸で時刻が一致しているものを見つける
+        const found = sourceForDL.find(el => el.x == e.x)
+
+        // 一致したデータがあった場合はその要素にプロパティとして第2軸のデータを格納
+        if (found) {
+          found.ySub = e.y
+        }else {
+          // 一致したデータがなかった場合は新規要素として第2軸のデータを格納
+          sourceForDL.push({
+            x: e.x,
+            yMain: null,
+            ySub: e.y
+          })
+        }
+      })
+
+      // 統合した後の配列を時系列順にソート
+      sourceForDL.sort((a, b) => {
+        return (a.x < b.x) ? -1 : 1
+      })
+
+      // データをシートに追加
+      worksheet.addRows(sourceForDL)
+
+      // 3通りのファイル形式を引数に応じて生成
+      const uint8Array = isCsv ? (isSJIS ? new Uint8Array(
+        encoding.convert(await workbook.csv.writeBuffer(), {
+          from: 'UTF8',
+          to: 'SJIS'
+        })
+      ) : await workbook.csv.writeBuffer()) : await workbook.xlsx.writeBuffer()
+
+      // DLするための処理
+      const blob = new Blob([uint8Array], { type: 'application/octet-binary' })
+      const link = document.createElement('a')
+      link.href = (window.URL || window.webkitURL).createObjectURL(blob)
+      link.download = `${name}.${isCsv ? 'csv' : 'xlsx'}`
+      link.click()
+      link.remove()
     },
-    modalOpen() {
+    async deleteModalOK() {
+      if (this.deleteCallFrom === 'main') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+        this.shouldReDo.main = false
+        this.graphKind = this.newKindValue.main
+        this.shouldReDo.main = true
+        if (this.graphKind) {
+          await this.$store.dispatch('serial/render', true)
+        }
+      }else if(this.deleteCallFrom === 'sub') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+        this.shouldReDo.sub = false
+        this.graphKindSub = this.newKindValue.sub
+        this.shouldReDo.sub = true
+        if (this.graphKindSub) {
+          await this.$store.dispatch('serial/render', false)
+        }
+      }else if(this.deleteCallFrom === 'reset') {
+        this.reset()
+        this.$store.dispatch('serial/setShouldPause', true)
+      }
+      this.deleteModalClose()
+    },
+    deleteModalNG() {
+      if (this.deleteCallFrom === 'main') {
+        this.shouldReDo.main = true
+      }else if(this.deleteCallFrom === 'sub') {
+        this.shouldReDo.sub = true
+      }
+      this.deleteModalClose()
+    },
+    deleteModalOpen() {
+      this.$store.dispatch('serial/setShouldPause', true)
+      this.$modal.show('delete-confirm')
+    },
+    deleteModalClose() {
+      this.$modal.hide('delete-confirm')
+    },
+    DLModalOpen() {
       this.$modal.show('download')
     },
-    modalClose() {
+    DLModalClose() {
       this.$modal.hide('download')
     }
   }
@@ -250,28 +492,73 @@ export default {
 select{
   outline: none;
 }
-.button_bar{
-  text-align:center;
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+.btn-bar{
+  position:relative;
+  display:flex;
+}
+.control-btn{
+  width:64px;
+  height:64px;
+  margin:auto;
+}
+.control-btn a.disable{
+  pointer-events:none;
+  opacity:.3;
+  filter: grayscale(100%);
+}
+.control-btn img{
+  width:100%;
+}
+.right-btn-list{
+  position:absolute;
+  right:0;
+  display:flex;
+  border:2px solid #ccc;
+  border-radius:6px;
+  background:#fff;
+  padding:5px 0;
+}
+.right-btn-list li{
+  width:65px;
+  border-right:2px solid #ccc;
+}
+.right-btn-list li:last-of-type{
+  border-right:none;
+}
+.right-btn-list li a{
+  display:block;
+  padding:8px;
+  height:100%;
+}
+.right-btn-list a.disable{
+  pointer-events:none;
+  opacity:.3;
+  filter: grayscale(100%);
+}
+.right-btn-list li a img{
+  display:block;
+  width:26px;
+  margin:auto;
 }
 .btn-square-little-rich {
   position: relative;
   display: flex;
   align-items:center;
   justify-content:center;
-  padding: 10px 5px;
+  padding: 10px 15px;
   text-decoration: none;
   color: #FFF;
   background:#27ae60;/*色*/
   border: solid 1px #27ae60;/*線色*/
   border-radius: 4px;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2);
   text-shadow: 0 1px 0 rgba(0,0,0,0.2);
   margin: 10px 15px;
-  min-width: 180px;
   height: 50px;
+}
+.btn-square-little-rich.cancel {
+  background:#ff0000;
+  border: solid 1px #ff0000;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.2);
 }
 .btn-square-little-rich:active {
   /*押したとき*/
@@ -285,12 +572,11 @@ select{
   width:20px;
   height:auto;
 }
-
 .btn-text{
   padding: 0 5px;
   font-size:15px;
+  font-weight:bold;
 }
-
 .content-box {
   text-align: center;
   width: 100%;
@@ -300,8 +586,7 @@ select{
   border: 1px solid #ccc;
   border-radius: 4px;
 }
-#loader
-{
+#loader{
   display: inline-block;
   position: relative;
   width: 30px;
@@ -311,8 +596,7 @@ select{
   border-right-color: transparent;
   animation: spin 1s linear infinite;
 }
-@keyframes spin
-{
+@keyframes spin{
     0% { transform: rotate(0deg)}
     50%  { transform: rotate(180deg)}
     100%   { transform: rotate(360deg)}
@@ -330,9 +614,13 @@ select{
   justify-content:center;
   flex-wrap:wrap;
   align-items:center;
-  padding:40px 0;
-
+  padding:25px;
   min-height:250px;
+}
+.modal-body p{
+  margin-bottom:1em;
+  font-size:16px;
+  line-height:1.6;
 }
 .modal-body button{
   cursor:pointer;

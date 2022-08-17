@@ -3,34 +3,12 @@
     <h1 class="header-logo">
       <a><img
         src="../../public/img/header-tfc-logo.png"
-        alt="AkadakoGraph"
+        alt="TFabGraph[AkaDako版]"
       ></a>
     </h1>
   </header>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-
-export default {
-  computed: {
-    ...mapGetters({
-      isJapanese: 'language/isJapanese',
-      isEnglish: 'language/isEnglish'
-    })
-  },
-  methods: {
-    setLanguage(lang) {
-      if (
-        (lang === 'ja' && this.isEnglish) ||
-        (lang === 'en' && this.isJapanese)
-      ) {
-        this.$store.commit('language/setLanguage', lang)
-      }
-    }
-  }
-}
-</script>
 <style scoped>
 .main-header {
   position: relative;

@@ -33,15 +33,15 @@ describe('ボタン類の挙動', () => {
   })
 
   it('一時停止・再生', async () => {
-    //pauseFlagの初期値を確認
-    expect(store.state.microbit.pauseFlag).toBeFalsy
+    //shouldPauseの初期値を確認
+    expect(store.state.microbit.shouldPause).toBeFalsy
 
     //一時停止ボタンをクリック
     wrapper.find('#pause-btn').trigger('click')
     await flushPromises()
 
-    //pauseFlagの変更とボタンの変化を確認
-    expect(store.state.microbit.pauseFlag).toBeTruthy
+    //shouldPauseの変更とボタンの変化を確認
+    expect(store.state.microbit.shouldPause).toBeTruthy
     expect(wrapper.find('#pause-btn span').exists()).toBeFalsy
     expect(wrapper.find('#play-btn span').exists()).toBeTruthy
 
@@ -49,8 +49,8 @@ describe('ボタン類の挙動', () => {
     wrapper.find('#play-btn').trigger('click')
     await flushPromises()
 
-    //pauseFlagの変更とボタンの変化を確認 
-    expect(store.state.microbit.pauseFlag).toBeFalsy
+    //shouldPauseの変更とボタンの変化を確認 
+    expect(store.state.microbit.shouldPause).toBeFalsy
     expect(wrapper.find('#pause-btn span').exists()).toBeTruthy
     expect(wrapper.find('#play-btn span').exists()).toBeFalsy
   })
