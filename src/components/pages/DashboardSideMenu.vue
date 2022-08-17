@@ -3,60 +3,35 @@
     <nav class="menu-area">
       <ConnnectStatus />
       <ul class="menu-area-btn-list">
-        <li
-          v-if="isJapanese"
+        <!-- <li
           class="help-icon"
         >
           <a
             href="https://tfabworks.com/news/7477/"
             target="_blank"
-          >{{
-            $t("footer.help")
-          }}</a>
-        </li>
+          >
+            使い方
+          </a>
+        </li> -->
         <li
-          v-if="isEnglish"
-          class="help-icon"
-        >
-          <a
-            href="https://tfabworks.com/en/tfab-graph/"
-            target="_blank"
-          >{{
-            $t("footer.help")
-          }}</a>
-        </li>
-        <li
-          v-if="isJapanese"
           class="privacy-icon"
         >
           <a
             href="https://tfabworks.com/service_privacy/"
             target="_blank"
-          >{{
-            $t("footer.privacy")
-          }}</a>
+          >
+            プライバシーポリシー
+          </a>
         </li>
         <li
-          v-if="isEnglish"
-          class="privacy-icon"
-        >
-          <a
-            href="https://tfabworks.com/en/service-privacy/"
-            target="_blank"
-          >{{
-            $t("footer.privacy")
-          }}</a>
-        </li>
-        <li
-          v-if="isJapanese"
           class="brand-icon"
         >
           <a
             href="https://akadako.com/"
             target="_blank"
-          >{{
-            $t("footer.brand")
-          }}</a>
+          >
+            AkaDako.com
+          </a>
         </li>
       </ul>
     </nav>
@@ -64,18 +39,11 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
 import ConnnectStatus from './DashboardSideMenuStatus'
 
 export default {
   components: {
     ConnnectStatus,
-  },
-  computed: {
-    ...mapGetters({
-      isJapanese: 'language/isJapanese',
-      isEnglish: 'language/isEnglish',
-    }),
   },
   methods: {
     modalReset() {

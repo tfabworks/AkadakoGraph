@@ -8,16 +8,16 @@
         >
           <option value="" />
           <option value="明るさ[lux]">
-            {{ $t("device.brightness") }}
+            明るさ[lux]
           </option>
           <option value="気温[℃]">
-            {{ $t("device.temperture") }}
+            気温[℃]
           </option>
           <!-- <option value="気圧[hPa]">
-            {{ $t("device.pressure") }}
+            気圧[hPa]
           </option>
           <option value="湿度[%]">
-            {{ $t("device.humidity") }}
+            湿度[%]
           </option> -->
         </select>
 
@@ -27,16 +27,16 @@
         >
           <option value="" />
           <option value="明るさ[lux]">
-            {{ $t("device.brightness") }}
+            明るさ[lux]
           </option>
           <option value="気温[℃]">
-            {{ $t("device.temperture") }}
+            気温[℃]
           </option>
           <!-- <option value="気圧[hPa]">
-            {{ $t("device.pressure") }}
+            気圧[hPa]
           </option>
           <option value="湿度[%]">
-            {{ $t("device.humidity") }} -->
+            湿度[%] -->
           <!-- </option> -->
         </select>
       </div>
