@@ -9,28 +9,6 @@
   </header>
 </template>
 
-<script>
-import { mapGetters } from 'vuex'
-
-export default {
-  computed: {
-    ...mapGetters({
-      isJapanese: 'language/isJapanese',
-      isEnglish: 'language/isEnglish'
-    })
-  },
-  methods: {
-    setLanguage(lang) {
-      if (
-        (lang === 'ja' && this.isEnglish) ||
-        (lang === 'en' && this.isJapanese)
-      ) {
-        this.$store.commit('language/setLanguage', lang)
-      }
-    }
-  }
-}
-</script>
 <style scoped>
 .main-header {
   position: relative;

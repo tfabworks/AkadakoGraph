@@ -7,7 +7,7 @@
     >
     <div class="group-select-box">
       <button @click="toggleConnection">
-        {{ $t(connectButtonString) }}
+        {{ connectButtonString }}
       </button>
     </div>
   </section>
@@ -21,7 +21,7 @@ export default {
       connected: 'serial/connected',
     }),
     connectButtonString: function() {
-      return this.connected ? 'device.disconnect' : 'device.connect'
+      return this.connected ? 'デバイスを切断する' : 'デバイスを接続する'
     }
   },
   watch: {
@@ -32,7 +32,7 @@ export default {
             console.error(e)
             this.$buefy.toast.open({
               duration: 7000,
-              message: this.$t('app.dashboard.graph.error_warning'),
+              message: '不明なエラーが発生しました',
               position: 'is-top',
               type: 'is-danger'
             })
