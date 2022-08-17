@@ -34,7 +34,7 @@ const state = {
   firmata: null,
   nativePort: null,
   port: null,
-  milliSeconds: 5000,
+  milliSeconds: 1000,
   axisInfo: {
     main: {
       shouldRender: tmpAxisInfo.main ? true : false,
