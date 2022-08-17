@@ -296,7 +296,7 @@ export default {
     }
   },
   watch: {
-    graphKind: async function(newVal, oldVal) {
+    graphKind: function(newVal, oldVal) {
       if (this.existValue) {
         if (this.shouldReDo.main) {
           this.deleteCallFrom = 'main'
@@ -310,7 +310,7 @@ export default {
         }
       }
     },
-    graphKindSub: async function(newVal, oldVal) {
+    graphKindSub: function(newVal, oldVal) {
       if (this.existValue) {
         if (this.shouldReDo.sub) {
           this.deleteCallFrom = 'sub'
@@ -441,6 +441,7 @@ export default {
         this.$store.dispatch('serial/setShouldPause', true)
         this.shouldReDo.main = false
         this.graphKind = this.newKindValue.main
+        this.shouldReDo.main = true
         if (this.graphKind) {
           await this.$store.dispatch('serial/render', true)
         }
@@ -449,6 +450,7 @@ export default {
         this.$store.dispatch('serial/setShouldPause', true)
         this.shouldReDo.sub = false
         this.graphKindSub = this.newKindValue.sub
+        this.shouldReDo.sub = true
         if (this.graphKindSub) {
           await this.$store.dispatch('serial/render', false)
         }
