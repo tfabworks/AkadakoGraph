@@ -3,7 +3,7 @@
     <nav class="menu-area">
       <ConnnectStatus />
       <ul class="menu-area-btn-list">
-        <li
+        <!-- <li
           v-if="isJapanese"
           class="help-icon"
         >
@@ -24,7 +24,7 @@
           >{{
             $t("footer.help")
           }}</a>
-        </li>
+        </li> -->
         <li
           v-if="isJapanese"
           class="privacy-icon"
