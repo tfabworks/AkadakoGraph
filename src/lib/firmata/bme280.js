@@ -147,9 +147,16 @@ export default class BME280 {
      * @param {number} register - starting register
      * @returns {Promise<number>} a Promise which resolves read value
      */
-  read24 (register) {
-    return this.board.i2cReadOnce(this.address, register, 3, this.timeout)
-      .then(data => (data[0] << 16) | (data[1] << 8) | data[0])
+  read24(register) {
+    this.board.i2cConfig()
+    console.log(this.board.i2cReadOnce(this.address, register, 3, this.timeout))
+    return this.board.i2cReadOnce(this.address, register, 3, (data) => ((data[0] << 16) | (data[1] << 8) | data[0]))
+
+    // return this.board.i2cReadOnce(this.address, register, 3, this.timeout)
+    //   .then(data => {
+    //     console.log(data)
+    //     return ((data[0] << 16) | (data[1] << 8) | data[0])
+    //   })
   }
 
   /**
@@ -165,7 +172,7 @@ export default class BME280 {
      * Initialize the sensor
      * @returns {Promise} a Promise which resolves when the sensor was initialized
      */
-  async init () {
+  async init() {
     const chipID = await this.read8(BME280_REG_CHIP_ID)
     if ((chipID !== CHIP_ID_BME280) && (chipID !== CHIP_ID_BMP280)) {
       return Promise.reject(
@@ -203,7 +210,7 @@ export default class BME280 {
      * Read temperature from the sensor
      * @returns {Promise<number>} a Promise which resolves temperature [degree]
      */
-  async readTemperature () {
+  async readTemperature() {
     let adc = await this.read24(BME280_REG_TEMPDATA)
     if (adc === 0x800000) {
       // value in case temperature measurement was disabled

@@ -13,12 +13,12 @@
           <option value="気温[℃]">
             気温[℃]
           </option>
-          <!-- <option value="気圧[hPa]">
+          <option value="気圧[hPa]">
             気圧[hPa]
           </option>
           <option value="湿度[%]">
             湿度[%]
-          </option> -->
+          </option>
         </select>
 
         <select
@@ -32,12 +32,12 @@
           <option value="気温[℃]">
             気温[℃]
           </option>
-          <!-- <option value="気圧[hPa]">
+          <option value="気圧[hPa]">
             気圧[hPa]
           </option>
           <option value="湿度[%]">
-            湿度[%] -->
-          <!-- </option> -->
+            湿度[%]
+          </option>
         </select>
       </div>
 
