@@ -1,8 +1,155 @@
 import Long from 'long'
 
+const address = 118
+
+let dig_T1 = 0
+let dig_T2 = 0
+let dig_T3 = 0
+
+let dig_P1 = 0
+let dig_P2 = 0
+let dig_P3 = 0
+let dig_P4 = 0
+let dig_P5 = 0
+let dig_P6 = 0
+let dig_P7 = 0
+let dig_P8 = 0
+let dig_P9 = 0
+
+let dig_H1 = 0
+let dig_H2 = 0
+let dig_H3 = 0
+let dig_H4 = 0
+let dig_H5 = 0
+let dig_H6 = 0
+let dig_H4_tmp = 0
+let dig_H5_tmp = 0
+
+const init = async (firmata) => {
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 136, 2, v => {
+      dig_T1 = new DataView(new Uint8Array(v).buffer).getUint16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 138, 2, v => {
+      dig_T2 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 140, 2, v => {
+      dig_T3 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 142, 2, v => {
+      dig_P1 = new DataView(new Uint8Array(v).buffer).getUint16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 144, 2, v => {
+      dig_P2 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 146, 2, v => {
+      dig_P3 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 148, 2, v => {
+      dig_P4 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 150, 2, v => {
+      dig_P5 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 152, 2, v => {
+      dig_P6 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 154, 2, v => {
+      dig_P7 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 156, 2, v => {
+      dig_P8 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 158, 2, v => {
+      dig_P9 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
+      resolve()
+    })
+  })
+
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 161, 1, (v) => {
+      dig_H1 = v[0]
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 225, 2, (v) => {
+      dig_H2 = new DataView(new Uint8Array(v).buffer).getUint16(0, true)
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 227, 1, (v) => {
+      dig_H3 = v[0]
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 228, 1, (v) => {
+      dig_H4_tmp = v[0]
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 229, 1, (v) => {
+      dig_H5_tmp = v[0]
+      resolve()
+    })
+  })
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 231, 1, (v) => {
+      dig_H6 = v[0]
+      resolve()
+    })
+  })
+
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(address, 230, 1, (v) => {
+      dig_H5 = (v[0] << 4) | (0x0F & (dig_H5_tmp >> 4))
+      resolve()
+    })
+  })
+
+  firmata.i2cWrite(address, 242, 0x05)
+  firmata.i2cWrite(address, 244, 0xB7)
+}
+
 const getLux = async (firmata) => {
   const i2cAddr = 0x29
-  firmata.i2cConfig()
 
   let ch0, ch1, lux = 0
   return await new Promise((resolveParent) => {
@@ -44,13 +191,9 @@ const getLux = async (firmata) => {
 }
 
 const getTemperature = async (firmata, noLoop) => {
-  firmata.i2cConfig()
+  await init(firmata)
 
-  const address = 118
   let adc = 0
-  let dig_T1 = 0
-  let dig_T2 = 0
-  let dig_T3 = 0
   let tFine = 0
 
   return await new Promise((resolveParent) => {
@@ -60,28 +203,6 @@ const getTemperature = async (firmata, noLoop) => {
         resolve()
       })
     })
-      .then(() => {
-        return Promise.all([
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 136, 2, v => {
-              dig_T1 = new DataView(new Uint8Array(v).buffer).getUint16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 138, 2, v => {
-              dig_T2 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 140, 2, v => {
-              dig_T3 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          })
-        ])
-      })
       .then(() => {
         adc >>= 4
         const var1 = (((adc / 8) - (dig_T1 * 2)) * dig_T2) / 2048
@@ -105,19 +226,9 @@ const getTemperature = async (firmata, noLoop) => {
 }
 
 const getPressure = async (firmata) => {
-  firmata.i2cConfig()
+  await getTemperature(firmata, false)
 
-  const address = 118
   let adc = 0
-  let dig_P1 = 0
-  let dig_P2 = 0
-  let dig_P3 = 0
-  let dig_P4 = 0
-  let dig_P5 = 0
-  let dig_P6 = 0
-  let dig_P7 = 0
-  let dig_P8 = 0
-  let dig_P9 = 0
   const tFine = await getTemperature(firmata, true)
 
   return await new Promise((resolveParent) => {
@@ -127,64 +238,6 @@ const getPressure = async (firmata) => {
         resolve()
       })
     })
-      .then(() => {
-        return Promise.all([
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 142, 2, v => {
-              dig_P1 = new DataView(new Uint8Array(v).buffer).getUint16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 144, 2, v => {
-              dig_P2 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 146, 2, v => {
-              dig_P3 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 148, 2, v => {
-              dig_P4 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 150, 2, v => {
-              dig_P5 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 152, 2, v => {
-              dig_P6 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 154, 2, v => {
-              dig_P7 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 156, 2, v => {
-              dig_P8 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 158, 2, v => {
-              dig_P9 = new DataView(new Uint8Array(v).buffer).getInt16(0, true)
-              resolve()
-            })
-          })
-        ])
-      })
       .then(() => {
         adc >>= 4
         let var1 = (Long.fromValue(tFine)).subtract(128000)
@@ -220,22 +273,12 @@ const getPressure = async (firmata) => {
         resolveParent(Math.round(var4.divide(256.0).toNumber() * 100) / 10000)
       })
   })
-
 }
 
 const getHumidity = async (firmata) => {
-  firmata.i2cConfig()
-  
-  const address = 118
+  await getTemperature(firmata, false)
+
   let adc = 0
-  let dig_H1 = 0
-  let dig_H2 = 0
-  let dig_H3 = 0
-  let dig_H4 = 0
-  let dig_H5 = 0
-  let dig_H6 = 0
-  let dig_H4_tmp = 0
-  let dig_H5_tmp = 0
 
   const var1 = await getTemperature(firmata, true) - 76800
 
@@ -247,54 +290,6 @@ const getHumidity = async (firmata) => {
       })
     })
       .then(() => {
-        return Promise.all([
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 161, 1, (v) => {
-              dig_H1 = v[0]
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 225, 2, (v) => {
-              dig_H2 = new DataView(new Uint8Array(v).buffer).getUint16(0, true)
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 227, 1, (v) => {
-              dig_H3 = v[0]
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 228, 1, (v) => {
-              dig_H4_tmp = v[0]
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 229, 1, (v) => {
-              dig_H5_tmp = v[0]
-              resolve()
-            })
-          }),
-          new Promise((resolve) => {
-            firmata.i2cReadOnce(address, 231, 1, (v) => {
-              dig_H6 = v[0]
-              resolve()
-            })
-          }),
-        ])
-      })
-      .then(() => {
-        new Promise((resolve) => {
-          firmata.i2cReadOnce(address, 230, 1, (v) => {
-            dig_H5 = (v[0] << 4) | (0x0F & (dig_H5_tmp >> 4))
-            resolve()
-          })
-        })
-      })
-      .then(async () => {
         dig_H4 = (dig_H4_tmp << 4) | (0x0F & dig_H5_tmp)
 
         let var2 = (adc * 16384)

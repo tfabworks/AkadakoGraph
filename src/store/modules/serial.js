@@ -140,6 +140,8 @@ const actions = {
         }
         ctx.state.firmata.on('ready', () => { })
       })
+
+      ctx.state.firmata.i2cConfig()
     } catch (e) {
       console.error(e)
     }
