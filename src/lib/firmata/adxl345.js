@@ -1,90 +1,72 @@
-/**
- * acceleration sensor ADX345 API
- */
+import store from '@/store'
 
-
-// register addresses
-const ADXL345_ADDR = 0x53
-const ADXL345_ID = 0xE5
+const address = 0x53
 const DATA_FORMAT = 0x31
 const POWER_CTL = 0x2D
 const DATA_X0 = 0x32
 const FULL_RES_16G = 0x0B
 const MEASURE = 0x08
 
-/**
- * This class is representing a ADXL345.
- */
-export default class ADXL345 {
-  /**
-     * Constructor of ADXL345 instance.
-     * @param {AkadakoBoard} board - connecting akadako board
-     */
-  constructor (board) {
+const getAcceleration = async () => {
+  const firmata = store.state.serial.firmata
 
-    /**
-         * Connecting akadako board
-         * @type {import('./akadako-board').default}
-         */
-    this.board = board
-
-    /**
-         * I2C address
-         * @type {number}
-         */
-    this.address = ADXL345_ADDR
-
-    /**
-         * Timeout for readings in milliseconds.
-         * @type {number}
-         */
-    this.timeout = 2000
-
-    /**
-         * Scale factor for raw data of acceleration
-         */
-    this.scale = {
-      x: 0.0392266, // =(4/1000*9.80665)
-      y: 0.0392266,
-      z: 0.0392266
-    }
+  let acceleration = {
+    x: 0,
+    y: 0,
+    z: 0
   }
 
-  /**
-     * Initialize the sensor
-     * @returns {Promise} a Promise which resolves when the sensor was initialized
-     */
-  init () {
-    return this.readID()
-      .then(id => {
-        if (id !== ADXL345_ID) return Promise.reject(`0x${this.address.toString(16)} is not ADXL345`)
-        this.board.i2cWrite(this.address, DATA_FORMAT, FULL_RES_16G)
-        this.board.i2cWrite(this.address, POWER_CTL, MEASURE)
-      })
-  }
+  firmata.i2cWrite(address, DATA_FORMAT, FULL_RES_16G)
+  firmata.i2cWrite(address, POWER_CTL, MEASURE)
 
-  /**
-     * Read ID of a ADXL345
-     * @returns {Promise} a Promise which resolves ID
-     */
-  readID () {
-    return this.board.i2cReadOnce(this.address, 0x00, 1, this.timeout)
-      .then(data => data[0])
-  }
+  await new Promise((resolve) => {
+    firmata.i2cReadOnce(this.address, DATA_X0, 6, (v) => {
+      const dataView = new DataView(new Uint8Array(v).buffer)
+      acceleration.x = dataView.getInt16(0, true) * 0.0392266
+      acceleration.y = dataView.getInt16(2, true) * 0.0392266
+      acceleration.z = dataView.getInt16(4, true) * 0.0392266
+      resolve()
+    })
+  })
 
-  /**
-     * Return latest acceleration data
-     * @returns {promise<{x: number, y: number, z: number}>} a Promise which resolves acceleration
-     */
-  getAcceleration () {
-    return this.board.i2cReadOnce(this.address, DATA_X0, 6, this.timeout)
-      .then(data => {
-        const dataView = new DataView(new Uint8Array(data).buffer)
-        const acceleration = {}
-        acceleration.x = dataView.getInt16(0, true) * this.scale.x
-        acceleration.y = dataView.getInt16(2, true) * this.scale.y
-        acceleration.z = dataView.getInt16(4, true) * this.scale.z
-        return acceleration
-      })
+  return acceleration
+}
+
+const getAccelerationValue = async (axis) => {
+  const acceleration = await getAcceleration()
+  if (axis === 'absolute') {
+    return Math.round(
+      Math.sqrt(
+        (acceleration.x ** 2) +
+        (acceleration.y ** 2) +
+        (acceleration.z ** 2)
+      ) * 100) / 100
+  } else if (axis === 'x' || axis === 'y' || axis === 'z') {
+    return acceleration[axis]
+  } else {
+    return null
   }
+}
+
+const getRoll = async () => {
+  const acceleration = await getAcceleration()
+  return Math.atan2(acceleration.y, acceleration.z) * 180.0 / Math.PI
+}
+
+const getPitch = async () => {
+  const acceleration = await getAcceleration()
+
+  const angle = Math.atan2(
+    acceleration.x,
+    Math.sqrt((acceleration.y * acceleration.y) + (acceleration.z * acceleration.z))
+  ) *
+    180.0 / Math.PI
+  if (acceleration.z > 0) return angle
+  return ((angle > 0) ? 180 : -180) - angle
+}
+
+export {
+  getAccelerationValue,
+  getRoll,
+  getPitch
 }
