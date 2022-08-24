@@ -1,5 +1,3 @@
-import store from '@/store'
-
 const address = 0x53
 const DATA_FORMAT = 0x31
 const POWER_CTL = 0x2D
@@ -7,9 +5,7 @@ const DATA_X0 = 0x32
 const FULL_RES_16G = 0x0B
 const MEASURE = 0x08
 
-const getAcceleration = async () => {
-  const firmata = store.state.serial.firmata
-
+const getAcceleration = async (firmata) => {
   let acceleration = {
     x: 0,
     y: 0,
@@ -32,8 +28,8 @@ const getAcceleration = async () => {
   return acceleration
 }
 
-const getAccelerationValue = async (axis) => {
-  const acceleration = await getAcceleration()
+const getAccelerationValue = async (firmata, axis) => {
+  const acceleration = await getAcceleration(firmata)
   if (axis === 'absolute') {
     return Math.round(
       Math.sqrt(
@@ -48,13 +44,13 @@ const getAccelerationValue = async (axis) => {
   }
 }
 
-const getRoll = async () => {
-  const acceleration = await getAcceleration()
+const getRoll = async (firmata) => {
+  const acceleration = await getAcceleration(firmata)
   return Math.atan2(acceleration.y, acceleration.z) * 180.0 / Math.PI
 }
 
-const getPitch = async () => {
-  const acceleration = await getAcceleration()
+const getPitch = async (firmata) => {
+  const acceleration = await getAcceleration(firmata)
 
   const angle = Math.atan2(
     acceleration.x,

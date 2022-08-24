@@ -311,20 +311,9 @@ const getHumidity = async (firmata) => {
   })
 }
 
-export const getData = async (firmata, kind) => {
-  try {
-    if (kind == '明るさ[lux]') {
-      return await getLux(firmata)
-    } else if (kind == '気温[℃]') {
-      return await getTemperature(firmata, false)
-    } else if (kind == '気圧[hPa]') {
-      return await getPressure(firmata)
-    } else if (kind == '湿度[%]') {
-      return await getHumidity(firmata)
-    }
-    return null
-  } catch (e) {
-    console.error(e)
-    return null
-  }
+export {
+  getLux,
+  getTemperature,
+  getPressure,
+  getHumidity
 }

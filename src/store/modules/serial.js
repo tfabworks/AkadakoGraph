@@ -5,7 +5,15 @@ import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
-import { getData } from '@/lib/firmata'
+import { 
+  getLux,
+  getTemperature,
+  getPressure,
+  getHumidity,
+  getAccelerationValue,
+  getRoll,
+  getPitch
+} from '@/lib/firmata'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -23,6 +31,37 @@ const milliSecondsList = [
   600000,
   1800000
 ]
+
+const getData = async (kind) => {
+  try {
+    if (kind === '明るさ[lux]') {
+      return await getLux(state.firmata)
+    } else if (kind === '気温[℃]') {
+      return await getTemperature(state.firmata, false)
+    } else if (kind == '気圧[hPa]') {
+      return await getPressure(state.firmata)
+    } else if (kind === '湿度[%]') {
+      return await getHumidity(state.firmata)
+    } else if (kind === '加速度(絶対値)[m/s^2]') {
+      return await getAccelerationValue(state.firmata, 'absolute')
+    } else if (kind === '加速度(X)[m/s^2]') {
+      return await getAccelerationValue(state.firmata, 'x')
+    } else if (kind === '加速度(Y)[m/s^2]') {
+      return await getAccelerationValue(state.firmata, 'y')
+    } else if (kind === '加速度(Z)[m/s^2]') {
+      return await getAccelerationValue(state.firmata, 'z')
+    } else if (kind === '加速度(ロール)[m/s^2]') {
+      return await getRoll(state.firmata)
+    } else if (kind === '加速度(ピッチ)[m/s^2]') {
+      return await getPitch(state.firmata)
+    }
+
+    return null
+  } catch (e) {
+    console.error(e)
+    return null
+  }
+}
 
 const tmpAxisInfo = {
   main: localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '',
@@ -169,9 +208,10 @@ const actions = {
     if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) { // 両方の軸で描画する場合
       // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
+
       Promise.all([
-        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind),
-        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+        getData(ctx.state.axisInfo.main.kind),
+        getData(ctx.state.axisInfo.sub.kind)
       ])
         .then((res) => {
           if (res[0] != null && res[1] != null) {
@@ -196,7 +236,7 @@ const actions = {
           console.error(e)
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind)
+      const data = await getData(ctx.state.axisInfo.main.kind)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: true,
@@ -207,7 +247,7 @@ const actions = {
         })
       }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+      const data = await getData(ctx.state.axisInfo.sub.kind)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: false,
