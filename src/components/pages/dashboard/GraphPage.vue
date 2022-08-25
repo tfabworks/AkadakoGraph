@@ -46,6 +46,30 @@
           <option value="距離(超音波B)[cm]">
             距離(超音波B)[cm]
           </option>
+          <option value="アナログA1">
+            アナログA1
+          </option>
+          <option value="アナログA2">
+            アナログA2
+          </option>
+          <option value="アナログB1">
+            アナログB1
+          </option>
+          <option value="アナログB2">
+            アナログB2
+          </option>
+          <option value="デジタルA1">
+            デジタルA1
+          </option>
+          <option value="デジタルA2">
+            デジタルA2
+          </option>
+          <option value="デジタルB1">
+            デジタルB1
+          </option>
+          <option value="デジタルB2">
+            デジタルB2
+          </option>
         </select>
 
         <select
@@ -91,6 +115,30 @@
           </option>
           <option value="距離(超音波B)[cm]">
             距離(超音波B)[cm]
+          </option>
+          <option value="アナログA1">
+            アナログA1
+          </option>
+          <option value="アナログA2">
+            アナログA2
+          </option>
+          <option value="アナログB1">
+            アナログB1
+          </option>
+          <option value="アナログB2">
+            アナログB2
+          </option>
+          <option value="デジタルA1">
+            デジタルA1
+          </option>
+          <option value="デジタルA2">
+            デジタルA2
+          </option>
+          <option value="デジタルB1">
+            デジタルB1
+          </option>
+          <option value="デジタルB2">
+            デジタルB2
           </option>
         </select>
       </div>

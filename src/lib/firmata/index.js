@@ -17,6 +17,17 @@ import {
   getDistanceB
 } from './vl53l0x'
 
+import {
+  getAnalogA1,
+  getAnalogA2,
+  getAnalogB1,
+  getAnalogB2,
+  getDigitalA1,
+  getDigitalA2,
+  getDigitalB1,
+  getDigitalB2
+} from './board'
+
 export const getData = async (firmata, kind, Firmata) => {
   try {
     if (kind === '明るさ[lux]') {
@@ -45,6 +56,22 @@ export const getData = async (firmata, kind, Firmata) => {
       return await getDistanceA(firmata, Firmata)
     } else if (kind === '距離(超音波B)[cm]') {
       return await getDistanceB(firmata, Firmata)
+    } else if (kind === 'アナログA1') {
+      return await getAnalogA1(firmata)
+    } else if (kind === 'アナログA2') {
+      return await getAnalogA2(firmata)
+    } else if (kind === 'アナログB1') {
+      return await getAnalogB1(firmata)
+    } else if (kind === 'アナログB2') {
+      return await getAnalogB2(firmata)
+    } else if (kind === 'デジタルA1') {
+      return await getDigitalA1(firmata)
+    } else if (kind === 'デジタルA2') {
+      return await getDigitalA2(firmata)
+    } else if (kind === 'デジタルB1') {
+      return await getDigitalB1(firmata)
+    } else if (kind === 'デジタルB2') {
+      return await getDigitalB2(firmata)
     }
 
     return null
