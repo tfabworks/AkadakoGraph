@@ -16,7 +16,7 @@ const getAcceleration = async (firmata) => {
   firmata.i2cWrite(address, POWER_CTL, MEASURE)
 
   await new Promise((resolve) => {
-    firmata.i2cReadOnce(this.address, DATA_X0, 6, (v) => {
+    firmata.i2cReadOnce(address, DATA_X0, 6, (v) => {
       const dataView = new DataView(new Uint8Array(v).buffer)
       acceleration.x = dataView.getInt16(0, true) * 0.0392266
       acceleration.y = dataView.getInt16(2, true) * 0.0392266

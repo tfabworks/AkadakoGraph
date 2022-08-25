@@ -19,6 +19,33 @@
           <option value="湿度[%]">
             湿度[%]
           </option>
+          <option value="加速度(絶対値)[m/s^2]">
+            加速度(絶対値)[m/s^2]
+          </option>
+          <option value="加速度(X)[m/s^2]">
+            加速度(X)[m/s^2]
+          </option>
+          <option value="加速度(Y)[m/s^2]">
+            加速度(Y)[m/s^2]
+          </option>
+          <option value="加速度(Z)[m/s^2]">
+            加速度(Z)[m/s^2]
+          </option>
+          <option value="加速度(ロール)[°]">
+            加速度(ロール)[°]
+          </option>
+          <option value="加速度(ピッチ)[°]">
+            加速度(ピッチ)[°]
+          </option>
+          <option value="距離(レーザー)[cm]">
+            距離(レーザー)[cm]
+          </option>
+          <option value="距離(超音波A)[cm]">
+            距離(超音波A)[cm]
+          </option>
+          <option value="距離(超音波B)[cm]">
+            距離(超音波B)[cm]
+          </option>
         </select>
 
         <select
@@ -37,6 +64,33 @@
           </option>
           <option value="湿度[%]">
             湿度[%]
+          </option>
+          <option value="加速度(絶対値)[m/s^2]">
+            加速度(絶対値)[m/s^2]
+          </option>
+          <option value="加速度(X)[m/s^2]">
+            加速度(X)[m/s^2]
+          </option>
+          <option value="加速度(Y)[m/s^2]">
+            加速度(Y)[m/s^2]
+          </option>
+          <option value="加速度(Z)[m/s^2]">
+            加速度(Z)[m/s^2]
+          </option>
+          <option value="加速度(ロール)[°]">
+            加速度(ロール)[°]
+          </option>
+          <option value="加速度(ピッチ)[°]">
+            加速度(ピッチ)[°]
+          </option>
+          <option value="距離(レーザー)[cm]">
+            距離(レーザー)[cm]
+          </option>
+          <option value="距離(超音波A)[cm]">
+            距離(超音波A)[cm]
+          </option>
+          <option value="距離(超音波B)[cm]">
+            距離(超音波B)[cm]
           </option>
         </select>
       </div>
