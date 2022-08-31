@@ -46,6 +46,12 @@
           <option value="距離(超音波B)[cm]">
             距離(超音波B)[cm]
           </option>
+          <option value="水温(デジタルA1)[℃]">
+            水温(デジタルA1)[℃]
+          </option>
+          <option value="水温(デジタルB1)[℃]">
+            水温(デジタルB1)[℃]
+          </option>
           <option value="アナログA1">
             アナログA1
           </option>
@@ -115,6 +121,12 @@
           </option>
           <option value="距離(超音波B)[cm]">
             距離(超音波B)[cm]
+          </option>
+          <option value="水温(デジタルA1)[℃]">
+            水温(デジタルA1)[℃]
+          </option>
+          <option value="水温(デジタルB1)[℃]">
+            水温(デジタルB1)[℃]
           </option>
           <option value="アナログA1">
             アナログA1

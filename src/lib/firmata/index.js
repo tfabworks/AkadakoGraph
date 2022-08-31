@@ -18,6 +18,8 @@ import {
 } from './vl53l0x'
 
 import {
+  getWaterTemperatureA,
+  getWaterTemperatureB,
   getAnalogA1,
   getAnalogA2,
   getAnalogB1,
@@ -56,6 +58,10 @@ export const getData = async (firmata, kind, Firmata) => {
       return await getDistanceA(firmata, Firmata)
     } else if (kind === '距離(超音波B)[cm]') {
       return await getDistanceB(firmata, Firmata)
+    } else if (kind === '水温(デジタルA1)[℃]') {
+      return await getWaterTemperatureA(firmata)
+    } else if (kind === '水温(デジタルB1)[℃]') {
+      return await getWaterTemperatureB(firmata)
     } else if (kind === 'アナログA1') {
       return await getAnalogA1(firmata)
     } else if (kind === 'アナログA2') {

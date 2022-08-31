@@ -8,8 +8,88 @@ const analogReadInterval = 20
 const updateAnalogInputWaitingTime = 100
 const digitalReadInterval = 20
 const updateDigitalInputWaitingTime = 100
+const sendingInterval = 10
+const oneWireReadWaitingTime = 100
+let oneWireDevices = null
 
 const timeoutReject = delay => new Promise((_, reject) => setTimeout(() => reject(`timeout ${delay}ms`), delay))
+
+const sendOneWireReset = (firmata, pin) => {
+  return new Promise(resolve => {
+    firmata.sendOneWireReset(pin)
+    setTimeout(() => resolve(), sendingInterval)
+  })
+}
+
+const oneWireWrite = (firmata, pin, data) => {
+  return searchOneWireDevices(firmata, pin)
+    .then(devices => {
+      firmata.sendOneWireWrite(pin, devices[0], data)
+    })
+}
+
+const searchOneWireDevices = (firmata, pin) => {
+  return new Promise((resolve, reject) => {
+    if (firmata.pins[pin].mode !== firmata.MODES.ONEWIRE) {
+      firmata.sendOneWireConfig(pin, true)
+      return firmata.sendOneWireSearch(pin, (error, founds) => {
+        console.log(error, founds)
+        if (error) return reject(error)
+        if (founds.length < 1) return reject(new Error('no device'))
+        firmata.pinMode(pin, firmata.MODES.ONEWIRE)
+        oneWireDevices = founds
+        firmata.sendOneWireDelay(pin, 1)
+        resolve(oneWireDevices)
+      })
+    }
+    resolve(oneWireDevices)
+  })
+}
+
+const oneWireWriteAndRead = (firmata, pin, data, readLength) => {
+  const request = searchOneWireDevices(firmata, pin)
+    .then(devices =>
+      new Promise((resolve, reject) => {
+        firmata.sendOneWireWriteAndRead(
+          pin,
+          devices[0],
+          data,
+          readLength,
+          (readError, readData) => {
+            if (readError) return reject(readError)
+            resolve(readData)
+          }
+        )
+      })
+    )
+  return Promise.race([request, timeoutReject(oneWireReadWaitingTime)])
+}
+
+const getTemperatureDS18B20 = (firmata, pin) => {
+  return sendOneWireReset(firmata, pin)
+    .then(() => oneWireWrite(firmata, pin, 0x44))
+    .then(() => sendOneWireReset(firmata, pin))
+    .then(() => oneWireWriteAndRead(firmata, pin, 0xBE, 9))
+    .then(data => {
+      const buffer = new Uint8Array(data).buffer
+      const dataView = new DataView(buffer)
+      const rawTemp = dataView.getInt16(0, true)
+      return Math.round((rawTemp / 16) * 10) / 10
+    })
+}
+
+const getWaterTemperatureA = (firmata) => {
+  return getTemperatureDS18B20(firmata, 10)
+    .catch((e) => {
+      console.log(e)
+      return null
+    })
+}
+
+const getWaterTemperatureB = (firmata) => {
+  return getTemperatureDS18B20(firmata, 6)
+    .catch(() => null)
+}
 
 const getDigital = (firmata, pin) => {
   if (
@@ -116,6 +196,8 @@ const getAnalogB2 = (firmata) => {
 }
 
 export {
+  getWaterTemperatureA,
+  getWaterTemperatureB,
   getAnalogA1,
   getAnalogA2,
   getAnalogB1,
