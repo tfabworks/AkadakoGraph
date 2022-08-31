@@ -33,7 +33,6 @@ const searchOneWireDevices = (firmata, pin) => {
     if (firmata.pins[pin].mode !== firmata.MODES.ONEWIRE) {
       firmata.sendOneWireConfig(pin, true)
       return firmata.sendOneWireSearch(pin, (error, founds) => {
-        console.log(error, founds)
         if (error) return reject(error)
         if (founds.length < 1) return reject(new Error('no device'))
         firmata.pinMode(pin, firmata.MODES.ONEWIRE)
@@ -81,7 +80,7 @@ const getTemperatureDS18B20 = (firmata, pin) => {
 const getWaterTemperatureA = (firmata) => {
   return getTemperatureDS18B20(firmata, 10)
     .catch((e) => {
-      console.log(e)
+      console.error(e)
       return null
     })
 }

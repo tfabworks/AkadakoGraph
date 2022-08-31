@@ -46,10 +46,16 @@
           <option value="距離(超音波B)[cm]">
             距離(超音波B)[cm]
           </option>
-          <option value="水温(デジタルA1)[℃]">
+          <option
+            v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルA1)[℃]"
+          >
             水温(デジタルA1)[℃]
           </option>
-          <option value="水温(デジタルB1)[℃]">
+          <option
+            v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルB1)[℃]"
+          >
             水温(デジタルB1)[℃]
           </option>
           <option value="アナログA1">
@@ -122,10 +128,16 @@
           <option value="距離(超音波B)[cm]">
             距離(超音波B)[cm]
           </option>
-          <option value="水温(デジタルA1)[℃]">
+          <option
+            v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルA1)[℃]"
+          >
             水温(デジタルA1)[℃]
           </option>
-          <option value="水温(デジタルB1)[℃]">
+          <option
+            v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルB1)[℃]"
+          >
             水温(デジタルB1)[℃]
           </option>
           <option value="アナログA1">
