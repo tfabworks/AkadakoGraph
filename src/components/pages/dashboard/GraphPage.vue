@@ -43,7 +43,7 @@
 
       <Graph
         ref="renderGraphRelative"
-        style="background-color: #EEEEEE; padding: 10px;"
+        style="background-color: #EEEEEE; padding: 8px;"
         :source="source"
         :source-type="{
           main: source.main.length,
@@ -581,8 +581,8 @@ select{
   text-align: center;
   width: 100%;
   background: #fff;
-  margin: 20px 0;
-  padding: 30px;
+  margin: 0 0 15px 0;
+  padding: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }

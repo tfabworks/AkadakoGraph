@@ -22,17 +22,8 @@ export default {
   justify-content:space-between;
 }
 .content-area {
-  padding: 35px 5%;
+  padding: 15px 5%;
   width: calc(100% - 220px);
   background: #f5f5f5;
-}
-
-.content-box {
-  width: 100%;
-  background: #fff;
-  margin: 35px 0;
-  padding: 40px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
 }
 </style>
