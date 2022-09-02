@@ -13,12 +13,75 @@
           <option value="気温[℃]">
             気温[℃]
           </option>
-          <!-- <option value="気圧[hPa]">
+          <option value="気圧[hPa]">
             気圧[hPa]
           </option>
           <option value="湿度[%]">
             湿度[%]
-          </option> -->
+          </option>
+          <option value="加速度(絶対値)[m/s^2]">
+            加速度(絶対値)[m/s^2]
+          </option>
+          <option value="加速度(X)[m/s^2]">
+            加速度(X)[m/s^2]
+          </option>
+          <option value="加速度(Y)[m/s^2]">
+            加速度(Y)[m/s^2]
+          </option>
+          <option value="加速度(Z)[m/s^2]">
+            加速度(Z)[m/s^2]
+          </option>
+          <option value="加速度(ロール)[°]">
+            加速度(ロール)[°]
+          </option>
+          <option value="加速度(ピッチ)[°]">
+            加速度(ピッチ)[°]
+          </option>
+          <option value="距離(レーザー)[cm]">
+            距離(レーザー)[cm]
+          </option>
+          <option value="距離(超音波A)[cm]">
+            距離(超音波A)[cm]
+          </option>
+          <option value="距離(超音波B)[cm]">
+            距離(超音波B)[cm]
+          </option>
+          <option
+            v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルA1)[℃]"
+          >
+            水温(デジタルA1)[℃]
+          </option>
+          <option
+            v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルB1)[℃]"
+          >
+            水温(デジタルB1)[℃]
+          </option>
+          <option value="アナログA1">
+            アナログA1
+          </option>
+          <option value="アナログA2">
+            アナログA2
+          </option>
+          <option value="アナログB1">
+            アナログB1
+          </option>
+          <option value="アナログB2">
+            アナログB2
+          </option>
+          <option value="デジタルA1">
+            デジタルA1
+          </option>
+          <option value="デジタルA2">
+            デジタルA2
+          </option>
+          <option value="デジタルB1">
+            デジタルB1
+          </option>
+          <option value="デジタルB2">
+            デジタルB2
+          </option>
         </select>
 
         <select
@@ -32,12 +95,75 @@
           <option value="気温[℃]">
             気温[℃]
           </option>
-          <!-- <option value="気圧[hPa]">
+          <option value="気圧[hPa]">
             気圧[hPa]
           </option>
           <option value="湿度[%]">
-            湿度[%] -->
-          <!-- </option> -->
+            湿度[%]
+          </option>
+          <option value="加速度(絶対値)[m/s^2]">
+            加速度(絶対値)[m/s^2]
+          </option>
+          <option value="加速度(X)[m/s^2]">
+            加速度(X)[m/s^2]
+          </option>
+          <option value="加速度(Y)[m/s^2]">
+            加速度(Y)[m/s^2]
+          </option>
+          <option value="加速度(Z)[m/s^2]">
+            加速度(Z)[m/s^2]
+          </option>
+          <option value="加速度(ロール)[°]">
+            加速度(ロール)[°]
+          </option>
+          <option value="加速度(ピッチ)[°]">
+            加速度(ピッチ)[°]
+          </option>
+          <option value="距離(レーザー)[cm]">
+            距離(レーザー)[cm]
+          </option>
+          <option value="距離(超音波A)[cm]">
+            距離(超音波A)[cm]
+          </option>
+          <option value="距離(超音波B)[cm]">
+            距離(超音波B)[cm]
+          </option>
+          <option
+            v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルA1)[℃]"
+          >
+            水温(デジタルA1)[℃]
+          </option>
+          <option
+            v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
+            value="水温(デジタルB1)[℃]"
+          >
+            水温(デジタルB1)[℃]
+          </option>
+          <option value="アナログA1">
+            アナログA1
+          </option>
+          <option value="アナログA2">
+            アナログA2
+          </option>
+          <option value="アナログB1">
+            アナログB1
+          </option>
+          <option value="アナログB2">
+            アナログB2
+          </option>
+          <option value="デジタルA1">
+            デジタルA1
+          </option>
+          <option value="デジタルA2">
+            デジタルA2
+          </option>
+          <option value="デジタルB1">
+            デジタルB1
+          </option>
+          <option value="デジタルB2">
+            デジタルB2
+          </option>
         </select>
       </div>
 

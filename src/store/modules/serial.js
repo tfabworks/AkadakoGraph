@@ -31,6 +31,7 @@ const tmpAxisInfo = {
 
 const state = {
   connectState: 'disConnect',
+  Firmata: null,
   firmata: null,
   nativePort: null,
   port: null,
@@ -117,6 +118,7 @@ const actions = {
     try {
       SerialPort.Binding = WSABinding
       const Firmata = bindTransport(SerialPort)
+      ctx.state.Firmata = Firmata
       ctx.state.nativePort = await navigator.serial.requestPort({
         filters: [
           { usbVendorId: 0x04D8, usbProductId: 0xE83A }, // Licensed for AkaDako
@@ -140,6 +142,8 @@ const actions = {
         }
         ctx.state.firmata.on('ready', () => { })
       })
+
+      ctx.state.firmata.i2cConfig()
     } catch (e) {
       console.error(e)
     }
@@ -167,9 +171,10 @@ const actions = {
     if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) { // 両方の軸で描画する場合
       // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
+
       Promise.all([
-        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind),
-        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata),
+        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata)
       ])
         .then((res) => {
           if (res[0] != null && res[1] != null) {
@@ -194,7 +199,7 @@ const actions = {
           console.error(e)
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind)
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: true,
@@ -205,7 +210,7 @@ const actions = {
         })
       }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind)
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: false,
