@@ -1,5 +1,6 @@
 <template>
   <div class="content-wrap">
+    <CommonAd />
     <SideMenu />
     <GraphPage />
   </div>
@@ -8,11 +9,13 @@
 <script>
 import SideMenu from './DashboardSideMenu.vue'
 import GraphPage from './dashboard/GraphPage'
+import CommonAd from '../view/CommonAd.vue'
 
 export default {
   components: { 
     SideMenu,
-    GraphPage
+    GraphPage,
+    CommonAd
   }
 }
 </script>
