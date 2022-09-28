@@ -1,16 +1,25 @@
 import { mount, createLocalVue, config } from '@vue/test-utils'
 import Dashboard from '@/components/pages/Dashboard.vue'
+import Vuex from 'vuex'
+jest.mock('chart.js')
 
 config.showDeprecationWarnings = false
 
 jest.setTimeout(10000)
 
 const localVue = createLocalVue()
+localVue.use(Vuex)
+const store = new Vuex.Store({
+  modules: {
+    serial: require('@/store/modules/serial').default
+  }
+})
 let wrapper = {}
 
 beforeEach(() => {
   wrapper = mount(Dashboard, {
-    localVue
+    localVue,
+    store
   })
 })
 
