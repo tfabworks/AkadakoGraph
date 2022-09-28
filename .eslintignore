@@ -1,2 +1,3 @@
 package.json
-.eslintrc.js
+jest.config.js
+jest_setup.js

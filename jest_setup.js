@@ -2,4 +2,4 @@ import Vue from 'vue'
 import Buefy from 'buefy'
 Vue.use(Buefy)
 
-import 'jest-localstorage-mock'
+import 'jest-canvas-mock'

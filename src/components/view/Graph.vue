@@ -9,7 +9,7 @@ export default {
       required: true
     },
     sourceType: {
-      type: Array,
+      type: Object,
       required: true
     }
   },
