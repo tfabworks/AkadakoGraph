@@ -32,7 +32,7 @@ import {
 
 export const getData = async (firmata, kind, Firmata) => {
   try {
-    if (kind === '明るさ[lux]') {
+    if (kind === '明るさ[lx]') {
       return await getLux(firmata)
     } else if (kind === '気温[℃]') {
       return await getTemperature(firmata, false)

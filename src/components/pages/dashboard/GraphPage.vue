@@ -7,8 +7,8 @@
           :disabled="!connected"
         >
           <option value="" />
-          <option value="明るさ[lux]">
-            明るさ[lux]
+          <option value="明るさ[lx]">
+            明るさ[lx]
           </option>
           <option value="気温[℃]">
             気温[℃]
@@ -89,8 +89,8 @@
           :disabled="!connected"
         >
           <option value="" />
-          <option value="明るさ[lux]">
-            明るさ[lux]
+          <option value="明るさ[lx]">
+            明るさ[lx]
           </option>
           <option value="気温[℃]">
             気温[℃]
