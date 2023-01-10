@@ -62,7 +62,7 @@ const VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV = 0x89
 const VcselPeriodPreRange = 0
 const VcselPeriodFinalRange = 1
 
-const address = 0x29
+let address = 0x29
 let firmata
 let timeout_start_ms = Date.now()
 let io_timeout = 500
@@ -468,7 +468,7 @@ const init = async (firmata_, io2v8) => {
   // the API, but the same data seems to be more easily readable from
   // GLOBAL_CONFIG_SPAD_ENABLES_REF_0 through _6, so read it from there
   const refSpadMap = await readMulti(GLOBAL_CONFIG_SPAD_ENABLES_REF_0, 6)
-  console.log(refSpadMap)
+  // console.log(refSpadMap)
 
   // -- VL53L0X_set_reference_spads() begin (assume NVM values are valid)
 
@@ -695,7 +695,9 @@ const pingSensor = (firmata, Firmata, pin, timeout) => {
       firmata.clearSysexResponse(PING_SENSOR_COMMAND)
     })
 }
-const getDistanceL = async (firmata) => {
+const getDistanceL = async (firmata, address_) => {
+  address = address_
+
   await init(firmata, true)
   startContinuous()
 
@@ -711,7 +713,9 @@ const getDistanceL = async (firmata) => {
   return await readReg16Bit(RESULT_RANGE_STATUS + 10) / 10
 }
 
-const getDistanceA = async (firmata, Firmata) => {
+const getDistanceA = async (firmata, Firmata, address_) => {
+  address = address_
+  
   return pingSensor(firmata, Firmata, 10)
     .then((v) => (
       Math.round(v / 10)
@@ -719,7 +723,9 @@ const getDistanceA = async (firmata, Firmata) => {
     .catch(() => (0))
 }
 
-const getDistanceB = async (firmata, Firmata) => {
+const getDistanceB = async (firmata, Firmata, address_) => {
+  address = address_
+
   return pingSensor(firmata, Firmata, 6)
     .then((v) => (
       Math.round(v / 10)

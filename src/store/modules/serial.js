@@ -6,10 +6,252 @@ import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
 import { getData } from '@/lib/firmata'
+import MidiDakoTransport from '@/lib/midi/transport'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault(dayjs.tz.guess())
+
+const getSettings = () => ({
+  pins: [
+    {
+      supportedModes: [], value: 0, report: 1, analogChannel: 127
+    },
+    {
+      supportedModes: [], value: 0, report: 1, analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        3,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        3,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        3,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        3,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        3,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        3,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 127
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        2,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 0
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        2,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 1
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        2,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 2
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        2,
+        4,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 3
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        2,
+        4,
+        6,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 4
+    },
+    {
+      supportedModes: [
+        0,
+        1,
+        2,
+        4,
+        6,
+        11
+      ],
+      value: 0,
+      report: 1,
+      analogChannel: 5
+    }
+  ],
+  analogPins: [
+    14,
+    15,
+    16,
+    17,
+    18,
+    19
+  ]
+})
+
+const timeoutReject = delay =>
+  new Promise(
+    (_, reject) => {
+      setTimeout(
+        () => reject(`timeout ${delay}ms`),
+        delay
+      )
+    }
+  )
 
 const milliSecondsList = [
   1000,
@@ -24,17 +266,27 @@ const milliSecondsList = [
   1800000
 ]
 
+const connectingWaitingTime = 1000
+const boardVersionWaitingTime = 200
+const BOARD_VERSION_QUERY = 15
+
 const tmpAxisInfo = {
   main: localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '',
   sub: localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : ''
 }
 
 const state = {
-  connectState: 'disConnect',
   Firmata: null,
   firmata: null,
-  nativePort: null,
-  port: null,
+  serial: {
+    nativePort: null,
+    port: null,
+  },
+  midi: {
+    portInfo: null
+  },
+  version: null,
+  isSerial: false,
   milliSeconds: 1000,
   axisInfo: {
     main: {
@@ -114,7 +366,172 @@ const mutations = {
 }
 
 const actions = {
-  async connect(ctx) {
+  setupFirmata(ctx) {
+    // Setup firmata
+    ctx.state.firmata.once('open', () => {
+      // this.state = 'connect'
+      // this.emit('connect')
+    })
+    ctx.state.firmata.once('close', () => {
+      // if (this.state === 'disconnect') return
+      // this.releaseBoard()
+    })
+    ctx.state.firmata.once('disconnect', error => {
+      console.error(error)
+      // if (this.state === 'disconnect') return
+      // this.handleDisconnectError(error)
+    })
+    ctx.state.firmata.once('error', error => {
+      console.error(error)
+      // if (this.state === 'disconnect') return
+      // this.handleDisconnectError(error)
+    })
+  },
+  boardVersion(ctx) {
+    if (ctx.state.version) return Promise.resolve(`${ctx.state.version.type}.${ctx.state.version.major}.${ctx.state.version.minor}`)
+
+    const Firmata = bindTransport.Firmata
+    const request = new Promise(resolve => {
+      ctx.state.firmata.sysexResponse(BOARD_VERSION_QUERY, data => {
+        const value = Firmata.decode([data[0], data[1]])
+        ctx.state.version = {
+          type: (value >> 10) & 0x0F,
+          major: (value >> 6) & 0x0F,
+          minor: value & 0x3F
+        }
+        resolve(`${ctx.state.version.type}.${ctx.state.version.major}.${ctx.state.version.minor}`)
+      })
+      ctx.state.firmata.sysexCommand([BOARD_VERSION_QUERY])
+    })
+    return Promise.race([request, timeoutReject(boardVersionWaitingTime)])
+      .finally(() => {
+        ctx.state.firmata.clearSysexResponse(BOARD_VERSION_QUERY)
+      })
+  },
+  async midiOpen(ctx) {
+    try {
+      const filters = [
+        { manufacturer: null, name: /STEAM BOX/ },
+        { manufacturer: null, name: /MidiDako/  },
+        { manufacturer: null, name: /AkaDako/   }
+      ]
+
+      let inputPort = null
+      let outputPort = null
+
+      const midiAccess = await navigator.requestMIDIAccess({ sysex: true })
+
+      for (const filter of filters) {
+        const availablePorts = []
+
+        midiAccess.inputs.forEach(port => {
+          if ((!filter.manufacturer || filter.manufacturer.test(port.manufacturer)) &&
+            (!filter.name || filter.name.test(port.name))) {
+            availablePorts.push(port)
+          }
+        })
+        
+        if (availablePorts.length > 0) {
+          inputPort = availablePorts[0]
+          break
+        }
+      }
+      if (!inputPort) {
+        console.log('MIDIInput')
+        midiAccess.inputs.forEach(port => {
+          console.log(`    {manufacturer:"${port.manufacturer}", name:"${port.name}"}\n`)
+        })
+        return Promise.reject('no available MIDIInput for the filters')
+      }
+
+      for (const filter of filters) {
+        const availablePorts = []
+        midiAccess.outputs.forEach(port => {
+          if ((!filter.manufacturer || filter.manufacturer.test(port.manufacturer)) &&
+            (!filter.name || filter.name.test(port.name))) {
+            availablePorts.push(port)
+          }
+        })
+        if (availablePorts.length > 0) {
+          outputPort = availablePorts[0]
+          break
+        }
+      }
+      if (!outputPort) {
+        console.log('MIDIOutput')
+        midiAccess.outputs.forEach(port => {
+          console.log(`    {manufacturer:"${port.manufacturer}", name:"${port.name}"}\n`)
+        })
+        return Promise.reject('no available MIDIOutput for the filters')
+      }
+
+      ctx.state.midi.portInfo = {
+        manufacturer: inputPort.manufacturer,
+        name: inputPort.name
+      }
+
+      const transport = new MidiDakoTransport(inputPort, outputPort)
+      if (!transport.isConnected()) {
+        await transport.open()
+      }
+      return transport
+    } catch (e) {
+      console.error(e)
+    }
+  },
+  async midiConnect(ctx) {
+    try {
+      const Firmata = bindTransport.Firmata
+
+      const port = await ctx.dispatch('midiOpen')
+      
+      const request = new Promise(resolve => {
+        const { pins, analogPins } = getSettings()
+        ctx.state.firmata = new Firmata(
+          port,
+          {
+            reportVersionTimeout: 0,
+            skipCapabilities: true,
+            pins: pins,
+            analogPins: analogPins
+          },
+          async () => {
+            ctx.dispatch('setupFirmata')
+            await ctx.dispatch('boardVersion')
+            ctx.state.firmata.firmware = {
+              name: String(ctx.state.version.type),
+              version: {
+                major: ctx.state.version.major,
+                minor: ctx.state.version.minor
+              }
+            }
+            ctx.state.firmata.queryAnalogMapping(() => {
+              ctx.state.firmata.i2cConfig()
+              resolve()
+            })
+          }
+        )
+        // make the firmata initialize
+        // firmata version is fixed for MidiDako
+        ctx.state.firmata.version.major = 2
+        ctx.state.firmata.version.minor = 3
+        ctx.state.firmata.emit('reportversion') // skip version query
+        ctx.state.firmata.emit('queryfirmware') // skip firmware query
+      })
+
+      ctx.state.isSerial = false
+
+      return Promise.race([request, timeoutReject(connectingWaitingTime)])
+        .catch(reason => {
+          ctx.dispatch('disConnect')
+          return Promise.reject(reason)
+        })
+    } catch (e) {
+      console.error(e)
+      return Promise.reject()
+    }
+  },
+  async serialConnect(ctx) {
     try {
       SerialPort.Binding = WSABinding
       const Firmata = bindTransport(SerialPort)
@@ -144,15 +561,25 @@ const actions = {
       })
 
       ctx.state.firmata.i2cConfig()
+
+      ctx.state.isSerial = true
     } catch (e) {
       console.error(e)
     }
   },
+  async connect(ctx) {
+    ctx.dispatch('midiConnect')
+      .catch(() => {
+        ctx.dispatch('serialConnect')
+      })
+  },
   disConnect(ctx) {
-    ctx.state.port.close()
+    if (ctx.state.serial.port) {
+      ctx.state.serial.port.close()
+    }
     ctx.state.firmata.on('close', () => {})
-    ctx.state.nativePort = null
-    ctx.state.port = null
+    ctx.state.serial.nativePort = null
+    ctx.state.serial.port = null
     ctx.state.firmata = null
     ctx.state.axisInfo.main.shouldRender = false
     ctx.state.axisInfo.sub.shouldRender = false
@@ -173,8 +600,8 @@ const actions = {
       // どちらかの取得に失敗した場合は描画しない
 
       Promise.all([
-        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata),
-        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata)
+        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata, ctx.state.version),
+        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata, ctx.state.version)
       ])
         .then((res) => {
           if (res[0] != null && res[1] != null) {
@@ -199,7 +626,7 @@ const actions = {
           console.error(e)
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata)
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata, ctx.state.version)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: true,
@@ -210,7 +637,7 @@ const actions = {
         })
       }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata)
+      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata, ctx.state.version)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: false,
