@@ -45,8 +45,6 @@ class MidiDakoTransport extends EventEmitter {
    * @param {Event} event changed state of a MIDIPort [input | output]
    */
   onStateChange(event) {
-    console.log(event)
-
     if (event.port.state === 'connected') {
       if (!this.isOpen) {
         if (this.input.state === 'connected' && this.output.state === 'connected') {

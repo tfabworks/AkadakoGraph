@@ -14,223 +14,203 @@ dayjs.tz.setDefault(dayjs.tz.guess())
 
 const getSettings = () => ({
   pins: [
-    {
-      supportedModes: [], value: 0, report: 1, analogChannel: 127
+    {supportedModes: [], value: 0, report: 1, analogChannel: 127
     },
-    {
-      supportedModes: [], value: 0, report: 1, analogChannel: 127
+    {supportedModes: [], value: 0, report: 1, analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        3,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      3,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        3,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      3,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        3,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      3,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        3,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      3,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        3,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      3,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        3,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      3,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 127
+    {supportedModes: [
+      0,
+      1,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 127
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        2,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 0
+    {supportedModes: [
+      0,
+      1,
+      2,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 0
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        2,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 1
+    {supportedModes: [
+      0,
+      1,
+      2,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 1
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        2,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 2
+    {supportedModes: [
+      0,
+      1,
+      2,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 2
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        2,
-        4,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 3
+    {supportedModes: [
+      0,
+      1,
+      2,
+      4,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 3
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        2,
-        4,
-        6,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 4
+    {supportedModes: [
+      0,
+      1,
+      2,
+      4,
+      6,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 4
     },
-    {
-      supportedModes: [
-        0,
-        1,
-        2,
-        4,
-        6,
-        11
-      ],
-      value: 0,
-      report: 1,
-      analogChannel: 5
+    {supportedModes: [
+      0,
+      1,
+      2,
+      4,
+      6,
+      11
+    ],
+    value: 0,
+    report: 1,
+    analogChannel: 5
     }
   ],
   analogPins: [
@@ -269,6 +249,8 @@ const milliSecondsList = [
 const connectingWaitingTime = 1000
 const boardVersionWaitingTime = 200
 const BOARD_VERSION_QUERY = 15
+const WATER_TEMPERATURE_QUERY = 2
+const ULTRASONIC_DISTANCE_QUERY = 1
 
 const tmpAxisInfo = {
   main: localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '',
@@ -369,6 +351,7 @@ const actions = {
   setupFirmata(ctx) {
     // Setup firmata
     ctx.state.firmata.once('open', () => {
+      ctx.state.firmata.on('ready', () => {})
       // this.state = 'connect'
       // this.emit('connect')
     })
@@ -386,27 +369,43 @@ const actions = {
       // if (this.state === 'disconnect') return
       // this.handleDisconnectError(error)
     })
+    ctx.state.firmata.clearSysexResponse(WATER_TEMPERATURE_QUERY)
+    ctx.state.firmata.sysexResponse(WATER_TEMPERATURE_QUERY, data => {
+      const pin = data[0]
+      ctx.state.firmata.emit(`water-temp-reply-${pin}`, data.slice(1))
+    })
+    ctx.state.firmata.clearSysexResponse(ULTRASONIC_DISTANCE_QUERY)
+    ctx.state.firmata.sysexResponse(ULTRASONIC_DISTANCE_QUERY, data => {
+      const pin = data[0]
+      ctx.state.firmata.emit(`ultrasonic-distance-reply-${pin}`, data.slice(1))
+    })
+    ctx.state.firmata.clearSysexResponse(BOARD_VERSION_QUERY)
+    ctx.state.firmata.sysexResponse(BOARD_VERSION_QUERY, data => {
+      ctx.state.firmata.emit('board-version-reply', data)
+    })
   },
-  boardVersion(ctx) {
+  async boardVersion(ctx) {
     if (ctx.state.version) return Promise.resolve(`${ctx.state.version.type}.${ctx.state.version.major}.${ctx.state.version.minor}`)
-
-    const Firmata = bindTransport.Firmata
+    const event = 'board-version-reply'
     const request = new Promise(resolve => {
-      ctx.state.firmata.sysexResponse(BOARD_VERSION_QUERY, data => {
-        const value = Firmata.decode([data[0], data[1]])
-        ctx.state.version = {
-          type: (value >> 10) & 0x0F,
-          major: (value >> 6) & 0x0F,
-          minor: value & 0x3F
-        }
-        resolve(`${ctx.state.version.type}.${ctx.state.version.major}.${ctx.state.version.minor}`)
-      })
+      ctx.state.firmata.once(event,
+        data => {
+          const value = ctx.state.Firmata.decode([data[0], data[1]])
+          ctx.state.version = {
+            type: (value >> 10) & 0x0F,
+            major: (value >> 6) & 0x0F,
+            minor: value & 0x3F
+          }
+          resolve(`${ctx.state.version.type}.${ctx.state.version.major}.${ctx.state.version.minor}`)
+        })
       ctx.state.firmata.sysexCommand([BOARD_VERSION_QUERY])
     })
-    return Promise.race([request, timeoutReject(boardVersionWaitingTime)])
-      .finally(() => {
-        ctx.state.firmata.clearSysexResponse(BOARD_VERSION_QUERY)
-      })
+    try {
+      return await Promise.race([request, timeoutReject(boardVersionWaitingTime)])
+    } catch (reason) {
+      ctx.state.firmata.removeAllListeners(event)
+      return await Promise.reject(reason)
+    }
   },
   async midiOpen(ctx) {
     try {
@@ -437,10 +436,6 @@ const actions = {
         }
       }
       if (!inputPort) {
-        console.log('MIDIInput')
-        midiAccess.inputs.forEach(port => {
-          console.log(`    {manufacturer:"${port.manufacturer}", name:"${port.name}"}\n`)
-        })
         return Promise.reject('no available MIDIInput for the filters')
       }
 
@@ -458,10 +453,6 @@ const actions = {
         }
       }
       if (!outputPort) {
-        console.log('MIDIOutput')
-        midiAccess.outputs.forEach(port => {
-          console.log(`    {manufacturer:"${port.manufacturer}", name:"${port.name}"}\n`)
-        })
         return Promise.reject('no available MIDIOutput for the filters')
       }
 
@@ -482,6 +473,7 @@ const actions = {
   async midiConnect(ctx) {
     try {
       const Firmata = bindTransport.Firmata
+      ctx.state.Firmata = Firmata
 
       const port = await ctx.dispatch('midiOpen')
       
@@ -515,8 +507,8 @@ const actions = {
         // firmata version is fixed for MidiDako
         ctx.state.firmata.version.major = 2
         ctx.state.firmata.version.minor = 3
-        ctx.state.firmata.emit('reportversion') // skip version query
-        ctx.state.firmata.emit('queryfirmware') // skip firmware query
+        ctx.state.firmata.emit('reportversion')
+        ctx.state.firmata.emit('queryfirmware')
       })
 
       ctx.state.isSerial = false
@@ -533,20 +525,28 @@ const actions = {
   },
   async serialConnect(ctx) {
     try {
+      const permittedPorts = await navigator.serial.getPorts()
+      if ((permittedPorts !== null) && (Array.isArray(permittedPorts)) && (permittedPorts.length > 0)) {
+        ctx.state.nativePort = permittedPorts[0]
+      } else {
+        ctx.state.nativePort = await navigator.serial.requestPort({
+          filters: [
+            { usbVendorId: 0x04D8, usbProductId: 0xE83A }, // Licensed for AkaDako
+            { usbVendorId: 0x04D8, usbProductId: 0x000A }, // Dev board
+            { usbVendorId: 0x04D9, usbProductId: 0xB534 } // Use in the future]
+          ]
+        })
+      }
+
       SerialPort.Binding = WSABinding
       const Firmata = bindTransport(SerialPort)
       ctx.state.Firmata = Firmata
-      ctx.state.nativePort = await navigator.serial.requestPort({
-        filters: [
-          { usbVendorId: 0x04D8, usbProductId: 0xE83A }, // Licensed for AkaDako
-          { usbVendorId: 0x04D8, usbProductId: 0x000A }, // Dev board
-          { usbVendorId: 0x04D9, usbProductId: 0xB534 } // Use in the future]
-        ]
-      })
+
       ctx.state.port = new SerialPort(ctx.state.nativePort, {
         baudRate: 57600,
         autoOpen: false
       })
+
       ctx.state.firmata = new Firmata(ctx.state.port, {
         reportVersionTimeout: 0,
         samplingInterval: 1000
@@ -561,7 +561,6 @@ const actions = {
       })
 
       ctx.state.firmata.i2cConfig()
-
       ctx.state.isSerial = true
     } catch (e) {
       console.error(e)
@@ -577,7 +576,12 @@ const actions = {
     if (ctx.state.serial.port) {
       ctx.state.serial.port.close()
     }
-    ctx.state.firmata.on('close', () => {})
+    if (ctx.state.firmata && ctx.state.firmata.transport.isOpen) {
+      ctx.state.firmata.reset()
+      ctx.state.firmata.on('close', () => { })
+      ctx.state.firmata.transport.close()
+
+    }
     ctx.state.serial.nativePort = null
     ctx.state.serial.port = null
     ctx.state.firmata = null

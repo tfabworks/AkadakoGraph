@@ -11,6 +11,11 @@ const updateDigitalInputWaitingTime = 100
 const sendingInterval = 10
 const oneWireReadWaitingTime = 100
 let oneWireDevices = null
+let waterTempA = null
+let waterTempB = null
+let waterTempAUpdatedTime = 0
+let waterTempBUpdatedTime = 0
+let waterTempUpdateIntervalTime = 100
 
 const timeoutReject = delay => new Promise((_, reject) => setTimeout(() => reject(`timeout ${delay}ms`), delay))
 
@@ -64,6 +69,14 @@ const oneWireWriteAndRead = (firmata, pin, data, readLength) => {
   return Promise.race([request, timeoutReject(oneWireReadWaitingTime)])
 }
 
+const decodeInt16FromTwo7bitBytes = bytes => {
+  const lsb = (bytes[0] | (bytes[1] << 7)) & 0xFF
+  const msb = ((bytes[1] >> 1) | ((bytes[1] >> 6) ? 0b11000000 : 0)) // two's complement
+  const dataView = new DataView((new Uint8Array([lsb, msb])).buffer)
+  const result = dataView.getInt16(0, true)
+  return result
+}
+
 const getTemperatureDS18B20 = (firmata, pin) => {
   return sendOneWireReset(firmata, pin)
     .then(() => oneWireWrite(firmata, pin, 0x44))
@@ -77,17 +90,75 @@ const getTemperatureDS18B20 = (firmata, pin) => {
     })
 }
 
-const getWaterTemperatureA = (firmata) => {
-  return getTemperatureDS18B20(firmata, 10)
-    .catch((e) => {
-      console.error(e)
-      return null
+const getWaterTemp = (firmata, pin) => {
+  const event = `water-temp-reply-${pin}`
+  const request = new Promise((resolve, reject) => {
+    firmata.once(event,
+      data => {
+        if (data.length === 0) return reject('not available')
+        resolve(decodeInt16FromTwo7bitBytes(data) / 10)
+      })
+    firmata.sysexCommand([2, pin])
+  })
+  return Promise.race([request, timeoutReject(1000)])
+    .catch(reason => {
+      firmata.removeAllListeners(event)
+      return Promise.reject(reason)
     })
 }
 
-const getWaterTemperatureB = (firmata) => {
-  return getTemperatureDS18B20(firmata, 6)
-    .catch(() => null)
+const getWaterTemperatureA = (firmata, version) => {
+  if (version.type === 0) {
+    return getTemperatureDS18B20(firmata, 10)
+      .catch((e) => {
+        console.error(e)
+        return null
+      })
+  }
+
+  let getter = Promise.resolve(waterTempA)
+  if ((Date.now() - waterTempAUpdatedTime) > waterTempUpdateIntervalTime) {
+    getter = getter
+      .then(() => getWaterTemp(firmata, 10))
+      .then((res) => {
+        waterTempA = res
+        waterTempAUpdatedTime = Date.now()
+        return res
+      })
+  }
+  return getter
+    .catch((err) => {
+      console.error(`getting water temperature A was rejected by ${err}`)
+      waterTempA = null
+      return ''
+    })
+}
+
+const getWaterTemperatureB = (firmata, version) => {
+  if (version.type === 0) {
+    return getTemperatureDS18B20(firmata, 6)
+      .catch((e) => {
+        console.error(e)
+        return null
+      })
+  }
+
+  let getter = Promise.resolve(waterTempB)
+  if ((Date.now() - waterTempBUpdatedTime) > waterTempUpdateIntervalTime) {
+    getter = getter
+      .then(() => getWaterTemp(firmata, 6))
+      .then((res) => {
+        waterTempB = res
+        waterTempBUpdatedTime = Date.now()
+        return waterTempB
+      })
+  }
+  return getter
+    .catch((err) => {
+      console.error(`getting water temperature B was rejected by ${err}`)
+      waterTempB = null
+      return null
+    })
 }
 
 const getDigital = (firmata, pin) => {

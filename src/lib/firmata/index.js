@@ -67,9 +67,9 @@ export const getData = async (firmata, kind, Firmata, version) => {
     } else if (kind === '距離(超音波B)[cm]') {
       return await getDistanceB(firmata, Firmata, address)
     } else if (kind === '水温(デジタルA1)[℃]') {
-      return await getWaterTemperatureA(firmata)
+      return await getWaterTemperatureA(firmata, version)
     } else if (kind === '水温(デジタルB1)[℃]') {
-      return await getWaterTemperatureB(firmata)
+      return await getWaterTemperatureB(firmata, version)
     } else if (kind === 'アナログA1') {
       return await getAnalogA1(firmata)
     } else if (kind === 'アナログA2') {
