@@ -144,8 +144,9 @@ const init = async (firmata) => {
     })
   })
 
-  firmata.i2cWrite(address, 242, 0x05)
-  firmata.i2cWrite(address, 244, 0xB7)
+  firmata.i2cWrite(address, 0xF4, 0x4F) //ctrl_meas, temperature-oversampling:x2, puressure-oversampling:x8
+  firmata.i2cWrite(address, 0xF5, 0x40) //config, sb_t:125ms
+  firmata.i2cWrite(address, 0xF2, 0x01) //ctrl_hum, oversampling:x1
 }
 
 const getLux = async (firmata) => {
