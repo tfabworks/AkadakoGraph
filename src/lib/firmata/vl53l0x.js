@@ -21,12 +21,12 @@ const RESULT_RANGE_STATUS = 0x14
 const I2C_SLAVE_DEVICE_ADDRESS = 0x8A
 const MSRC_CONFIG_CONTROL = 0x60
 // const PRE_RANGE_CONFIG_MIN_SNR = 0x27
-// const PRE_RANGE_CONFIG_VALID_PHASE_LOW = 0x56
-// const PRE_RANGE_CONFIG_VALID_PHASE_HIGH = 0x57
+const PRE_RANGE_CONFIG_VALID_PHASE_LOW = 0x56
+const PRE_RANGE_CONFIG_VALID_PHASE_HIGH = 0x57
 // const PRE_RANGE_MIN_COUNT_RATE_RTN_LIMIT = 0x64
 // const FINAL_RANGE_CONFIG_MIN_SNR = 0x67
-// const FINAL_RANGE_CONFIG_VALID_PHASE_LOW = 0x47
-// const FINAL_RANGE_CONFIG_VALID_PHASE_HIGH = 0x48
+const FINAL_RANGE_CONFIG_VALID_PHASE_LOW = 0x47
+const FINAL_RANGE_CONFIG_VALID_PHASE_HIGH = 0x48
 const FINAL_RANGE_CONFIG_MIN_COUNT_RATE_RTN_LIMIT = 0x44
 // const PRE_RANGE_CONFIG_SIGMA_THRESH_HI = 0x61
 // const PRE_RANGE_CONFIG_SIGMA_THRESH_LO = 0x62
@@ -45,7 +45,7 @@ const MSRC_CONFIG_TIMEOUT_MACROP = 0x46
 // const IDENTIFICATION_MODEL_ID = 0xC0
 // const IDENTIFICATION_REVISION_ID = 0xC2
 const OSC_CALIBRATE_VAL = 0xF8
-// const GLOBAL_CONFIG_VCSEL_WIDTH = 0x32
+const GLOBAL_CONFIG_VCSEL_WIDTH = 0x32
 const GLOBAL_CONFIG_SPAD_ENABLES_REF_0 = 0xB0
 // const GLOBAL_CONFIG_SPAD_ENABLES_REF_1 = 0xB1
 // const GLOBAL_CONFIG_SPAD_ENABLES_REF_2 = 0xB2
@@ -57,17 +57,21 @@ const DYNAMIC_SPAD_NUM_REQUESTED_REF_SPAD = 0x4E
 const DYNAMIC_SPAD_REF_EN_START_OFFSET = 0x4F
 // const POWER_MANAGEMENT_GO1_POWER_FORCE = 0x80
 const VHV_CONFIG_PAD_SCL_SDA__EXTSUP_HV = 0x89
-// const ALGO_PHASECAL_LIM = 0x30
-// const ALGO_PHASECAL_CONFIG_TIMEOUT = 0x30
+const ALGO_PHASECAL_LIM = 0x30
+const ALGO_PHASECAL_CONFIG_TIMEOUT = 0x30
 const VcselPeriodPreRange = 0
 const VcselPeriodFinalRange = 1
 
-const address = 0x29
+let address = 0x29
 let firmata
 let timeout_start_ms = Date.now()
 let io_timeout = 500
 let measurement_timing_budget_us = 0
 let stop_variable = 0
+let didInit = false
+let opticalDistance = null
+let opticalDistanceUpdatedTime = 0
+let opticalDistanceUpdateIntervalTime = 100
 // let did_timeout = false
 
 const readReg = async (register) => {
@@ -468,7 +472,6 @@ const init = async (firmata_, io2v8) => {
   // the API, but the same data seems to be more easily readable from
   // GLOBAL_CONFIG_SPAD_ENABLES_REF_0 through _6, so read it from there
   const refSpadMap = await readMulti(GLOBAL_CONFIG_SPAD_ENABLES_REF_0, 6)
-  console.log(refSpadMap)
 
   // -- VL53L0X_set_reference_spads() begin (assume NVM values are valid)
 
@@ -678,6 +681,262 @@ const startContinuous = async (period_ms) => {
   }
 }
 
+const encodeVcselPeriod = period_pclks => (((period_pclks) >> 1) - 1)
+
+const setVcselPulsePeriod = async (type, period_pclks) => {
+  const vcsel_period_reg = encodeVcselPeriod(period_pclks)
+
+  const enables = {tcc: false, msrc: false, dss: false, pre_range: false, final_range: false}
+  const timeouts = {pre_range_vcsel_period_pclks: 0,
+    final_range_vcsel_period_pclks: 0,
+    msrc_dss_tcc_mclks: 0,
+    pre_range_mclks: 0,
+    final_range_mclks: 0,
+    msrc_dss_tcc_us: 0,
+    pre_range_us: 0,
+    final_range_us: 0}
+
+  await getSequenceStepEnables(enables)
+  await getSequenceStepTimeouts(enables, timeouts)
+
+  // "Apply specific settings for the requested clock period"
+  // "Re-calculate and apply timeouts, in macro periods"
+
+  // "When the VCSEL period for the pre or final range is changed,
+  // the corresponding timeout must be read from the device using
+  // the current VCSEL period, then the new VCSEL period can be
+  // applied. The timeout then must be written back to the device
+  // using the new VCSEL period.
+  //
+  // For the MSRC timeout, the same applies - this timeout being
+  // dependant on the pre-range vcsel period."
+
+
+  if (type === VcselPeriodPreRange) {
+    // "Set phase check limits"
+    switch (period_pclks) {
+    case 12:
+      writeReg(PRE_RANGE_CONFIG_VALID_PHASE_HIGH, 0x18)
+      break
+
+    case 14:
+      writeReg(PRE_RANGE_CONFIG_VALID_PHASE_HIGH, 0x30)
+      break
+
+    case 16:
+      writeReg(PRE_RANGE_CONFIG_VALID_PHASE_HIGH, 0x40)
+      break
+
+    case 18:
+      writeReg(PRE_RANGE_CONFIG_VALID_PHASE_HIGH, 0x50)
+      break
+
+    default:
+      // invalid period
+      return false
+    }
+    writeReg(PRE_RANGE_CONFIG_VALID_PHASE_LOW, 0x08)
+
+    // apply new VCSEL period
+    writeReg(PRE_RANGE_CONFIG_VCSEL_PERIOD, vcsel_period_reg)
+
+    // update timeouts
+
+    // set_sequence_step_timeout() begin
+    // (SequenceStepId == VL53L0X_SEQUENCESTEP_PRE_RANGE)
+
+    const new_pre_range_timeout_mclks =
+      timeoutMicrosecondsToMclks(timeouts.pre_range_us, period_pclks)
+
+    writeReg16Bit(PRE_RANGE_CONFIG_TIMEOUT_MACROP_HI,
+      encodeTimeout(new_pre_range_timeout_mclks))
+
+    // set_sequence_step_timeout() end
+
+    // set_sequence_step_timeout() begin
+    // (SequenceStepId == VL53L0X_SEQUENCESTEP_MSRC)
+
+    const new_msrc_timeout_mclks =
+      timeoutMicrosecondsToMclks(timeouts.msrc_dss_tcc_us, period_pclks)
+
+    writeReg(MSRC_CONFIG_TIMEOUT_MACROP,
+      (new_msrc_timeout_mclks > 256) ? 255 : (new_msrc_timeout_mclks - 1))
+
+    // set_sequence_step_timeout() end
+  } else if (type === VcselPeriodFinalRange) {
+    switch (period_pclks) {
+    case 8:
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_HIGH, 0x10)
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_LOW, 0x08)
+      writeReg(GLOBAL_CONFIG_VCSEL_WIDTH, 0x02)
+      writeReg(ALGO_PHASECAL_CONFIG_TIMEOUT, 0x0C)
+      writeReg(0xFF, 0x01)
+      writeReg(ALGO_PHASECAL_LIM, 0x30)
+      writeReg(0xFF, 0x00)
+      break
+
+    case 10:
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_HIGH, 0x28)
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_LOW, 0x08)
+      writeReg(GLOBAL_CONFIG_VCSEL_WIDTH, 0x03)
+      writeReg(ALGO_PHASECAL_CONFIG_TIMEOUT, 0x09)
+      writeReg(0xFF, 0x01)
+      writeReg(ALGO_PHASECAL_LIM, 0x20)
+      writeReg(0xFF, 0x00)
+      break
+
+    case 12:
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_HIGH, 0x38)
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_LOW, 0x08)
+      writeReg(GLOBAL_CONFIG_VCSEL_WIDTH, 0x03)
+      writeReg(ALGO_PHASECAL_CONFIG_TIMEOUT, 0x08)
+      writeReg(0xFF, 0x01)
+      writeReg(ALGO_PHASECAL_LIM, 0x20)
+      writeReg(0xFF, 0x00)
+      break
+
+    case 14:
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_HIGH, 0x48)
+      writeReg(FINAL_RANGE_CONFIG_VALID_PHASE_LOW, 0x08)
+      writeReg(GLOBAL_CONFIG_VCSEL_WIDTH, 0x03)
+      writeReg(ALGO_PHASECAL_CONFIG_TIMEOUT, 0x07)
+      writeReg(0xFF, 0x01)
+      writeReg(ALGO_PHASECAL_LIM, 0x20)
+      writeReg(0xFF, 0x00)
+      break
+
+    default:
+      // invalid period
+      return false
+    }
+
+    // apply new VCSEL period
+    writeReg(FINAL_RANGE_CONFIG_VCSEL_PERIOD, vcsel_period_reg)
+
+    // update timeouts
+
+    // set_sequence_step_timeout() begin
+    // (SequenceStepId == VL53L0X_SEQUENCESTEP_FINAL_RANGE)
+
+    // "For the final range timeout, the pre-range timeout
+    //  must be added. To do this both final and pre-range
+    //  timeouts must be expressed in macro periods MClks
+    //  because they have different vcsel periods."
+
+    let new_final_range_timeout_mclks = timeoutMicrosecondsToMclks(timeouts.final_range_us, period_pclks)
+
+    if (enables.pre_range) {
+      new_final_range_timeout_mclks += timeouts.pre_range_mclks
+    }
+
+    writeReg16Bit(
+      FINAL_RANGE_CONFIG_TIMEOUT_MACROP_HI,
+      encodeTimeout(new_final_range_timeout_mclks)
+    )
+
+    // set_sequence_step_timeout end
+  } else {
+    // invalid type
+    return false
+  }
+
+  // "Finally, the timing budget must be re-applied"
+
+  await setMeasurementTimingBudget(measurement_timing_budget_us)
+
+  // "Perform the phase calibration. This is needed after changing on vcsel period."
+  // VL53L0X_perform_phase_calibration() begin
+
+  const sequence_config = await readReg(SYSTEM_SEQUENCE_CONFIG)
+  writeReg(SYSTEM_SEQUENCE_CONFIG, 0x02)
+  await performSingleRefCalibration(0x0)
+  writeReg(SYSTEM_SEQUENCE_CONFIG, sequence_config)
+
+  // VL53L0X_perform_phase_calibration() end
+
+  return true
+}
+
+const setRangeProfile = async (rangeProfile) => {
+  switch (rangeProfile) {
+  case 'LONG_RANGE':
+    // lower the return signal rate limit (default is 0.25 MCPS)
+    setSignalRateLimit(0.1)
+    // set timing budget to 33 ms (near the default value)
+    await setMeasurementTimingBudget(33000)
+    // increase laser pulse periods (defaults are 14 and 10 PCLKs)
+    await setVcselPulsePeriod(VcselPeriodPreRange, 18)
+    await setVcselPulsePeriod(VcselPeriodFinalRange, 14)
+    break
+        
+  case 'HIGH_SPEED':
+    setSignalRateLimit(0.25)
+    // reduce timing budget to 20 ms (default is about 33 ms)
+    await setMeasurementTimingBudget(20000)
+    await setVcselPulsePeriod(VcselPeriodPreRange, 14)
+    await setVcselPulsePeriod(VcselPeriodFinalRange, 10)
+    break
+
+  case 'HIGH_ACCURACY':
+    setSignalRateLimit(0.25)
+    // increase timing budget to 200 ms
+    await setMeasurementTimingBudget(200000)
+    await setVcselPulsePeriod(VcselPeriodPreRange, 14)
+    await setVcselPulsePeriod(VcselPeriodFinalRange, 10)
+    break
+
+  default:
+    // set the default profile
+    setSignalRateLimit(0.25)
+    await setMeasurementTimingBudget(30000)
+    await setVcselPulsePeriod(VcselPeriodPreRange, 14)
+    await setVcselPulsePeriod(VcselPeriodFinalRange, 10)
+    break
+  }
+}
+
+const getOpticalDistanceSensor = async (firmata, version) => {
+  if (!didInit) {
+    address = 0x08 // STEAM Tool v2.0.1 or later
+    
+    if (version != null) {
+      if (
+        (version.type <= 1) ||
+      (version.type === 2 && version.major === 0 && version.minor === 0)
+      ) {
+        address = null
+      }
+    }
+
+    const found = await init(firmata, true)
+    if (!found) {
+      console.error('Distance sensor (laser) is not found.')
+      return null
+    }
+
+    await setRangeProfile('LONG_RANGE')
+    await startContinuous()
+    didInit = true
+  }
+}
+
+const readRangeContinuousMillimeters = async () => {
+  timeout_start_ms = Date.now()
+  while ((await readReg(RESULT_INTERRUPT_STATUS) & 0x07) === 0) {
+    if (io_timeout > 0 && ((Date.now() - timeout_start_ms) > io_timeout)) {
+      return Promise.reject(`timeout read RESULT_INTERRUPT_STATUS: ${io_timeout}ms`)
+    }
+  }
+
+  // assumptions: Linearity Corrective Gain is 1000 (default);
+  // fractional ranging is not enabled
+  const range = await readReg16Bit(RESULT_RANGE_STATUS + 10)
+
+  writeReg(SYSTEM_INTERRUPT_CLEAR, 0x01)
+
+  return range
+}
+
 const timeoutReject = delay => new Promise((_, reject) => setTimeout(() => reject(`timeout ${delay}ms`), delay))
 
 const pingSensor = (firmata, Firmata, pin, timeout) => {
@@ -695,23 +954,37 @@ const pingSensor = (firmata, Firmata, pin, timeout) => {
       firmata.clearSysexResponse(PING_SENSOR_COMMAND)
     })
 }
-const getDistanceL = async (firmata) => {
-  await init(firmata, true)
-  startContinuous()
+const getDistanceL = async (firmata, address_, version) => {
+  let measureRequest = Promise.resolve(opticalDistance)
 
-  timeout_start_ms = Date.now()
-  while ((await readReg(RESULT_INTERRUPT_STATUS) & 0x07) === 0) {
-    if (io_timeout > 0 && ((Date.now() - timeout_start_ms) > io_timeout)) {
-      // did_timeout = true
-      return Promise.reject(`timeout read RESULT_INTERRUPT_STATUS: ${io_timeout}ms`)
-    }
+  if ((Date.now() - opticalDistanceUpdatedTime) > opticalDistanceUpdateIntervalTime) {
+    measureRequest = measureRequest
+      .then(() => getOpticalDistanceSensor(firmata, version))
+      .then(() => readRangeContinuousMillimeters())
+      .then(distance => {
+      // STEAM Tool supplement: - 50[mm]
+        distance = distance - 50
+        // STEAM Tool limit: 100 - 2000[mm]
+        return Math.max(100, Math.min(distance, 2000))
+      })
+      .then(distance => {
+        opticalDistance = distance
+        return distance
+      })
   }
 
-  writeReg(SYSTEM_INTERRUPT_CLEAR, 0x01)
-  return await readReg16Bit(RESULT_RANGE_STATUS + 10) / 10
+  return measureRequest
+    .then(distance => distance / 10) // convert unit [mm] to [cm]
+    .catch(reason => {
+      console.error(`measureDistanceWithLight was rejected by ${reason}`)
+      opticalDistance = null
+      return null
+    })
 }
 
-const getDistanceA = async (firmata, Firmata) => {
+const getDistanceA = async (firmata, Firmata, address_) => {
+  address = address_
+  
   return pingSensor(firmata, Firmata, 10)
     .then((v) => (
       Math.round(v / 10)
@@ -719,7 +992,9 @@ const getDistanceA = async (firmata, Firmata) => {
     .catch(() => (0))
 }
 
-const getDistanceB = async (firmata, Firmata) => {
+const getDistanceB = async (firmata, Firmata, address_) => {
+  address = address_
+
   return pingSensor(firmata, Firmata, 6)
     .then((v) => (
       Math.round(v / 10)

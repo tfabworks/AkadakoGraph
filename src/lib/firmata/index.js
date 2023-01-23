@@ -30,8 +30,16 @@ import {
   getDigitalB2
 } from './board'
 
-export const getData = async (firmata, kind, Firmata) => {
+export const getData = async (firmata, kind, Firmata, version) => {
   try {
+    let address = 0x29
+
+    if (version && 'type' in version && 'minor' in version) {
+      if (version.type >= 2 && version.minor >= 1) {
+        address = 0x08
+      }
+    }
+
     if (kind === '明るさ[lx]') {
       return await getLux(firmata)
     } else if (kind === '気温[℃]') {
@@ -53,15 +61,15 @@ export const getData = async (firmata, kind, Firmata) => {
     } else if (kind === '加速度(ピッチ)[°]') {
       return await getPitch(firmata)
     } else if (kind === '距離(レーザー)[cm]') {
-      return await getDistanceL(firmata)
+      return await getDistanceL(firmata, address, version)
     } else if (kind === '距離(超音波A)[cm]') {
-      return await getDistanceA(firmata, Firmata)
+      return await getDistanceA(firmata, Firmata, address)
     } else if (kind === '距離(超音波B)[cm]') {
-      return await getDistanceB(firmata, Firmata)
+      return await getDistanceB(firmata, Firmata, address)
     } else if (kind === '水温(デジタルA1)[℃]') {
-      return await getWaterTemperatureA(firmata)
+      return await getWaterTemperatureA(firmata, version)
     } else if (kind === '水温(デジタルB1)[℃]') {
-      return await getWaterTemperatureB(firmata)
+      return await getWaterTemperatureB(firmata, version)
     } else if (kind === 'アナログA1') {
       return await getAnalogA1(firmata)
     } else if (kind === 'アナログA2') {
