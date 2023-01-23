@@ -61,7 +61,7 @@ export const getData = async (firmata, kind, Firmata, version) => {
     } else if (kind === '加速度(ピッチ)[°]') {
       return await getPitch(firmata)
     } else if (kind === '距離(レーザー)[cm]') {
-      return await getDistanceL(firmata, address)
+      return await getDistanceL(firmata, address, version)
     } else if (kind === '距離(超音波A)[cm]') {
       return await getDistanceA(firmata, Firmata, address)
     } else if (kind === '距離(超音波B)[cm]') {
