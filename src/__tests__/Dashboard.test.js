@@ -11,7 +11,7 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 const store = new Vuex.Store({
   modules: {
-    serial: require('@/store/modules/serial').default
+    firmata: require('@/store/modules/firmata').default
   }
 })
 let wrapper = {}

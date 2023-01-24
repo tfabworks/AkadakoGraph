@@ -18,7 +18,7 @@ import { mapGetters, mapActions } from 'vuex'
 export default {
   computed: {
     ...mapGetters({
-      connected: 'serial/connected',
+      connected: 'firmata/connected',
     }),
     connectButtonString: function() {
       return this.connected ? 'デバイスを切断する' : 'デバイスを接続する'
@@ -50,8 +50,8 @@ export default {
       }
     },
     ...mapActions({
-      connect: 'serial/connect',
-      disConnect: 'serial/disConnect'
+      connect: 'firmata/connect',
+      disConnect: 'firmata/disConnect'
     })
   }
 }
