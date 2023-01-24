@@ -5,9 +5,8 @@
   "scripts": {
     "serve": "vue-cli-service serve --mode development",
     "build": "vue-cli-service build --mode production",
-    "test": "vue-cli-service test:unit --no-cache",
-    "lint": "eslint src/** --fix --ext js,vue",
-    "prepare": "husky install"
+    "test": "vue-cli-service test:unit",
+    "lint": "eslint src/** --fix --ext js,vue"
   },
   "dependencies": {
     "@serialport/stream": "^9.2.4",
