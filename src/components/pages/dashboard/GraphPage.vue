@@ -7,8 +7,8 @@
           :disabled="!connected"
         >
           <option value="" />
-          <option value="明るさ[lux]">
-            明るさ[lux]
+          <option value="明るさ[lx]">
+            明るさ[lx]
           </option>
           <option value="気温[℃]">
             気温[℃]
@@ -89,8 +89,8 @@
           :disabled="!connected"
         >
           <option value="" />
-          <option value="明るさ[lux]">
-            明るさ[lux]
+          <option value="明るさ[lx]">
+            明るさ[lx]
           </option>
           <option value="気温[℃]">
             気温[℃]
@@ -395,29 +395,29 @@ export default {
   },
   computed: {
     ...mapState({
-      shouldPause: state => state.serial.shouldPause,
-      graphValue: state => state.serial.graphValue,
-      graphValueSub: state => state.serial.graphValueSub
+      shouldPause: state => state.firmata.shouldPause,
+      graphValue: state => state.firmata.graphValue,
+      graphValueSub: state => state.firmata.graphValueSub
     }),
     ...mapGetters({
-      source: 'serial/values',
-      connected: 'serial/connected',
-      existValue: 'serial/existValue'
+      source: 'firmata/values',
+      connected: 'firmata/connected',
+      existValue: 'firmata/existValue'
     }),
     graphKind: {
       get() {
-        return this.$store.state.serial.axisInfo.main.kind
+        return this.$store.state.firmata.axisInfo.main.kind
       },
       set(payload) {
-        this.$store.commit('serial/setKind', payload)
+        this.$store.commit('firmata/setKind', payload)
       }
     },
     graphKindSub: {
       get() {
-        return this.$store.state.serial.axisInfo.sub.kind
+        return this.$store.state.firmata.axisInfo.sub.kind
       },
       set(payload) {
-        this.$store.commit('serial/setKindSub', payload)
+        this.$store.commit('firmata/setKindSub', payload)
       }
     }
   },
@@ -452,7 +452,7 @@ export default {
     },
     // interval: function(_, oldValue) {
     //   if (this.shouldReDo.interval) {
-    //     this.$store.dispatch('serial/setMilliSeconds', Number(this.interval))
+    //     this.$store.dispatch('firmata/setMilliSeconds', Number(this.interval))
     //       .catch(() => {
     //         console.error('unexpected interval value.')
     //         this.shouldReDo = false
@@ -469,11 +469,11 @@ export default {
   },
   methods: {
     reset() {
-      this.$store.commit('serial/resetValue', 'all')
+      this.$store.commit('firmata/resetValue', 'all')
     },
     reverseShouldPause() {
       if (this.connected) {
-        this.$store.dispatch('serial/setShouldPause', !this.shouldPause)
+        this.$store.dispatch('firmata/setShouldPause', !this.shouldPause)
       }
     },
     transDate(iso8601String) {
@@ -564,25 +564,25 @@ export default {
     async deleteModalOK() {
       if (this.deleteCallFrom === 'main') {
         this.reset()
-        this.$store.dispatch('serial/setShouldPause', true)
+        this.$store.dispatch('firmata/setShouldPause', true)
         this.shouldReDo.main = false
         this.graphKind = this.newKindValue.main
         this.shouldReDo.main = true
         if (this.graphKind) {
-          await this.$store.dispatch('serial/render', true)
+          await this.$store.dispatch('firmata/render', true)
         }
       }else if(this.deleteCallFrom === 'sub') {
         this.reset()
-        this.$store.dispatch('serial/setShouldPause', true)
+        this.$store.dispatch('firmata/setShouldPause', true)
         this.shouldReDo.sub = false
         this.graphKindSub = this.newKindValue.sub
         this.shouldReDo.sub = true
         if (this.graphKindSub) {
-          await this.$store.dispatch('serial/render', false)
+          await this.$store.dispatch('firmata/render', false)
         }
       }else if(this.deleteCallFrom === 'reset') {
         this.reset()
-        this.$store.dispatch('serial/setShouldPause', true)
+        this.$store.dispatch('firmata/setShouldPause', true)
       }
       this.deleteModalClose()
     },
@@ -595,7 +595,7 @@ export default {
       this.deleteModalClose()
     },
     deleteModalOpen() {
-      this.$store.dispatch('serial/setShouldPause', true)
+      this.$store.dispatch('firmata/setShouldPause', true)
       this.$modal.show('delete-confirm')
     },
     deleteModalClose() {

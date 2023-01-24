@@ -1,11 +1,9 @@
-import SerialPort from '@serialport/stream'
-import WSABinding from 'web-serial-binding'
-import bindTransport from 'firmata-io'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
-import { getData } from '@/lib/firmata'
+import DataGetter from '@/lib/firmata/dataGetter'
+import AkaDakoBoard from '@/lib/firmata/akadako-board'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -24,17 +22,28 @@ const milliSecondsList = [
   1800000
 ]
 
+const midiPortFilters = [
+  {manufacturer: null, name: /STEAM BOX/},
+  {manufacturer: null, name: /MidiDako/},
+  {manufacturer: null, name: /AkaDako/}
+]
+
+const serialPortOptions = {
+  filters: [
+    {usbVendorId: 0x04D8, usbProductId: 0xE83A}, // Licensed for AkaDako
+    {usbVendorId: 0x04D8, usbProductId: 0x000A}, // Dev board
+    {usbVendorId: 0x04D9, usbProductId: 0xB534} // Use in the future
+  ]
+}
+
 const tmpAxisInfo = {
   main: localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '',
   sub: localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : ''
 }
 
 const state = {
-  connectState: 'disConnect',
-  Firmata: null,
-  firmata: null,
-  nativePort: null,
-  port: null,
+  board: null,
+  dataGetter: null,
   milliSeconds: 1000,
   axisInfo: {
     main: {
@@ -54,7 +63,7 @@ const state = {
 
 const getters = {
   connected() {
-    if (state.firmata && state.firmata.isReady) {
+    if (state.board && state.board.isConnected()) {
       return true
     }
     return false
@@ -114,46 +123,66 @@ const mutations = {
 }
 
 const actions = {
-  async connect(ctx) {
+  midiConnect(ctx) {
     try {
-      SerialPort.Binding = WSABinding
-      const Firmata = bindTransport(SerialPort)
-      ctx.state.Firmata = Firmata
-      ctx.state.nativePort = await navigator.serial.requestPort({
-        filters: [
-          { usbVendorId: 0x04D8, usbProductId: 0xE83A }, // Licensed for AkaDako
-          { usbVendorId: 0x04D8, usbProductId: 0x000A }, // Dev board
-          { usbVendorId: 0x04D9, usbProductId: 0xB534 } // Use in the future]
-        ]
-      })
-      ctx.state.port = new SerialPort(ctx.state.nativePort, {
-        baudRate: 57600,
-        autoOpen: false
-      })
-      ctx.state.firmata = new Firmata(ctx.state.port, {
-        reportVersionTimeout: 0,
-        samplingInterval: 1000
-      })
+      return new Promise((resolve, reject) => {
+        new AkaDakoBoard().connectMIDI(midiPortFilters)
+          .then(connected => {
+            if (connected == undefined) {
+              reject('[MIDI]board is undefined')
+            }
 
-      ctx.state.port.open(e => {
-        if (e) {
-          console.error(e)
-          return
-        }
-        ctx.state.firmata.on('ready', () => { })
+            ctx.state.board = connected
+            connected.once(AkaDakoBoard.RELEASED, () => {
+              ctx.state.board = null
+            })
+            ctx.state.dataGetter = new DataGetter(ctx.state.board)
+            resolve()
+          })
+          .catch(() => {
+            reject('no connected MIDI')
+          })
       })
-
-      ctx.state.firmata.i2cConfig()
     } catch (e) {
-      console.error(e)
+      return Promise.reject(e)
     }
   },
+  serialConnect(ctx) {
+    try {
+      if (!('serial' in navigator)) {
+        return Promise.reject('This browser does not support Web Serial API.')
+      }
+
+      new AkaDakoBoard().connectSerial(serialPortOptions)
+        .then(connected => {
+          if (connected == undefined) {
+            throw new Error('[Serial]board is undefined')
+          }
+
+          ctx.state.board = connected
+          connected.once(AkaDakoBoard.RELEASED, () => {
+            ctx.state.board = null
+          })
+          ctx.state.dataGetter = new DataGetter(ctx.state.board)
+          return
+        })
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  },
+  async connect(ctx) {
+    ctx.dispatch('midiConnect')
+      .catch((e) => {
+        console.error(e)
+        ctx.dispatch('serialConnect')
+          .catch((err) => {
+            console.error(err)
+          })
+      })
+  },
   disConnect(ctx) {
-    ctx.state.port.close()
-    ctx.state.firmata.on('close', () => {})
-    ctx.state.nativePort = null
-    ctx.state.port = null
-    ctx.state.firmata = null
+    ctx.state.board.disconnect()
+
     ctx.state.axisInfo.main.shouldRender = false
     ctx.state.axisInfo.sub.shouldRender = false
     ctx.state.shouldPause = true
@@ -165,6 +194,10 @@ const actions = {
     ctx.state.renderTimer = null
   },
   async setValueToAdd(ctx) {
+    if (ctx.state.board && ctx.state.board.isConnected() && !ctx.state.dataGetter) {
+      ctx.state.dataGetter = new DataGetter(ctx.state.board)
+    }
+
     // 両軸で描画する場合に同じ時間でプロットするためにここで時間を取得
     const date = dayjs().tz().format()
 
@@ -173,8 +206,8 @@ const actions = {
       // どちらかの取得に失敗した場合は描画しない
 
       Promise.all([
-        getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata),
-        getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata)
+        ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind),
+        ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
       ])
         .then((res) => {
           if (res[0] != null && res[1] != null) {
@@ -199,7 +232,7 @@ const actions = {
           console.error(e)
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.main.kind, ctx.state.Firmata)
+      const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: true,
@@ -210,7 +243,7 @@ const actions = {
         })
       }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
-      const data = await getData(ctx.state.firmata, ctx.state.axisInfo.sub.kind, ctx.state.Firmata)
+      const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
       if (data != null) {
         ctx.commit('addValue', {
           isMain: false,
@@ -255,7 +288,7 @@ const actions = {
   async setShouldPause(ctx, payload) {
     ctx.state.shouldPause = payload
 
-    if (state.firmata && state.firmata.isReady) {
+    if (ctx.state.board && ctx.state.board.isConnected()) {
       // 各軸で描画すべきかどうかを更新
       ctx.commit('setShouldRender', {
         isMain: true,
