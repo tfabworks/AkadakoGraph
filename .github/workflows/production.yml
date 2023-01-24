@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        nodeVersion: [14.17.0]
+        nodeVersion: [18.13.0]
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v2
