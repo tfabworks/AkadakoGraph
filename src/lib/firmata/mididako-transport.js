@@ -1,5 +1,4 @@
-import { EventEmitter } from 'events'
-
+import {EventEmitter} from 'events'
 
 /**
  * This class represents a transport layer using WebMIDI for firmata.js.
@@ -7,12 +6,12 @@ import { EventEmitter } from 'events'
 class MidiDakoTransport extends EventEmitter {
 
   /**
-   * Construct a WebMIDI transport.
-   *
-   * @param {MIDIInput} input read data from the MIDI device
-   * @param {MIDIOutput} output send data to the MIDI device
-   */
-  constructor(input, output) {
+     * Construct a WebMIDI transport.
+     *
+     * @param {MIDIInput} input read data from the MIDI device
+     * @param {MIDIOutput} output send data to the MIDI device
+     */
+  constructor (input, output) {
     super()
     this.input = input
     this.output = output
@@ -29,22 +28,22 @@ class MidiDakoTransport extends EventEmitter {
   }
 
   /**
-   * Whether it is connected or not.
-   *
-   * @returns {boolean} True for connected.
-   */
-  isConnected() {
+     * Whether it is connected or not.
+     *
+     * @returns {boolean} True for connected.
+     */
+  isConnected () {
     return this.input.state === 'connected' && this.output.state === 'connected'
   }
 
   /**
-   * It was called when the state of a MIDIPort was changed.
-   *
-   * It will emit open/close event for firmata-io.
-   *
-   * @param {Event} event changed state of a MIDIPort [input | output]
-   */
-  onStateChange(event) {
+     * It was called when the state of a MIDIPort was changed.
+     *
+     * It will emit open/close event for firmata-io.
+     *
+     * @param {Event} event changed state of a MIDIPort [input | output]
+     */
+  onStateChange (event) {
     if (event.port.state === 'connected') {
       if (!this.isOpen) {
         if (this.input.state === 'connected' && this.output.state === 'connected') {
@@ -64,20 +63,20 @@ class MidiDakoTransport extends EventEmitter {
   }
 
   /**
-   * It was called when a message came from the input port.
-   *
-   * @param {MIDIMessageEvent} message data from the input port
-   */
-  onMidiMessage(message) {
+     * It was called when a message came from the input port.
+     *
+     * @param {MIDIMessageEvent} message data from the input port
+     */
+  onMidiMessage (message) {
     this.emit('data', this.convertFromReceived(message.data))
   }
 
   /**
-   * Open input and output port.
-   *
-   * @returns {Promise<string?>} null or error message
-   */
-  async open() {
+     * Open input and output port.
+     *
+     * @returns {Promise<string?>} null or error message
+     */
+  async open () {
     try {
       await this.input.open()
       await this.output.open()
@@ -88,11 +87,11 @@ class MidiDakoTransport extends EventEmitter {
 
 
   /**
-   * Close input and output port.
-   *
-   * @returns {Promise<string?>} null or error message.
-   */
-  async close() {
+     * Close input and output port.
+     *
+     * @returns {Promise<string?>} null or error message.
+     */
+  async close () {
     try {
       await this.input.close()
       await this.output.close()
@@ -102,12 +101,12 @@ class MidiDakoTransport extends EventEmitter {
   }
 
   /**
-   * Send data to the output port.
-   *
-   * @param {Buffer} buff Send it to output.
-   * @param {Function} callback A function to be called when the data was sent.
-   */
-  write(buff, callback) {
+     * Send data to the output port.
+     *
+     * @param {Buffer} buff Send it to output.
+     * @param {Function} callback A function to be called when the data was sent.
+     */
+  write (buff, callback) {
     if (!this.isConnected()) {
       this.isOpen = false
       this.emit('error')
@@ -120,12 +119,12 @@ class MidiDakoTransport extends EventEmitter {
   }
 
   /**
-   * Convert the original Firmata data to a MIDI data to be sent.
-   *
-   * @param {Buffer} buff Original data.
-   * @returns {Uint8Array} Converted data.
-   */
-  convertToSend(buff) {
+     * Convert the original Firmata data to a MIDI data to be sent.
+     *
+     * @param {Buffer} buff Original data.
+     * @returns {Uint8Array} Converted data.
+     */
+  convertToSend (buff) {
     const data = [...buff]
     if (data[0] === 0xF9) { // report version
       // do nothing cause WebMIDI reserved status is not allowed [0xF9]
@@ -148,12 +147,12 @@ class MidiDakoTransport extends EventEmitter {
   }
 
   /**
-   * Convert the received MIDI data to a Firmata data.
-   *
-   * @param {Uint8Array} data Original data.
-   * @returns {Uint8Array} Converted data.
-   */
-  convertFromReceived(data) {
+     * Convert the received MIDI data to a Firmata data.
+     *
+     * @param {Uint8Array} data Original data.
+     * @returns {Uint8Array} Converted data.
+     */
+  convertFromReceived (data) {
     return data
   }
 }

@@ -11,7 +11,7 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 const store = new Vuex.Store({
   modules: {
-    serial: require('@/store/modules/serial').default
+    firmata: require('@/store/modules/firmata').default
   }
 })
 let wrapper = {}
@@ -32,6 +32,15 @@ describe('広告表示', () => {
     expect(wrapper.find('.common-ad').exists()).toBe(true)
     await sleep(1000)
     expect(wrapper.find('.common-ad').exists()).toBe(false)
+    wrapper.destroy()
+  })
+
+  test('広告が1.9秒後には表示されている', async () => {
+    expect(wrapper.find('.common-ad').exists()).toBe(true)
+    await sleep(1000)
+    expect(wrapper.find('.common-ad').exists()).toBe(true)
+    await sleep(900)
+    expect(wrapper.find('.common-ad').exists()).toBe(true)
     wrapper.destroy()
   })
 })
