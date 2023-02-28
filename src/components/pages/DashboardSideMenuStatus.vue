@@ -3,7 +3,7 @@
     <img
       src="../../../public/img/blank.png"
       alt="akadako"
-      :class="{active: connected, 'akadako-icon': true}"
+      :class="{active: connected, inactive: !connected, 'akadako-icon': true}"
     >
     <div class="group-select-box">
       <button @click="toggleConnection">
@@ -60,13 +60,16 @@ export default {
 <style scoped>
 .akadako-icon {
   display: block;
-  width: 120px;
+  width: 150px;
   height: 180px;
   margin: 0 auto 15px auto;
-  background: url("../../../public/img/status-akadako.png");
+  background: url("../../../public/img/status-akadako.svg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
-.akadako-icon.active {
-  background: url("../../../public/img/status-akadako.png") 120px 0;
+.akadako-icon.inactive {
+  filter: grayscale(1) brightness(85%);
 }
 .group-select-box {
   height: 30px;
