@@ -10,7 +10,6 @@
 import SideMenu from './DashboardSideMenu.vue'
 import GraphPage from './dashboard/GraphPage'
 import CommonAd from '../view/CommonAd.vue'
-
 export default {
   components: { 
     SideMenu,
