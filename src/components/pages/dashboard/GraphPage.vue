@@ -2,169 +2,227 @@
   <div class="content-area">
     <section class="content-box">
       <div class="sensor-select-wrap">
-        <select
-          v-model="graphKind"
-          :disabled="!connected"
-        >
-          <option value="" />
-          <option value="明るさ[lx]">
-            明るさ[lx]
-          </option>
-          <option value="気温[℃]">
-            気温[℃]
-          </option>
-          <option value="気圧[hPa]">
-            気圧[hPa]
-          </option>
-          <option value="湿度[%]">
-            湿度[%]
-          </option>
-          <option value="加速度(絶対値)[m/s^2]">
-            加速度(絶対値)[m/s^2]
-          </option>
-          <option value="加速度(X)[m/s^2]">
-            加速度(X)[m/s^2]
-          </option>
-          <option value="加速度(Y)[m/s^2]">
-            加速度(Y)[m/s^2]
-          </option>
-          <option value="加速度(Z)[m/s^2]">
-            加速度(Z)[m/s^2]
-          </option>
-          <option value="加速度(ロール)[°]">
-            加速度(ロール)[°]
-          </option>
-          <option value="加速度(ピッチ)[°]">
-            加速度(ピッチ)[°]
-          </option>
-          <option value="距離(レーザー)[cm]">
-            距離(レーザー)[cm]
-          </option>
-          <option value="距離(超音波A)[cm]">
-            距離(超音波A)[cm]
-          </option>
-          <option value="距離(超音波B)[cm]">
-            距離(超音波B)[cm]
-          </option>
-          <option
-            v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
-            value="水温(デジタルA1)[℃]"
+        <div>
+          <select
+            v-model="graphKind"
+            :disabled="!connected"
           >
-            水温(デジタルA1)[℃]
-          </option>
-          <option
-            v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
-            value="水温(デジタルB1)[℃]"
+            <option value="" />
+            <option value="明るさ[lx]">
+              明るさ[lx]
+            </option>
+            <option value="気温[℃]">
+              気温[℃]
+            </option>
+            <option value="気圧[hPa]">
+              気圧[hPa]
+            </option>
+            <option value="湿度[%]">
+              湿度[%]
+            </option>
+            <option value="加速度(絶対値)[m/s^2]">
+              加速度(絶対値)[m/s^2]
+            </option>
+            <option value="加速度(X)[m/s^2]">
+              加速度(X)[m/s^2]
+            </option>
+            <option value="加速度(Y)[m/s^2]">
+              加速度(Y)[m/s^2]
+            </option>
+            <option value="加速度(Z)[m/s^2]">
+              加速度(Z)[m/s^2]
+            </option>
+            <option value="加速度(ロール)[°]">
+              加速度(ロール)[°]
+            </option>
+            <option value="加速度(ピッチ)[°]">
+              加速度(ピッチ)[°]
+            </option>
+            <option value="距離(レーザー)[cm]">
+              距離(レーザー)[cm]
+            </option>
+            <option value="距離(超音波A)[cm]">
+              距離(超音波A)[cm]
+            </option>
+            <option value="距離(超音波B)[cm]">
+              距離(超音波B)[cm]
+            </option>
+            <option
+              v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
+              value="水温(デジタルA1)[℃]"
+            >
+              水温(デジタルA1)[℃]
+            </option>
+            <option
+              v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
+              value="水温(デジタルB1)[℃]"
+            >
+              水温(デジタルB1)[℃]
+            </option>
+            <option value="アナログA1">
+              アナログA1
+            </option>
+            <option value="アナログA2">
+              アナログA2
+            </option>
+            <option value="アナログB1">
+              アナログB1
+            </option>
+            <option value="アナログB2">
+              アナログB2
+            </option>
+            <option value="デジタルA1">
+              デジタルA1
+            </option>
+            <option value="デジタルA2">
+              デジタルA2
+            </option>
+            <option value="デジタルB1">
+              デジタルB1
+            </option>
+            <option value="デジタルB2">
+              デジタルB2
+            </option>
+          </select>
+          <input
+            class="last-main-value"
+            type="text"
+            :value="lastMainValue"
+            readonly
           >
-            水温(デジタルB1)[℃]
-          </option>
-          <option value="アナログA1">
-            アナログA1
-          </option>
-          <option value="アナログA2">
-            アナログA2
-          </option>
-          <option value="アナログB1">
-            アナログB1
-          </option>
-          <option value="アナログB2">
-            アナログB2
-          </option>
-          <option value="デジタルA1">
-            デジタルA1
-          </option>
-          <option value="デジタルA2">
-            デジタルA2
-          </option>
-          <option value="デジタルB1">
-            デジタルB1
-          </option>
-          <option value="デジタルB2">
-            デジタルB2
-          </option>
-        </select>
-
-        <select
-          v-model="graphKindSub"
-          :disabled="!connected"
-        >
-          <option value="" />
-          <option value="明るさ[lx]">
-            明るさ[lx]
-          </option>
-          <option value="気温[℃]">
-            気温[℃]
-          </option>
-          <option value="気圧[hPa]">
-            気圧[hPa]
-          </option>
-          <option value="湿度[%]">
-            湿度[%]
-          </option>
-          <option value="加速度(絶対値)[m/s^2]">
-            加速度(絶対値)[m/s^2]
-          </option>
-          <option value="加速度(X)[m/s^2]">
-            加速度(X)[m/s^2]
-          </option>
-          <option value="加速度(Y)[m/s^2]">
-            加速度(Y)[m/s^2]
-          </option>
-          <option value="加速度(Z)[m/s^2]">
-            加速度(Z)[m/s^2]
-          </option>
-          <option value="加速度(ロール)[°]">
-            加速度(ロール)[°]
-          </option>
-          <option value="加速度(ピッチ)[°]">
-            加速度(ピッチ)[°]
-          </option>
-          <option value="距離(レーザー)[cm]">
-            距離(レーザー)[cm]
-          </option>
-          <option value="距離(超音波A)[cm]">
-            距離(超音波A)[cm]
-          </option>
-          <option value="距離(超音波B)[cm]">
-            距離(超音波B)[cm]
-          </option>
-          <option
-            v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
-            value="水温(デジタルA1)[℃]"
+        </div>
+        <div>
+          <select
+            v-model="interval"
+            :disabled="!connected"
           >
-            水温(デジタルA1)[℃]
-          </option>
-          <option
-            v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
-            value="水温(デジタルB1)[℃]"
+            <option value="1000">
+              1秒
+            </option>
+            <option value="3000">
+              3秒
+            </option>
+            <option value="5000">
+              5秒
+            </option>
+            <option value="10000">
+              10秒
+            </option>
+            <option value="30000">
+              30秒
+            </option>
+            <option value="60000">
+              1分
+            </option>
+            <option value="180000">
+              3分
+            </option>
+            <option value="300000">
+              5分
+            </option>
+            <option value="600000">
+              10分
+            </option>
+            <!-- <option value="1800000">
+              30分
+            </option> -->
+          </select>
+          <ProgressTimer
+            ref="progressTimer"
+            :duration="milliSeconds"
+            :paused="shouldPause"
+            :start-time="renderTimerStartTime"
+          />
+        </div>
+        <div>
+          <input
+            class="last-sub-value"
+            type="text"
+            :value="lastSubValue"
+            readonly
           >
-            水温(デジタルB1)[℃]
-          </option>
-          <option value="アナログA1">
-            アナログA1
-          </option>
-          <option value="アナログA2">
-            アナログA2
-          </option>
-          <option value="アナログB1">
-            アナログB1
-          </option>
-          <option value="アナログB2">
-            アナログB2
-          </option>
-          <option value="デジタルA1">
-            デジタルA1
-          </option>
-          <option value="デジタルA2">
-            デジタルA2
-          </option>
-          <option value="デジタルB1">
-            デジタルB1
-          </option>
-          <option value="デジタルB2">
-            デジタルB2
-          </option>
-        </select>
+          <select
+            v-model="graphKindSub"
+            :disabled="!connected"
+          >
+            <option value="" />
+            <option value="明るさ[lx]">
+              明るさ[lx]
+            </option>
+            <option value="気温[℃]">
+              気温[℃]
+            </option>
+            <option value="気圧[hPa]">
+              気圧[hPa]
+            </option>
+            <option value="湿度[%]">
+              湿度[%]
+            </option>
+            <option value="加速度(絶対値)[m/s^2]">
+              加速度(絶対値)[m/s^2]
+            </option>
+            <option value="加速度(X)[m/s^2]">
+              加速度(X)[m/s^2]
+            </option>
+            <option value="加速度(Y)[m/s^2]">
+              加速度(Y)[m/s^2]
+            </option>
+            <option value="加速度(Z)[m/s^2]">
+              加速度(Z)[m/s^2]
+            </option>
+            <option value="加速度(ロール)[°]">
+              加速度(ロール)[°]
+            </option>
+            <option value="加速度(ピッチ)[°]">
+              加速度(ピッチ)[°]
+            </option>
+            <option value="距離(レーザー)[cm]">
+              距離(レーザー)[cm]
+            </option>
+            <option value="距離(超音波A)[cm]">
+              距離(超音波A)[cm]
+            </option>
+            <option value="距離(超音波B)[cm]">
+              距離(超音波B)[cm]
+            </option>
+            <option
+              v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
+              value="水温(デジタルA1)[℃]"
+            >
+              水温(デジタルA1)[℃]
+            </option>
+            <option
+              v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
+              value="水温(デジタルB1)[℃]"
+            >
+              水温(デジタルB1)[℃]
+            </option>
+            <option value="アナログA1">
+              アナログA1
+            </option>
+            <option value="アナログA2">
+              アナログA2
+            </option>
+            <option value="アナログB1">
+              アナログB1
+            </option>
+            <option value="アナログB2">
+              アナログB2
+            </option>
+            <option value="デジタルA1">
+              デジタルA1
+            </option>
+            <option value="デジタルA2">
+              デジタルA2
+            </option>
+            <option value="デジタルB1">
+              デジタルB1
+            </option>
+            <option value="デジタルB2">
+              デジタルB2
+            </option>
+          </select>
+        </div>
       </div>
 
       <Graph
@@ -178,41 +236,6 @@
       />
     </section>
     <div class="btn-bar">
-      <!-- <select
-        v-model="interval"
-        :disabled="!connected"
-      >
-        <option value="1000">
-          1秒
-        </option>
-        <option value="3000">
-          3秒
-        </option>
-        <option value="5000">
-          5秒
-        </option>
-        <option value="10000">
-          10秒
-        </option>
-        <option value="30000">
-          30秒
-        </option>
-        <option value="60000">
-          1分
-        </option>
-        <option value="180000">
-          3分
-        </option>
-        <option value="300000">
-          5分
-        </option>
-        <option value="600000">
-          10分
-        </option>
-        <option value="1800000">
-          30分
-        </option>
-      </select> -->
       <div class="control-btn">
         <a
           v-if="shouldPause"
@@ -242,7 +265,7 @@
           <a
             id="delete-btn"
             :class="existValue ? '' : 'disable'"
-            @click="deleteCallFrom = 'reset'; deleteModalOpen()"
+            @click="deleteModalOpen('reset')"
           >
             <img
               src="../../../../public/img/icon-reset.svg"
@@ -363,6 +386,7 @@
 </template>
 <script>
 import Graph from '../../view/Graph'
+import ProgressTimer from '../../view/ProgressTimer.vue'
 import Vue from 'vue'
 import { mapGetters, mapState } from 'vuex'
 import VModal from 'vue-js-modal'
@@ -372,11 +396,12 @@ Vue.use(VModal)
 
 export default {
   components: {
-    Graph
+    Graph,
+    ProgressTimer
   },
   data() {
     return {
-      interval: '5000',
+      interval: 1000,
       shouldReDo: {
         main: true,
         sub: true,
@@ -397,12 +422,14 @@ export default {
     ...mapState({
       shouldPause: state => state.firmata.shouldPause,
       graphValue: state => state.firmata.graphValue,
-      graphValueSub: state => state.firmata.graphValueSub
+      graphValueSub: state => state.firmata.graphValueSub,
     }),
     ...mapGetters({
       source: 'firmata/values',
       connected: 'firmata/connected',
-      existValue: 'firmata/existValue'
+      existValue: 'firmata/existValue',
+      renderTimerStartTime: 'firmata/renderTimerStartTime',
+      milliSeconds: 'firmata/milliSeconds',
     }),
     graphKind: {
       get() {
@@ -419,18 +446,24 @@ export default {
       set(payload) {
         this.$store.commit('firmata/setKindSub', payload)
       }
-    }
+    },
+    lastMainValue() {
+      return this.source.main[this.source.main.length - 1]?.y
+    },
+    lastSubValue() {
+      console.log('lastSubValue')
+      return this.source.sub[this.source.sub.length - 1]?.y
+    },
   },
   watch: {
     graphKind: function(newVal, oldVal) {
       if (this.existValue) {
         if (this.shouldReDo.main) {
-          this.deleteCallFrom = 'main'
           this.newKindValue.main = newVal
           this.oldKindValue.main = oldVal
           this.shouldReDo.main = false
           this.graphKind = oldVal
-          this.deleteModalOpen()
+          this.deleteModalOpen('main')
         }else {
           this.shouldReDo.main = true
         }
@@ -439,29 +472,30 @@ export default {
     graphKindSub: function(newVal, oldVal) {
       if (this.existValue) {
         if (this.shouldReDo.sub) {
-          this.deleteCallFrom = 'sub'
           this.newKindValue.sub = newVal
           this.oldKindValue.sub = oldVal
           this.shouldReDo.sub = false
           this.graphKindSub = oldVal
-          this.deleteModalOpen()
+          this.deleteModalOpen('sub')
         }else {
           this.shouldReDo.sub = true
         }
       }
     },
-    // interval: function(_, oldValue) {
-    //   if (this.shouldReDo.interval) {
-    //     this.$store.dispatch('firmata/setMilliSeconds', Number(this.interval))
-    //       .catch(() => {
-    //         console.error('unexpected interval value.')
-    //         this.shouldReDo = false
-    //         this.interval = oldValue
-    //       })
-    //   }else {
-    //     this.shouldReDo.interval = true
-    //   }
-    // }
+    interval: function(newValue, oldValue) {
+      if (this.shouldReDo.interval) {
+        // this.deleteModalOpen('interval', () => 
+        this.$store.dispatch('firmata/setMilliSeconds', Number(newValue))
+          .catch(() => {
+            console.error('unexpected interval value.')
+            this.shouldReDo = false
+            this.interval = oldValue
+          })
+        // })   
+      }else {
+        this.shouldReDo.interval = true
+      }
+    }
   },
   mounted() {
     this.oldKindValue.main = this.graphKind
@@ -562,9 +596,9 @@ export default {
       link.remove()
     },
     async deleteModalOK() {
+      this.reset()
       if (this.deleteCallFrom === 'main') {
-        this.reset()
-        this.$store.dispatch('firmata/setShouldPause', true)
+        // this.$store.dispatch('firmata/setShouldPause', true)
         this.shouldReDo.main = false
         this.graphKind = this.newKindValue.main
         this.shouldReDo.main = true
@@ -572,8 +606,7 @@ export default {
           await this.$store.dispatch('firmata/render', true)
         }
       }else if(this.deleteCallFrom === 'sub') {
-        this.reset()
-        this.$store.dispatch('firmata/setShouldPause', true)
+        // this.$store.dispatch('firmata/setShouldPause', true)
         this.shouldReDo.sub = false
         this.graphKindSub = this.newKindValue.sub
         this.shouldReDo.sub = true
@@ -581,21 +614,27 @@ export default {
           await this.$store.dispatch('firmata/render', false)
         }
       }else if(this.deleteCallFrom === 'reset') {
-        this.reset()
-        this.$store.dispatch('firmata/setShouldPause', true)
+        // this.$store.dispatch('firmata/setShouldPause', true)
+      }else if(typeof this.deleteModalOKCallback === 'function') {
+        await this.deleteModalOKCallback()
       }
       this.deleteModalClose()
     },
-    deleteModalNG() {
+    async deleteModalNG() {
       if (this.deleteCallFrom === 'main') {
         this.shouldReDo.main = true
       }else if(this.deleteCallFrom === 'sub') {
         this.shouldReDo.sub = true
+      }else if(typeof this.deleteModalNGCallback === 'function') {
+        await this.deleteModalNGCallback()
       }
       this.deleteModalClose()
     },
-    deleteModalOpen() {
-      this.$store.dispatch('firmata/setShouldPause', true)
+    deleteModalOpen(callFrom, okCallback, ngCallback) {
+      // this.$store.dispatch('firmata/setShouldPause', true)
+      this.deleteCallFrom = callFrom
+      this.deleteModalOKCallback = okCallback
+      this.deleteModalNGCallback = ngCallback
       this.$modal.show('delete-confirm')
     },
     deleteModalClose() {
@@ -789,5 +828,16 @@ select{
 select:disabled{
   opacity:.5;
   cursor:auto;
+}
+
+input.last-main-value {
+  border: none;
+  text-align: left;
+  padding-left: 1em;
+}
+input.last-sub-value {
+  border: none;
+  text-align: right;
+  padding-right: 1em;
 }
 </style>

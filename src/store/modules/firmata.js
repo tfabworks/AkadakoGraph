@@ -37,8 +37,8 @@ const serialPortOptions = {
 }
 
 const tmpAxisInfo = {
-  main: localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '',
-  sub: localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : ''
+  main: localStorage.getItem('graphKind') || '',
+  sub: localStorage.getItem('graphKindSub') || '',
 }
 
 const state = {
@@ -56,8 +56,9 @@ const state = {
     }
   },
   renderTimer: null,
-  graphValue: localStorage.getItem('graphValue') ? JSON.parse(localStorage.getItem('graphValue')) : [],
-  graphValueSub: localStorage.getItem('graphValueSub') ? JSON.parse(localStorage.getItem('graphValueSub')) : [],
+  renderTimerStartTime: 0,
+  graphValue: JSON.parse(localStorage.getItem('graphValue') || '[]'),
+  graphValueSub: JSON.parse(localStorage.getItem('graphValueSub') || '[]'),
   shouldPause: true
 }
 
@@ -76,6 +77,12 @@ const getters = {
   },
   existValue() {
     return state.graphValue.length || state.graphValueSub.length ? true : false
+  },
+  milliSeconds() {
+    return state.milliSeconds
+  },
+  renderTimerStartTime() {
+    return state.renderTimerStartTime
   }
 }
 
@@ -190,6 +197,7 @@ const actions = {
     // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
     if (ctx.state.renderTimer) {
       clearTimeout(ctx.state.renderTimer)
+      ctx.state.renderTimerStartTime = 0
     }
     ctx.state.renderTimer = null
   },
@@ -259,6 +267,7 @@ const actions = {
     // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
     if (ctx.state.renderTimer) {
       clearTimeout(ctx.state.renderTimer)
+      ctx.state.renderTimerStartTime = 0
     }
     ctx.state.renderTimer = null
 
@@ -281,6 +290,7 @@ const actions = {
     if (!ctx.state.shouldPause) {
       await ctx.dispatch('setValueToAdd')
     }
+    ctx.state.renderTimerStartTime = Date.now()
     ctx.state.renderTimer = setTimeout(async () => {
       await ctx.dispatch('addValueLoop')
     }, ctx.state.milliSeconds)
@@ -303,6 +313,7 @@ const actions = {
         // setTimeoutのタイマーが作動していたら解除して、IDをnullにする
         if (ctx.state.renderTimer) {
           clearTimeout(ctx.state.renderTimer)
+          ctx.state.renderTimerStartTime = 0
         }
         await ctx.dispatch('addValueLoop')
       }
@@ -312,6 +323,16 @@ const actions = {
     return new Promise((resolve, reject) => {
       if (milliSecondsList.includes(payload)) {
         ctx.state.milliSeconds = payload
+        // 既存のタイマーがあれば解除
+        if (ctx.state.renderTimer) {
+          clearTimeout(ctx.state.renderTimer)
+          ctx.state.renderTimerStartTime = 0
+        }
+        // 新しいタイマーをセット
+        ctx.state.renderTimerStartTime = Date.now()
+        ctx.state.renderTimer = setTimeout(async () => {
+          await ctx.dispatch('addValueLoop')
+        }, ctx.state.milliSeconds)
         resolve()
       }
       reject()
