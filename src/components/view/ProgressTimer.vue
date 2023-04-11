@@ -1,8 +1,5 @@
 <template>
-  <div class="timer">
-    <!-- <div class="timer__header">
-      {{ remainingTimeFormatted }}
-    </div> -->
+  <div>
     <meter
       class="timer__meter"
       :min="startTime"
@@ -68,6 +65,10 @@ export default {
     paused: function () {
       this.updateTimer()
     },
+    duration: function () {
+      this.updateTimeoutInterval = Math.max(50, Math.min(this.durationN / 100), 1000)
+      this.updateTimer()
+    },
   },
   created: function () {
     if(!this.paused) {
@@ -94,7 +95,7 @@ export default {
         return
       }
       clearTimeout(this.updateTimeoutId)
-      this.updateTimeoutId = setTimeout(this.updateTimer, this.timeoutInterval)
+      this.updateTimeoutId = setTimeout(this.updateTimer, this.updateTimeoutInterval)
     },
     stop() {
       clearTimeout(this.updateTimeoutId)
@@ -104,3 +105,10 @@ export default {
   },
 }
 </script>
+<style lang="scss" scoped>
+.timer__meter {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+</style>
