@@ -455,7 +455,6 @@ export default {
       return this.source.main[this.source.main.length - 1]?.y
     },
     lastSubValue() {
-      console.log('lastSubValue')
       return this.source.sub[this.source.sub.length - 1]?.y
     },
   },

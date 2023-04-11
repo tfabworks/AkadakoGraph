@@ -184,7 +184,7 @@ export default class DistanceGetter {
     return getter
       .then(value => Math.min(350, Math.round(value / 10)))
       .catch(reason => {
-        console.lerror(`ultrasonic distance B was rejected by ${reason}`)
+        console.error(`ultrasonic distance B was rejected by ${reason}`)
         return null
       })
   }
