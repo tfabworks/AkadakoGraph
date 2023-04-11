@@ -65,6 +65,10 @@ export default {
     paused: function () {
       this.updateTimer()
     },
+    duration: function () {
+      this.updateTimeoutInterval = Math.max(50, Math.min(this.durationN / 100), 1000)
+      this.updateTimer()
+    },
   },
   created: function () {
     if(!this.paused) {
@@ -91,7 +95,7 @@ export default {
         return
       }
       clearTimeout(this.updateTimeoutId)
-      this.updateTimeoutId = setTimeout(this.updateTimer, this.timeoutInterval)
+      this.updateTimeoutId = setTimeout(this.updateTimer, this.updateTimeoutInterval)
     },
     stop() {
       clearTimeout(this.updateTimeoutId)
