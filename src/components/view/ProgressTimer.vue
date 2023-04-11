@@ -1,8 +1,5 @@
 <template>
-  <div class="timer">
-    <!-- <div class="timer__header">
-      {{ remainingTimeFormatted }}
-    </div> -->
+  <div>
     <meter
       class="timer__meter"
       :min="startTime"
@@ -104,3 +101,10 @@ export default {
   },
 }
 </script>
+<style lang="scss" scoped>
+.timer__meter {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+</style>

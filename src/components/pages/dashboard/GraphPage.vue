@@ -129,6 +129,7 @@
           </select>
           <ProgressTimer
             ref="progressTimer"
+            class="progress-timer"
             :duration="milliSeconds"
             :paused="!inProgress"
             :start-time="renderTimerStartTime"
@@ -833,6 +834,12 @@ select:disabled{
   cursor:auto;
 }
 
+.progress-timer {
+  padding:0;
+  margin:0;
+  position: absolute;
+  width:100px;
+}
 input.last-main-value {
   border: none;
   text-align: left;
