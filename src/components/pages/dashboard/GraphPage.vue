@@ -59,6 +59,14 @@
             >
               水温(デジタルB1)[℃]
             </option>
+
+            <option value="酸素濃度[%]">
+              酸素濃度[%]
+            </option>
+            <option value="二酸化炭素濃度[ppm]">
+              二酸化炭素濃度[ppm]
+            </option>
+
             <option value="アナログA1">
               アナログA1
             </option>
@@ -198,6 +206,14 @@
             >
               水温(デジタルB1)[℃]
             </option>
+
+            <option value="酸素濃度[%]">
+              酸素濃度[%]
+            </option>
+            <option value="二酸化炭素濃度[ppm]">
+              二酸化炭素濃度[ppm]
+            </option>
+
             <option value="アナログA1">
               アナログA1
             </option>
@@ -320,9 +336,7 @@
         </a>
       </div>
     </modal>
-    <modal
-      name="download"
-    >
+    <modal name="download">
       <div class="modal-header">
         <h2>ダウンロード</h2>
       </div>
@@ -369,9 +383,7 @@
           v-else
           class="modal-body"
         >
-          <span
-            class="btn-text"
-          >データが存在しません</span>
+          <span class="btn-text">データが存在しません</span>
         </div>
         <div class="modal-body">
           <button 
@@ -657,26 +669,32 @@ export default {
   background-color: #EEEEEE;
   padding: 20px;
 }
+
 select{
   outline: none;
 }
+
 .btn-bar{
   position:relative;
   display:flex;
 }
+
 .control-btn{
   width:64px;
   height:64px;
   margin:auto;
 }
+
 .control-btn a.disable{
   pointer-events:none;
   opacity:.3;
   filter: grayscale(100%);
 }
+
 .control-btn img{
   width:100%;
 }
+
 .right-btn-list{
   position:absolute;
   right:0;
@@ -686,28 +704,34 @@ select{
   background:#fff;
   padding:5px 0;
 }
+
 .right-btn-list li{
   width:65px;
   border-right:2px solid #ccc;
 }
+
 .right-btn-list li:last-of-type{
   border-right:none;
 }
+
 .right-btn-list li a{
   display:block;
   padding:8px;
   height:100%;
 }
+
 .right-btn-list a.disable{
   pointer-events:none;
   opacity:.3;
   filter: grayscale(100%);
 }
+
 .right-btn-list li a img{
   display:block;
   width:26px;
   margin:auto;
 }
+
 .btn-square-little-rich {
   position: relative;
   display: flex;
@@ -716,35 +740,42 @@ select{
   padding: 10px 15px;
   text-decoration: none;
   color: #FFF;
-  background:#27ae60;/*色*/
-  border: solid 1px #27ae60;/*線色*/
+  background: #27ae60;
+  /*色*/
+  border: solid 1px #27ae60;
+  /*線色*/
   border-radius: 4px;
   text-shadow: 0 1px 0 rgba(0,0,0,0.2);
   margin: 10px 15px;
   height: 50px;
 }
+
 .btn-square-little-rich.cancel {
   background:#ff0000;
   border: solid 1px #ff0000;
   text-shadow: 0 1px 0 rgba(0,0,0,0.2);
 }
+
 .btn-square-little-rich:active {
   /*押したとき*/
   border: solid 1px #2c6ac4;
   box-shadow: none;
   text-shadow: none;
 }
+
 .btn-icon{
   display:inline-block;
   margin-right:3px;
   width:20px;
   height:auto;
 }
+
 .btn-text{
   padding: 0 5px;
   font-size:15px;
   font-weight:bold;
 }
+
 .content-box {
   text-align: center;
   width: 100%;
@@ -754,6 +785,7 @@ select{
   border: 1px solid #ccc;
   border-radius: 4px;
 }
+
 #loader{
   display: inline-block;
   position: relative;
@@ -764,11 +796,21 @@ select{
   border-right-color: transparent;
   animation: spin 1s linear infinite;
 }
+
 @keyframes spin{
-    0% { transform: rotate(0deg)}
-    50%  { transform: rotate(180deg)}
-    100%   { transform: rotate(360deg)}
+  0% {
+    transform: rotate(0deg)
 }
+
+  50% {
+    transform: rotate(180deg)
+  }
+
+  100% {
+    transform: rotate(360deg)
+  }
+}
+
 .modal-header h2{
   padding:15px;
   text-align:center;
@@ -777,6 +819,7 @@ select{
   background:#333;
   color:#fff;
 }
+
 .modal-body{
   display:flex;
   justify-content:center;
@@ -785,17 +828,21 @@ select{
   padding:25px;
   min-height:250px;
 }
+
 .modal-body p{
   margin-bottom:1em;
   font-size:16px;
   line-height:1.6;
 }
+
 .modal-body button{
   cursor:pointer;
 }
+
 .modal-body button:hover{
   opacity:.7;
 }
+
 .modal-close-btn{
   display:flex;
   align-items:center;
@@ -806,14 +853,17 @@ select{
   font-weight:bold;
   color:#999;
 }
+
 .modal-close-btn i{
   margin-right:4px;
 }
+
 .sensor-select-wrap{
   display:flex;
   justify-content:space-between;
   margin-bottom:15px;
 }
+
 .sensor-select-wrap select{
   position:relative;
   min-width:100px;
@@ -824,10 +874,12 @@ select{
   font-weight:bold;
   cursor:pointer;
 }
+
 .sensor-select-wrap select:nth-of-type(2){
   border:2px solid #26AE60;
   color:#26AE60;
 }
+
 select:disabled{
   opacity:.5;
   cursor:auto;
