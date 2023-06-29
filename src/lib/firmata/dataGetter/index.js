@@ -5,6 +5,7 @@ import WaterTempertureGetter from './waterTemperture'
 import InputGetter from './input'
 
 import LTR303 from '../ltr303'
+import O2CO2Sensor from '../o2co2'
 
 export default class DataGetter {
   constructor(board) {
@@ -17,6 +18,7 @@ export default class DataGetter {
       this.distanceGetter = new DistanceGetter(this.board)
       this.waterTempertureGetter = new WaterTempertureGetter(this.board)
       this.inputGetter = new InputGetter(this.board)
+      this.o2co2 = new O2CO2Sensor(this.board)
     }
   }
 
@@ -52,6 +54,10 @@ export default class DataGetter {
         return await this.waterTempertureGetter.getWaterTemperatureA()
       } else if (kind === '水温(デジタルB1)[℃]') {
         return await this.waterTempertureGetter.getWaterTemperatureB()
+      } else if (kind === '二酸化炭素濃度[ppm]') {
+        return await this.o2co2.getCO2()
+      } else if (kind === '酸素濃度[%]') {
+        return await this.o2co2.getO2()
       } else if (kind === 'アナログA1') {
         return this.inputGetter.analogLevelA1()
       } else if (kind === 'アナログA2') {
