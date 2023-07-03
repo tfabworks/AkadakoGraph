@@ -220,8 +220,7 @@ const actions = {
         .then((values) => {
           const res = values.map((value) => value.status == 'fulfilled' ? value.value : null)
           console.log('Promise.allSettled', values, res)
-          if (res[0] != null) {
-            console.log('ctx.commit', res[0], res[1], date)
+          if (res[0] !== null) {
             ctx.commit('addValue', {
               isMain: true,
               newValue: {
@@ -230,7 +229,7 @@ const actions = {
               }
             })
           }
-          if (res[1] != null) {
+          if (res[1] !== null) {
             ctx.commit('addValue', {
               isMain: false,
               newValue: {
@@ -245,7 +244,7 @@ const actions = {
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
       const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind)
-      if (data != null) {
+      if (data !== null) {
         ctx.commit('addValue', {
           isMain: true,
           newValue: {
@@ -256,7 +255,7 @@ const actions = {
       }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
       const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
-      if (data != null) {
+      if (data !== null) {
         ctx.commit('addValue', {
           isMain: false,
           newValue: {
