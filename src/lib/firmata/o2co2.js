@@ -56,8 +56,14 @@ export default class O2CO2Sensor {
   }
 }
 
-class SCD4x {
 
+const SCD4x_NULL_MEASUREMENT = {
+  co2: null,
+  temperature: null,
+  humidity: null,
+}
+
+class SCD4x {
   constructor(board) {
     /**
      * Connecting AkaDako board
@@ -90,11 +96,7 @@ class SCD4x {
      * 最後に取得したデータ
      * @type {number} last measurement data
      */
-    this.periodic_measurement_last_data = {
-      co2: 0,
-      temperature: 0,
-      humidity: 0,
-    }
+    this.periodic_measurement_last_data = SCD4x_NULL_MEASUREMENT
   }
 
   /**
@@ -102,7 +104,8 @@ class SCD4x {
    * @returns {Promise<{co2: number, temperature: number, humidity: number}>} CO2 concentration [ppm], temperature [°C], humidity [%RH]
    */
   async getPeriodicMeasurement() {
-    let ondemand = false
+    const last_measurement = this.periodic_measurement_last_data
+    const last_updated = this.periodic_measurement_last_updated
     // read_measurement の取得感覚は5秒なので、3秒以内なら新規データ取得は行わない（古いデータを返す）
     if (3000 < Date.now() - this.periodic_measurement_last_updated) {
       // 継続読み取りモードが開始されていなければ開始する
@@ -114,13 +117,23 @@ class SCD4x {
         // データを保存する
         this.periodic_measurement_last_data = measurement
         this.periodic_measurement_last_updated = Date.now()
-        ondemand = true
+        // データ取得成功
+        return {
+          ...measurement,
+          timestamp: this.periodic_measurement_last_updated,
+          last_measurement,
+          last_updated,
+          ondemand: true,
+        }
       }
     }
+    // データ取得失敗
     return {
-      ...this.periodic_measurement_last_data,
-      timestamp: this.periodic_measurement_last_updated,
-      ondemand,
+      ...SCD4x_NULL_MEASUREMENT,
+      timestamp: Date.now(),
+      last_measurement,
+      last_updated,
+      ondemand: false,
     }
   }
 
