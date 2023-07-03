@@ -20,8 +20,8 @@ export default {
     ...mapGetters({
       connected: 'firmata/connected',
     }),
-    connectButtonString: function() {
-      return this.connected ? 'AkaDacoを切断する' : 'AkaDacoに接続する'
+    connectButtonString: function () {
+      return this.connected ? 'AkaDakoを切断する' : 'AkaDakoに接続する'
     }
   },
   watch: {
