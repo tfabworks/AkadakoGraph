@@ -83,6 +83,7 @@ export default {
           borderColor: '#27ae60',
           pointBackgroundColor: '#27ae60',
           fill: false,
+          spanGaps: true,
           lineTension: 0,
           data: this.source.sub
         })
@@ -107,7 +108,9 @@ export default {
           borderColor: '#333',
           pointBackgroundColor: '#333',
           fill: false,
+          spanGaps: true,
           lineTension: 0,
+
           data: this.source.main
         },
         {
@@ -116,6 +119,7 @@ export default {
           borderColor: '#27ae60',
           pointBackgroundColor: '#27ae60',
           fill: false,
+          spanGaps: true,
           lineTension: 0,
           data: this.source.sub
         })
@@ -149,6 +153,7 @@ export default {
           borderColor: '#333',
           pointBackgroundColor: '#333',
           fill: false,
+          spanGaps: true,
           lineTension: 0,
           data: this.source.main
         })
