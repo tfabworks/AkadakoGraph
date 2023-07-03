@@ -54,7 +54,7 @@ export default class DataGetter {
         return await this.waterTempertureGetter.getWaterTemperatureA()
       } else if (kind === '水温(デジタルB1)[℃]') {
         return await this.waterTempertureGetter.getWaterTemperatureB()
-      } else if (kind === '二酸化炭素濃度[ppm]') {
+      } else if (kind === '二酸化炭素濃度[%]') {
         return await this.o2co2.getCO2()
       } else if (kind === '酸素濃度[%]') {
         return await this.o2co2.getO2()

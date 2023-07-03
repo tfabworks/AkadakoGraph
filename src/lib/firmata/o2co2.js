@@ -36,7 +36,8 @@ export default class O2CO2Sensor {
   }
 
   async getCO2() {
-    return (await this.scd4x.getPeriodicMeasurement()).co2
+    // ppm を % に変換する
+    return (await this.scd4x.getPeriodicMeasurement()).co2 / 10000
   }
 
   async getTemperature() {

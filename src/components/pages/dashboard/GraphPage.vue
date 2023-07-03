@@ -63,8 +63,8 @@
             <option value="酸素濃度[%]">
               酸素濃度[%]
             </option>
-            <option value="二酸化炭素濃度[ppm]">
-              二酸化炭素濃度[ppm]
+            <option value="二酸化炭素濃度[%]">
+              二酸化炭素濃度[%]
             </option>
 
             <option value="アナログA1">
@@ -210,8 +210,8 @@
             <option value="酸素濃度[%]">
               酸素濃度[%]
             </option>
-            <option value="二酸化炭素濃度[ppm]">
-              二酸化炭素濃度[ppm]
+            <option value="二酸化炭素濃度[%]">
+              二酸化炭素濃度[%]
             </option>
 
             <option value="アナログA1">
