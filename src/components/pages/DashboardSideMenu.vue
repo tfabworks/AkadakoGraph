@@ -30,9 +30,7 @@
             プライバシーポリシー
           </a>
         </li>
-        <li
-          class="brand-icon"
-        >
+        <li class="brand-icon">
           <a
             href="https://akadako.com/"
             target="_blank"
@@ -69,20 +67,24 @@ export default {
 #wrapper {
   background: #27ae60;
 }
+
 .menu-area {
   width: 220px;
   padding: 20px 15px;
   min-height: calc(100vh - 50px);
 }
+
 .menu-area-title {
   color: #fff;
   font-size: 1.25rem;
   font-weight: bold;
   margin: 0 0 15px 0;
 }
+
 .menu-area-title:nth-of-type(2) {
   margin: 40px 0 15px 0;
 }
+
 .menu-area-title .icon-btn {
   position: relative;
   display: inline-block;
@@ -96,15 +98,18 @@ export default {
   background: #f3f3f3;
   color: #333;
 }
+
 .menu-area-title .icon-btn:first-of-type {
   margin: 0 8px 0 20px;
 }
-.menu-area-btn-list > li {
+
+.menu-area-btn-list>li {
   margin: 15px 0;
   padding-left: 25px;
   position: relative;
 }
-.menu-area-btn-list > li:before {
+
+.menu-area-btn-list>li:before {
   display: block;
   left: 0;
   width: 25px;
@@ -114,30 +119,38 @@ export default {
   background-image: url("../../../public/img/icon-sprite.png");
   background-repeat: no-repeat;
 }
-.menu-area-btn-list > li.help-icon:before {
+
+.menu-area-btn-list>li.help-icon:before {
   background-position: 0 -15px;
 }
-.menu-area-btn-list > li.opinion-icon:before {
+
+.menu-area-btn-list>li.opinion-icon:before {
   background-position: 0 -30px;
 }
-.menu-area-btn-list > li.brand-icon:before {
+
+.menu-area-btn-list>li.brand-icon:before {
   background-position: 0 -45px;
 }
-.menu-area-btn-list > li.tfabconnect-icon:before {
+
+.menu-area-btn-list>li.tfabconnect-icon:before {
   background-position: 0 -60px;
 }
-.menu-area-btn-list > li.privacy-icon:before {
+
+.menu-area-btn-list>li.privacy-icon:before {
   background-position: 0 -75px;
 }
-.menu-area-btn-list > li a {
+
+.menu-area-btn-list>li a {
   display: block;
   color: #fff;
   text-decoration: none;
 }
-.menu-area-btn-list > li > ul {
+
+.menu-area-btn-list>li>ul {
   margin: 5px 0 0 10px;
 }
-.menu-area-btn-list > li > ul > li {
+
+.menu-area-btn-list>li>ul>li {
   margin-bottom: 6px;
 }
 </style>
