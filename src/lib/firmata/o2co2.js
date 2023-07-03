@@ -113,18 +113,22 @@ class SCD4x {
       await this.startPeriodicMesurement()
       // データ取得準備ができるのを待つ
       if (await this.waitDataReady(200, 20)) {
-        // データを取得する
-        const measurement = await this.read_measurement()
-        // データを保存する
-        this.periodic_measurement_last_data = measurement
-        this.periodic_measurement_last_updated = Date.now()
-        // データ取得成功
-        return {
-          ...measurement,
-          timestamp: this.periodic_measurement_last_updated,
-          last_measurement,
-          last_updated,
-          ondemand: true,
+        try {
+          // データを取得する
+          const measurement = await this.read_measurement()
+          // データを保存する
+          this.periodic_measurement_last_data = measurement
+          this.periodic_measurement_last_updated = Date.now()
+          // データ取得成功
+          return {
+            ...measurement,
+            timestamp: this.periodic_measurement_last_updated,
+            last_measurement,
+            last_updated,
+            ondemand: true,
+          }
+        } catch (e) {
+          console.error('SCD4x: getPeriodicMeasurement() failed', e)
         }
       }
     }
@@ -555,11 +559,14 @@ class SCD4x {
     // Max. command duration [ms]: 1
     await new Promise(resolve => setTimeout(resolve, 1))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
-    const words = this.parseDataWithCRCValidation(data)
-    console.log('get_data_ready_status', words, data)
-    const data_ready_status = words[0] & 0x07ff //下位11bitを取り出す
-    console.log('get_data_ready_status', data_ready_status, data_ready_status == 0)
-    return data_ready_status
+    try {
+      const words = this.parseDataWithCRCValidation(data)
+      const data_ready_status = words[0] & 0x07ff //下位11bitを取り出す
+      console.log('get_data_ready_status', data_ready_status, data_ready_status == 0)
+      return data_ready_status
+    } catch (err) {
+      return false
+    }
   }
 
   /**
@@ -573,7 +580,7 @@ class SCD4x {
       const word = data[i] << 8 | data[i + 1]
       const crc = data[i + 2]
       if (crc != this.sensirion_common_generate_crc([data[i], data[i + 1]], 2)) {
-        console.log('crc error', i, word, crc)
+        throw new Error('SCD4x: crc error')
       }
       words.push(word)
     }
