@@ -13,7 +13,7 @@
             使い方
           </a>
         </li> -->
-        <li class="support-sensors-icon">
+        <li class="fa-solid fa-temperature-list">
           <a
             href="https://399.jp/AkaDakoGraphSupportSensor"
             target="_blank"
