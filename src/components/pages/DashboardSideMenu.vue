@@ -13,9 +13,16 @@
             使い方
           </a>
         </li> -->
-        <li
-          class="privacy-icon"
-        >
+        <li class="support-sensors-icon">
+          <a
+            href="https://399.jp/AkaDakoGraphSupportSensor"
+            target="_blank"
+          >
+            対応センサー
+          </a>
+        </li>
+
+        <li class="privacy-icon">
           <a
             href="https://tfabworks.com/service_privacy/"
             target="_blank"
