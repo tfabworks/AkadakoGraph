@@ -213,12 +213,15 @@ const actions = {
       // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
 
-      Promise.all([
+      Promise.allSettled([
         ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind),
         ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
       ])
-        .then((res) => {
-          if (res[0] != null && res[1] != null) {
+        .then((values) => {
+          const res = values.map((value) => value.status == 'fulfilled' ? value.value : null)
+          console.log('Promise.allSettled', values, res)
+          if (res[0] != null) {
+            console.log('ctx.commit', res[0], res[1], date)
             ctx.commit('addValue', {
               isMain: true,
               newValue: {
@@ -226,7 +229,8 @@ const actions = {
                 x: date
               }
             })
-
+          }
+          if (res[1] != null) {
             ctx.commit('addValue', {
               isMain: false,
               newValue: {
