@@ -3,7 +3,7 @@
     <img
       src="../../../public/img/blank.png"
       alt="akadako"
-      :class="{active: connected, inactive: !connected, 'akadako-icon': true}"
+      :class="{ active: connected, inactive: !connected, 'akadako-icon': true }"
     >
     <div class="group-select-box">
       <button @click="toggleConnection">
@@ -25,7 +25,7 @@ export default {
     }
   },
   watch: {
-    selected: function(){
+    selected: function () {
       if (this.connected) {
         this.mDisConnect()
           .catch((e) => {
@@ -45,7 +45,7 @@ export default {
     toggleConnection() {
       if (this.connected) {
         this.disConnect()
-      }else {
+      } else {
         this.connect()
       }
     },
@@ -68,14 +68,17 @@ export default {
   background-position: center;
   background-repeat: no-repeat;
 }
+
 .akadako-icon.inactive {
   filter: grayscale(1) brightness(85%);
 }
+
 .group-select-box {
   height: 30px;
   margin-bottom: 40px;
-  text-align:center;
+  text-align: center;
 }
+
 .group-select-box select {
   width: calc(100% - 35px);
   padding: 0 10px;
@@ -85,6 +88,7 @@ export default {
   cursor: pointer;
   background: #fff;
 }
+
 .group-select-box .fa-caret-down {
   position: absolute;
   top: 50%;
@@ -92,8 +96,9 @@ export default {
   transform: translateY(-50%);
   pointer-events: none;
 }
+
 .group-select-box button {
-  padding:0 10px 0 40px;
+  padding: 0 10px 0 40px;
   height: 100%;
   cursor: pointer;
   border-radius: 4px;
@@ -101,14 +106,14 @@ export default {
   text-align: center;
 }
 
-.group-select-box button:hover{
-  opacity:.8;
+.group-select-box button:hover {
+  opacity: .8;
 }
 
 .group-select-box button .fa-plug {
   font-size: 1rem;
 }
+
 .group-select-box button.active {
   background: #ffeb3b;
-}
-</style>
+}</style>

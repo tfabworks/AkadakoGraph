@@ -228,7 +228,6 @@ const actions = {
       ])
         .then((values) => {
           const res = values.map((value) => value.status == 'fulfilled' ? value.value : null)
-          console.log('Promise.allSettled', values, res)
           if (res[0] !== null) {
             ctx.commit('addValue', {
               isMain: true,
