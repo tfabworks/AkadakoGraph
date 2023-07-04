@@ -88,6 +88,15 @@ const getters = {
 
 const mutations = {
   addValue(state, { isMain, newValue }) {
+    const targetGraphValue = isMain ? state.graphValue : state.graphValueSub
+    if(targetGraphValue?.length) {
+      const lastTime = targetGraphValue[targetGraphValue.length - 1].x
+      const newTime = newValue.x
+      if(newTime < lastTime) {
+        console.log('addValue: reject old value')
+        return
+      }
+    }
     if (isMain) {
       state.graphValue.push(newValue)
       localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
