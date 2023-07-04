@@ -21,7 +21,7 @@ export default {
       connected: 'firmata/connected',
     }),
     connectButtonString: function () {
-      return this.connected ? 'AkaDakoを切断する' : 'AkaDakoに接続する'
+      return this.connected ? 'AkaDakoを切断する' : 'AkaDakoを接続する'
     }
   },
   watch: {
