@@ -88,6 +88,15 @@ const getters = {
 
 const mutations = {
   addValue(state, { isMain, newValue }) {
+    const targetGraphValue = isMain ? state.graphValue : state.graphValueSub
+    if(targetGraphValue?.length) {
+      const lastTime = targetGraphValue[targetGraphValue.length - 1].x
+      const newTime = newValue.x
+      if(newTime < lastTime) {
+        console.log('addValue: reject old value')
+        return
+      }
+    }
     if (isMain) {
       state.graphValue.push(newValue)
       localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
@@ -213,12 +222,13 @@ const actions = {
       // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
 
-      Promise.all([
+      Promise.allSettled([
         ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind),
         ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
       ])
-        .then((res) => {
-          if (res[0] != null && res[1] != null) {
+        .then((values) => {
+          const res = values.map((value) => value.status == 'fulfilled' ? value.value : null)
+          if (res[0] !== null) {
             ctx.commit('addValue', {
               isMain: true,
               newValue: {
@@ -226,7 +236,8 @@ const actions = {
                 x: date
               }
             })
-
+          }
+          if (res[1] !== null) {
             ctx.commit('addValue', {
               isMain: false,
               newValue: {
@@ -241,7 +252,7 @@ const actions = {
         })
     } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
       const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind)
-      if (data != null) {
+      if (data !== null) {
         ctx.commit('addValue', {
           isMain: true,
           newValue: {
@@ -252,7 +263,7 @@ const actions = {
       }
     } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
       const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
-      if (data != null) {
+      if (data !== null) {
         ctx.commit('addValue', {
           isMain: false,
           newValue: {

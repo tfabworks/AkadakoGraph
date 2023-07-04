@@ -56,8 +56,14 @@ export default class O2CO2Sensor {
   }
 }
 
-class SCD4x {
 
+const SCD4x_NULL_MEASUREMENT = {
+  co2: null,
+  temperature: null,
+  humidity: null,
+}
+
+class SCD4x {
   constructor(board) {
     /**
      * Connecting AkaDako board
@@ -90,11 +96,7 @@ class SCD4x {
      * 最後に取得したデータ
      * @type {number} last measurement data
      */
-    this.periodic_measurement_last_data = {
-      co2: 0,
-      temperature: 0,
-      humidity: 0,
-    }
+    this.periodic_measurement_last_data = SCD4x_NULL_MEASUREMENT
   }
 
   /**
@@ -102,25 +104,40 @@ class SCD4x {
    * @returns {Promise<{co2: number, temperature: number, humidity: number}>} CO2 concentration [ppm], temperature [°C], humidity [%RH]
    */
   async getPeriodicMeasurement() {
-    let ondemand = false
+    const last_measurement = this.periodic_measurement_last_data
+    const last_updated = this.periodic_measurement_last_updated
     // read_measurement の取得感覚は5秒なので、3秒以内なら新規データ取得は行わない（古いデータを返す）
     if (3000 < Date.now() - this.periodic_measurement_last_updated) {
       // 継続読み取りモードが開始されていなければ開始する
       await this.startPeriodicMesurement()
       // データ取得準備ができるのを待つ
       if (await this.waitDataReady(200, 20)) {
-        // データを取得する
-        const measurement = await this.read_measurement()
-        // データを保存する
-        this.periodic_measurement_last_data = measurement
-        this.periodic_measurement_last_updated = Date.now()
-        ondemand = true
+        try {
+          // データを取得する
+          const measurement = await this.read_measurement()
+          // データを保存する
+          this.periodic_measurement_last_data = measurement
+          this.periodic_measurement_last_updated = Date.now()
+          // データ取得成功
+          return {
+            ...measurement,
+            timestamp: this.periodic_measurement_last_updated,
+            last_measurement,
+            last_updated,
+            ondemand: true,
+          }
+        } catch (e) {
+          console.error('SCD4x: getPeriodicMeasurement() failed', e)
+        }
       }
     }
+    // データ取得失敗
     return {
-      ...this.periodic_measurement_last_data,
-      timestamp: this.periodic_measurement_last_updated,
-      ondemand,
+      ...SCD4x_NULL_MEASUREMENT,
+      timestamp: Date.now(),
+      last_measurement,
+      last_updated,
+      ondemand: false,
     }
   }
 
@@ -151,6 +168,7 @@ class SCD4x {
    * @returns {Promise<boolean>} true: データ取得準備が出来ている, false: データ取得準備が出来ていない
    */
   async waitDataReady(timeoutMs = 200, checkIntervalMs = 20) {
+    
     const expiryTimeMs = Date.now() + timeoutMs
     while (Date.now() < expiryTimeMs) {
       if (await this.isDataReady()) {
@@ -226,7 +244,7 @@ class SCD4x {
     await new Promise(resolve => setTimeout(resolve, 1))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 9, timeout_short)
     const words = this.parseDataWithCRCValidation(data)
-    const co2 = words[0]
+    const co2 = words[0] / 10000 // ppm を % に変換する
     const temperature = -45 + 175 * words[1] / 2
     const humidity = 100 * words[2] / 2
     const measurement = {co2, temperature, humidity }
@@ -439,7 +457,7 @@ class SCD4x {
     }
     // Send the 'measure_single_shot' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x21, 0x9d)
-    console.log('measure_single_shot')
+    console.log('SCD4x: measure_single_shot')
     // Max command duration [ms]: 5000
     await new Promise(resolve => setTimeout(resolve, 5000))
   }
@@ -456,7 +474,7 @@ class SCD4x {
     }
     // Send the 'measure_single_shot_rht_only' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x21, 0x96)
-    console.log('measure_single_shot_rht_only')
+    console.log('SCD4x: measure_single_shot_rht_only')
     // Max command duration [ms]: 50
     await new Promise(resolve => setTimeout(resolve, 50))
   }
@@ -470,7 +488,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x23, 0x18)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
     const temperature_offset_celsius = 175 * (data[0] << 8 | data[1]) / 65536
-    console.log('get_temperature_offset', temperature_offset_celsius)
+    console.log('SCD4x: get_temperature_offset', temperature_offset_celsius)
     return temperature_offset_celsius
   }
 
@@ -483,7 +501,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x23, 0x22)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
     const sensor_altitude = (data[0] << 8 | data[1])
-    console.log('get_sensor_altitude', sensor_altitude)
+    console.log('SCD4x: get_sensor_altitude', sensor_altitude)
     return sensor_altitude
   }
 
@@ -496,7 +514,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x23, 0x13)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
     const automatic_self_calibration_enabled = (data[0] << 8 | data[1]) == 1
-    console.log('get_automatic_self_calibration_enabled', automatic_self_calibration_enabled, automatic_self_calibration_enabled == 1)
+    console.log('SCD4x: get_automatic_self_calibration_enabled', automatic_self_calibration_enabled, automatic_self_calibration_enabled == 1)
     return automatic_self_calibration_enabled == 1
   }
 
@@ -541,11 +559,14 @@ class SCD4x {
     // Max. command duration [ms]: 1
     await new Promise(resolve => setTimeout(resolve, 1))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
-    const words = this.parseDataWithCRCValidation(data)
-    console.log('get_data_ready_status', words, data)
-    const data_ready_status = words[0] & 0x07ff //下位11bitを取り出す
-    console.log('get_data_ready_status', data_ready_status, data_ready_status == 0)
-    return data_ready_status
+    try {
+      const words = this.parseDataWithCRCValidation(data)
+      const data_ready_status = words[0] & 0x07ff //下位11bitを取り出す
+      console.log('SCD4x: get_data_ready_status', data_ready_status, data_ready_status == 0)
+      return data_ready_status
+    } catch (err) {
+      return false
+    }
   }
 
   /**
@@ -559,7 +580,7 @@ class SCD4x {
       const word = data[i] << 8 | data[i + 1]
       const crc = data[i + 2]
       if (crc != this.sensirion_common_generate_crc([data[i], data[i + 1]], 2)) {
-        console.log('crc error', i, word, crc)
+        throw new Error('SCD4x: crc error')
       }
       words.push(word)
     }
