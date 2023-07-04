@@ -88,6 +88,15 @@ const getters = {
 
 const mutations = {
   addValue(state, { isMain, newValue }) {
+    const targetGraphValue = isMain ? state.graphValue : state.graphValueSub
+    if(targetGraphValue?.length) {
+      const lastTime = targetGraphValue[targetGraphValue.length - 1].x
+      const newTime = newValue.x
+      if(newTime < lastTime) {
+        console.log('addValue: reject old value')
+        return
+      }
+    }
     if (isMain) {
       state.graphValue.push(newValue)
       localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
@@ -219,7 +228,6 @@ const actions = {
       ])
         .then((values) => {
           const res = values.map((value) => value.status == 'fulfilled' ? value.value : null)
-          console.log('Promise.allSettled', values, res)
           if (res[0] !== null) {
             ctx.commit('addValue', {
               isMain: true,
