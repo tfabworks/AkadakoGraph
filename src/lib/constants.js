@@ -140,4 +140,13 @@ export const Sensors = [
 
 export const SensorMap = new Map(Sensors.map((sensor) => [sensor.id, sensor]))
 
-window.aa = SensorMap
+export const migrateSensorKind20230714 = (kind) => {
+  if(/^\d+$/.test(kind)) {
+    return kind
+  }
+  const sensor = Sensors.find((sensor) => sensor.kind.replace(/^\d+\./, '') === kind)
+  if(sensor) {
+    return `${sensor.id}`
+  }
+  return ''
+}
