@@ -245,8 +245,8 @@ class SCD4x {
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 9, timeout_short)
     const words = this.parseDataWithCRCValidation(data)
     const co2 = words[0] / 10000 // ppm を % に変換する
-    const temperature = -45 + 175 * words[1] / 2
-    const humidity = 100 * words[2] / 2
+    const temperature = -45 + 175 * words[1] / 2 ** 16
+    const humidity = 100 * words[2] / 2 ** 16
     const measurement = {co2, temperature, humidity }
     console.log('SCD4x: read_measurement', `{ co2: ${co2}, temperature: ${temperature}, humidity: ${humidity} }`, measurement)
     return measurement
