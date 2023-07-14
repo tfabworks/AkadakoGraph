@@ -8,88 +8,12 @@
             :disabled="!connected"
           >
             <option value="" />
-            <option value="明るさ[lx]">
-              明るさ[lx]
-            </option>
-            <option value="気温[℃]">
-              気温[℃]
-            </option>
-            <option value="気圧[hPa]">
-              気圧[hPa]
-            </option>
-            <option value="湿度[%]">
-              湿度[%]
-            </option>
-            <option value="加速度(絶対値)[m/s^2]">
-              加速度(絶対値)[m/s^2]
-            </option>
-            <option value="加速度(X)[m/s^2]">
-              加速度(X)[m/s^2]
-            </option>
-            <option value="加速度(Y)[m/s^2]">
-              加速度(Y)[m/s^2]
-            </option>
-            <option value="加速度(Z)[m/s^2]">
-              加速度(Z)[m/s^2]
-            </option>
-            <option value="加速度(ロール)[°]">
-              加速度(ロール)[°]
-            </option>
-            <option value="加速度(ピッチ)[°]">
-              加速度(ピッチ)[°]
-            </option>
-            <option value="距離(レーザー)[cm]">
-              距離(レーザー)[cm]
-            </option>
-            <option value="距離(超音波A)[cm]">
-              距離(超音波A)[cm]
-            </option>
-            <option value="距離(超音波B)[cm]">
-              距離(超音波B)[cm]
-            </option>
             <option
-              v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
-              value="水温(デジタルA1)[℃]"
+              v-for="s in Sensors"
+              :key="s.id"
+              :value="s.id"
             >
-              水温(デジタルA1)[℃]
-            </option>
-            <option
-              v-if="graphKindSub !== '水温(デジタルA1)[℃]' && graphKindSub !== '水温(デジタルB1)[℃]'"
-              value="水温(デジタルB1)[℃]"
-            >
-              水温(デジタルB1)[℃]
-            </option>
-
-            <option value="酸素濃度[%]">
-              酸素濃度[%]
-            </option>
-            <option value="二酸化炭素濃度[%]">
-              二酸化炭素濃度[%]
-            </option>
-
-            <option value="アナログA1">
-              アナログA1
-            </option>
-            <option value="アナログA2">
-              アナログA2
-            </option>
-            <option value="アナログB1">
-              アナログB1
-            </option>
-            <option value="アナログB2">
-              アナログB2
-            </option>
-            <option value="デジタルA1">
-              デジタルA1
-            </option>
-            <option value="デジタルA2">
-              デジタルA2
-            </option>
-            <option value="デジタルB1">
-              デジタルB1
-            </option>
-            <option value="デジタルB2">
-              デジタルB2
+              {{ s.kind }}
             </option>
           </select>
           <input
@@ -155,88 +79,12 @@
             :disabled="!connected"
           >
             <option value="" />
-            <option value="明るさ[lx]">
-              明るさ[lx]
-            </option>
-            <option value="気温[℃]">
-              気温[℃]
-            </option>
-            <option value="気圧[hPa]">
-              気圧[hPa]
-            </option>
-            <option value="湿度[%]">
-              湿度[%]
-            </option>
-            <option value="加速度(絶対値)[m/s^2]">
-              加速度(絶対値)[m/s^2]
-            </option>
-            <option value="加速度(X)[m/s^2]">
-              加速度(X)[m/s^2]
-            </option>
-            <option value="加速度(Y)[m/s^2]">
-              加速度(Y)[m/s^2]
-            </option>
-            <option value="加速度(Z)[m/s^2]">
-              加速度(Z)[m/s^2]
-            </option>
-            <option value="加速度(ロール)[°]">
-              加速度(ロール)[°]
-            </option>
-            <option value="加速度(ピッチ)[°]">
-              加速度(ピッチ)[°]
-            </option>
-            <option value="距離(レーザー)[cm]">
-              距離(レーザー)[cm]
-            </option>
-            <option value="距離(超音波A)[cm]">
-              距離(超音波A)[cm]
-            </option>
-            <option value="距離(超音波B)[cm]">
-              距離(超音波B)[cm]
-            </option>
             <option
-              v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
-              value="水温(デジタルA1)[℃]"
+              v-for="s in Sensors"
+              :key="s.id"
+              :value="s.id"
             >
-              水温(デジタルA1)[℃]
-            </option>
-            <option
-              v-if="graphKind !== '水温(デジタルA1)[℃]' && graphKind !== '水温(デジタルB1)[℃]'"
-              value="水温(デジタルB1)[℃]"
-            >
-              水温(デジタルB1)[℃]
-            </option>
-
-            <option value="酸素濃度[%]">
-              酸素濃度[%]
-            </option>
-            <option value="二酸化炭素濃度[%]">
-              二酸化炭素濃度[%]
-            </option>
-
-            <option value="アナログA1">
-              アナログA1
-            </option>
-            <option value="アナログA2">
-              アナログA2
-            </option>
-            <option value="アナログB1">
-              アナログB1
-            </option>
-            <option value="アナログB2">
-              アナログB2
-            </option>
-            <option value="デジタルA1">
-              デジタルA1
-            </option>
-            <option value="デジタルA2">
-              デジタルA2
-            </option>
-            <option value="デジタルB1">
-              デジタルB1
-            </option>
-            <option value="デジタルB2">
-              デジタルB2
+              {{ s.kind }}
             </option>
           </select>
         </div>
@@ -398,6 +246,7 @@
   </div>
 </template>
 <script>
+import { Sensors, SensorMap } from '../../../lib/constants'
 import Graph from '../../view/Graph'
 import ProgressTimer from '../../view/ProgressTimer.vue'
 import Vue from 'vue'
@@ -428,7 +277,8 @@ export default {
       oldKindValue: {
         main: '',
         sub: ''
-      }
+      },
+      Sensors,
     }
   },
   computed: {
@@ -540,9 +390,11 @@ export default {
       // それぞれの軸のデータがあればローカルストレージから項目名を取得
       // ローカルストレージに値がなければ「主軸」等の名前を付ける
       // データが無い場合は空欄にする
+      const graphKind = SensorMap.get(parseInt(localStorage.getItem('graphKind'))).kind
+      const graphKindSub = SensorMap.get(parseInt(localStorage.getItem('graphKindSub'))).kind
       const valueHeader = {
-        main: this.graphValue.length ? localStorage.getItem('graphKind') ? localStorage.getItem('graphKind') : '主軸' : '',
-        sub: this.graphValueSub.length ? localStorage.getItem('graphKindSub') ? localStorage.getItem('graphKindSub') : '第2軸' : '',
+        main: this.graphValue.length ? graphKind ? graphKind : '主軸' : '',
+        sub: this.graphValueSub.length ? graphKindSub ? graphKindSub : '第2軸' : '',
       }
 
       // ワークシート全体の設定
