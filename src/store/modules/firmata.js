@@ -38,8 +38,8 @@ const serialPortOptions = {
 }
 
 const tmpAxisInfo = {
-  main: migrateSensorKind20230714(localStorage.getItem('graphKind')) || '',
-  sub: migrateSensorKind20230714(localStorage.getItem('graphKindSub')) || '',
+  main: parseInt(migrateSensorKind20230714(localStorage.getItem('graphKind'))),
+  sub: parseInt(migrateSensorKind20230714(localStorage.getItem('graphKindSub'))),
 }
 
 const state = {
