@@ -10,7 +10,6 @@ import O2CO2Sensor from '../o2co2'
 export default class DataGetter {
   constructor(board) {
     this.board = board
-
     if (this.board) {
       this.ltr303 = new LTR303(this.board)
       this.envSensorGetter = new EnvSensorGetter(this.board)
