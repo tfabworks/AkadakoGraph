@@ -292,7 +292,7 @@ export default {
       }
     },
     inProgress() {
-      return this.connected && !this.shouldPause && (this.$store.state.firmata.axisInfo.main.kind || this.$store.state.firmata.axisInfo.main.sub)
+      return this.connected && !this.shouldPause && (this.$store.state.firmata.axisInfo.main.kind || this.$store.state.firmata.axisInfo.sub.kind)
     },
     lastMainValue() {
       return this.source.main[this.source.main.length - 1]?.y
