@@ -4,6 +4,7 @@ import utc from 'dayjs/plugin/utc'
 
 import DataGetter from '@/lib/firmata/dataGetter'
 import AkaDakoBoard from '@/lib/firmata/akadako-board'
+import { migrateSensorKind20230714 } from '@/lib/constants'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -37,8 +38,8 @@ const serialPortOptions = {
 }
 
 const tmpAxisInfo = {
-  main: localStorage.getItem('graphKind') || '',
-  sub: localStorage.getItem('graphKindSub') || '',
+  main: parseInt(migrateSensorKind20230714(localStorage.getItem('graphKind'))),
+  sub: parseInt(migrateSensorKind20230714(localStorage.getItem('graphKindSub'))),
 }
 
 const state = {

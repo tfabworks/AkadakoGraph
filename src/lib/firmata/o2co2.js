@@ -32,25 +32,32 @@ export default class O2CO2Sensor {
      * @type {import('./akadako-board').default}
      */
     this.board = board
+    this.name = 'TFW-AD-GAS1'
     this.scd4x = new SCD4x(board)
   }
 
   async getCO2() {
-    return (await this.scd4x.getPeriodicMeasurement()).co2
+    const co2 = await this.scd4x.getPeriodicMeasurement().then(data => data.co2 || null)
+    console.log(`${this.name}: getCO2()`, co2)
+    return co2
   }
 
   async getTemperature() {
-    return (await this.scd4x.getPeriodicMeasurement()).temperature
+    const temperature = await this.scd4x.getPeriodicMeasurement().then(data => data.temperature || null)
+    console.log(`${this.name}: getTemperature()`, temperature)
+    return temperature
   }
 
   async getHumidity() {
-    return (await this.scd4x.getPeriodicMeasurement()).humidity
+    const humidity = await this.scd4x.getPeriodicMeasurement().then(data => data.humidity || null)
+    console.log(`${this.name}: getHumidity()`, humidity)
+    return humidity
   }
 
   async getO2() {
     // O2 だけ SCD4x ではなく独立して取得する
     const o2 = await this.board.i2cReadOnce(I2C_ADDRESS_O2_SENSOR, 0x00, 1, timeout_short).then(data => data[0] / 10)
-    console.log('O2CO2Sensor: getO2()', o2)
+    console.log(`${this.name}: getO2()`, o2)
     this.o2 = o2
     return o2
   }
@@ -85,9 +92,10 @@ class SCD4x {
      */
     this.serial_number = null
     /**
-     * 継続読み取りモードが開始されているかどうか
+     * 継続読み取りモードが開始された時間
+     * @type {number} timestamp
      */
-    this.periodic_measurement_started = false
+    this.periodic_measurement_started = 0
     /** 継続読み取りモードで最後にデータを取得した時間
      * @type {number} timestamp
      */
@@ -97,48 +105,93 @@ class SCD4x {
      * @type {number} last measurement data
      */
     this.periodic_measurement_last_data = SCD4x_NULL_MEASUREMENT
+    /**
+     * データ取得準備が待ち中かどうかフラグ
+     * @type {boolean} true: データ取得準備待ち中, false: データ取得準備待ち中でない
+     */
+    this.waitingDataReady = false
+    /**
+     * 継続的なデータ取得モードのデータ取得を実行中かどうかフラグ
+     */
+    this.getPeriodicMeasurement_getting = false
+    /**
+     * 継続的なデータ取得モードのデータ取得が実行中だった際に使われる、データ取得時に呼ばれるリスナー
+     */
+    this.getPeriodicMeasurement_listeners = []
   }
 
   /**
    * 継続読み取りモードのデータを取得する
    * @returns {Promise<{co2: number, temperature: number, humidity: number}>} CO2 concentration [ppm], temperature [°C], humidity [%RH]
    */
-  async getPeriodicMeasurement() {
-    const last_measurement = this.periodic_measurement_last_data
-    const last_updated = this.periodic_measurement_last_updated
-    // read_measurement の取得感覚は5秒なので、3秒以内なら新規データ取得は行わない（古いデータを返す）
-    if (3000 < Date.now() - this.periodic_measurement_last_updated) {
-      // 継続読み取りモードが開始されていなければ開始する
-      await this.startPeriodicMesurement()
-      // データ取得準備ができるのを待つ
-      if (await this.waitDataReady(200, 20)) {
-        try {
-          // データを取得する
-          const measurement = await this.read_measurement()
-          // データを保存する
-          this.periodic_measurement_last_data = measurement
-          this.periodic_measurement_last_updated = Date.now()
-          // データ取得成功
-          return {
-            ...measurement,
-            timestamp: this.periodic_measurement_last_updated,
-            last_measurement,
-            last_updated,
-            ondemand: true,
+  getPeriodicMeasurement() {
+    if(typeof this.getPeriodicMeasurement_listeners === 'undefined') {
+      this.getPeriodicMeasurement_listeners = []
+    }
+    if(typeof this.getPeriodicMeasurement_getting === 'undefined') {
+      this.getPeriodicMeasurement_getting = false
+    }
+    if(this.getPeriodicMeasurement_getting) {
+      return new Promise(resolve => this.getPeriodicMeasurement_listeners.push(resolve))
+    }
+    this.getPeriodicMeasurement_getting = true
+    return (async () => {
+      let result = null
+      const last_measurement = this.periodic_measurement_last_data
+      const last_updated = this.periodic_measurement_last_updated
+      try {
+        // read_measurement の取得感覚は5秒なので、3秒以内なら新規データ取得は行わない（古いデータを返す）
+        if (3000 < Date.now() - this.periodic_measurement_last_updated) {
+          // 継続読み取りモードが開始されていなければ開始する
+          await this.startPeriodicMesurement()
+          // データ取得準備ができるのを待つ
+          if (await this.waitDataReady(200, 20)) {
+            // データを取得する
+            const measurement = await this.read_measurement()
+            // データを保存する
+            this.periodic_measurement_last_data = measurement
+            this.periodic_measurement_last_updated = Date.now()
+            // データ取得成功
+            result = {
+              ...measurement,
+              timestamp: this.periodic_measurement_last_updated,
+              last_measurement,
+              last_updated,
+              ondemand: true,
+            }
           }
-        } catch (e) {
-          console.error('SCD4x: getPeriodicMeasurement() failed', e)
+        }
+        // 最後にデータを取得してから6秒以上経過している場合は状態をリセットして継続読み取りモードを再起動する
+        if(this.waitingDataReadyLastSuccess + 6000 < Date.now()) {
+          console.log('SCD4x: reset force because last success is too old.')
+          try {
+            this.reset()
+            await this.stopPeriodicMesurement(true)
+            await this.startPeriodicMesurement(true)
+            // 最終正常時刻をリセット
+            this.waitingDataReadyLastSuccess = Date.now()
+          } catch(e) {
+            console.error('SCD4x: getPeriodicMeasurement() error', e)
+          }
+        }
+      } catch (e) {
+        console.error('SCD4x: getPeriodicMeasurement() failed', e)
+      }
+      if(result == null) {
+        result = {
+          ...SCD4x_NULL_MEASUREMENT,
+          timestamp: Date.now(),
+          last_measurement,
+          last_updated,
+          ondemand: false,
         }
       }
-    }
-    // データ取得失敗
-    return {
-      ...SCD4x_NULL_MEASUREMENT,
-      timestamp: Date.now(),
-      last_measurement,
-      last_updated,
-      ondemand: false,
-    }
+      // リスナーに結果を返す
+      this.getPeriodicMeasurement_listeners.forEach(resolve => resolve(result))
+      this.getPeriodicMeasurement_listeners = []
+      this.getPeriodicMeasurement_getting = false
+      return result
+    })()
   }
 
   /**
@@ -147,7 +200,7 @@ class SCD4x {
   async startPeriodicMesurement(force = false) {
     if (!this.periodic_measurement_started || force) {
       await this.start_periodic_measurement()
-      this.periodic_measurement_started = true
+      this.periodic_measurement_started = Date.now()
     }
   }
 
@@ -157,7 +210,7 @@ class SCD4x {
   async stopPeriodicMesurement(force = false) {
     if (this.periodic_measurement_started || force) {
       await this.stop_periodic_measurement()
-      this.periodic_measurement_started = false
+      this.periodic_measurement_started = 0
     }
   }
 
@@ -168,14 +221,22 @@ class SCD4x {
    * @returns {Promise<boolean>} true: データ取得準備が出来ている, false: データ取得準備が出来ていない
    */
   async waitDataReady(timeoutMs = 200, checkIntervalMs = 20) {
-    
-    const expiryTimeMs = Date.now() + timeoutMs
+    // 2重待ち防止
+    if(this.waitingDataReady) {
+      return false
+    }
+    this.waitingDataReady = true
+    // タイムアウトまでポーリングする
+    const expiryTimeMs = Date.now() + timeoutMs    
     while (Date.now() < expiryTimeMs) {
       if (await this.isDataReady()) {
+        this.waitingDataReady = false
+        this.waitingDataReadyLastSuccess = Date.now()
         return true
-      }
+      }  
       await new Promise(resolve => setTimeout(resolve, checkIntervalMs))
     }
+    this.waitingDataReady = false
     return false
   }
 
@@ -241,12 +302,12 @@ class SCD4x {
     // Send the 'read_measurement' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0xec, 0x05)
     // Max. command duration [ms]: 1
-    await new Promise(resolve => setTimeout(resolve, 1))
+    await new Promise(resolve => setTimeout(resolve, 10))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 9, timeout_short)
     const words = this.parseDataWithCRCValidation(data)
     const co2 = words[0] / 10000 // ppm を % に変換する
-    const temperature = -45 + 175 * words[1] / 2
-    const humidity = 100 * words[2] / 2
+    const temperature = -45 + 175 * words[1] / 2 ** 16
+    const humidity = 100 * words[2] / 2 ** 16
     const measurement = {co2, temperature, humidity }
     console.log('SCD4x: read_measurement', `{ co2: ${co2}, temperature: ${temperature}, humidity: ${humidity} }`, measurement)
     return measurement
@@ -325,7 +386,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x24, 0x1d)
     console.log('SCD4x: set_temperature_offset')
     // Max. command duration [ms]: 1
-    await new Promise(resolve => setTimeout(resolve, 1))
+    await new Promise(resolve => setTimeout(resolve, 10))
   }
 
   /**
@@ -406,7 +467,7 @@ class SCD4x {
     // Send the 'reinit' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x36, 0x46)
     console.log('SCD4x: reinit')
-    await new Promise(resolve => setTimeout(resolve, 20))
+    await new Promise(resolve => setTimeout(resolve, 10))
   }
 
   /*
@@ -557,7 +618,7 @@ class SCD4x {
     // Send the 'get_data_ready_status' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0xe4, 0xb8)
     // Max. command duration [ms]: 1
-    await new Promise(resolve => setTimeout(resolve, 1))
+    await new Promise(resolve => setTimeout(resolve, 20))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
     try {
       const words = this.parseDataWithCRCValidation(data)
