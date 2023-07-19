@@ -27,7 +27,7 @@ export default class DataGetter {
         return await this.ltr303.getBrightness()
       } else if (kind === 2) { 
         return await this.envSensorGetter.getEvnTemperature()
-      } else if (kind == 3) {
+      } else if (kind === 3) {
         return await this.envSensorGetter.getEnvPressure()
       } else if (kind === 4) {
         return await this.envSensorGetter.getEnvHumidity()
