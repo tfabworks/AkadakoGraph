@@ -89,16 +89,22 @@ export const Sensors = [
     id: 17,
     name: '二酸化炭素濃度',
     unit: '%',
+    resolutuon: 0.0001,
+    flactionDigits: 4,
   },
   {
     id: 18,
     name: '温度',
     unit: '℃',
+    flactionDigits: 4,
+    resolutuon: 175 / 2 ** 16,
   },
   {
     id: 19,
     name: '湿度',
     unit: '%',
+    flactionDigits: 4,
+    resolutuon: 100 / 2 ** 16,
   },
   {
     id: 10000,

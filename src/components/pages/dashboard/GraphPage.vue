@@ -295,10 +295,28 @@ export default {
       return this.connected && !this.shouldPause && (this.$store.state.firmata.axisInfo.main.kind || this.$store.state.firmata.axisInfo.sub.kind)
     },
     lastMainValue() {
-      return this.source.main[this.source.main.length - 1]?.y
+      const sensor = SensorMap.get(this.graphKind)
+      if(sensor) {
+        const lastValue = this.source.main[this.source.main.length - 1]?.y ?? null
+        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
+          return lastValue
+        } else {
+          return lastValue.toFixed(sensor.flactionDigits)
+        }
+      }
+      return null
     },
     lastSubValue() {
-      return this.source.sub[this.source.sub.length - 1]?.y
+      const sensor = SensorMap.get(this.graphKindSub)
+      if(sensor) {
+        const lastValue = this.source.sub[this.source.sub.length - 1]?.y ?? null
+        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
+          return lastValue
+        } else {
+          return lastValue.toFixed(sensor.flactionDigits)
+        }
+      }
+      return null
     },
   },
   watch: {
