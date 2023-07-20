@@ -1,9 +1,14 @@
+export const VersionInfo = {
+  commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
+  branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
+  tag: process.env.VUE_APP_GIT_TAG || 'dev',
+}
+
 export const Sensors = [
   {
     id: 1,
     name: '明るさ',
     unit: 'lx',
-    kind: '明るさ[lx]',
   },
   {
     id: 2,
@@ -84,16 +89,22 @@ export const Sensors = [
     id: 17,
     name: '二酸化炭素濃度',
     unit: '%',
+    resolutuon: 0.0001,
+    flactionDigits: 4,
   },
   {
     id: 18,
     name: '温度',
     unit: '℃',
+    flactionDigits: 4,
+    resolutuon: 175 / 2 ** 16,
   },
   {
     id: 19,
     name: '湿度',
     unit: '%',
+    flactionDigits: 4,
+    resolutuon: 100 / 2 ** 16,
   },
   {
     id: 10000,

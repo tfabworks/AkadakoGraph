@@ -2,7 +2,7 @@
   <div class="content-area">
     <section class="content-box">
       <div class="sensor-select-wrap">
-        <div>
+        <div class="sensor-left">
           <select
             v-model="graphKind"
             :disabled="!connected"
@@ -23,7 +23,7 @@
             readonly
           >
         </div>
-        <div>
+        <div class="interval-selector">
           <select
             v-model="interval"
             :disabled="!connected"
@@ -44,7 +44,7 @@
             :start-time="renderTimerStartTime"
           />
         </div>
-        <div>
+        <div class="sensor-right">
           <input
             class="last-sub-value"
             type="text"
@@ -295,10 +295,28 @@ export default {
       return this.connected && !this.shouldPause && (this.$store.state.firmata.axisInfo.main.kind || this.$store.state.firmata.axisInfo.sub.kind)
     },
     lastMainValue() {
-      return this.source.main[this.source.main.length - 1]?.y
+      const sensor = SensorMap.get(this.graphKind)
+      if(sensor) {
+        const lastValue = this.source.main[this.source.main.length - 1]?.y ?? null
+        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
+          return lastValue
+        } else {
+          return lastValue.toFixed(sensor.flactionDigits)
+        }
+      }
+      return null
     },
     lastSubValue() {
-      return this.source.sub[this.source.sub.length - 1]?.y
+      const sensor = SensorMap.get(this.graphKindSub)
+      if(sensor) {
+        const lastValue = this.source.sub[this.source.sub.length - 1]?.y ?? null
+        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
+          return lastValue
+        } else {
+          return lastValue.toFixed(sensor.flactionDigits)
+        }
+      }
+      return null
     },
   },
   watch: {
@@ -703,14 +721,17 @@ select {
   padding: 8px;
   border: 2px solid #333;
   border-radius: 4px;
-  color: #333;
   font-weight: bold;
   cursor: pointer;
 }
 
-.sensor-select-wrap select:nth-of-type(2) {
-  border: 2px solid #26AE60;
-  color: #26AE60;
+.sensor-select-wrap .sensor-left select,
+.sensor-select-wrap .sensor-left input {
+  color: #333;
+}
+.sensor-select-wrap .sensor-right select,
+.sensor-select-wrap .sensor-right input {
+  color: #060;
 }
 
 select:disabled {
