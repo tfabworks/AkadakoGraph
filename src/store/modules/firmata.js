@@ -90,7 +90,7 @@ const getters = {
 const mutations = {
   addValue(state, { isMain, newValue }) {
     const targetGraphValue = isMain ? state.graphValue : state.graphValueSub
-    if(targetGraphValue?.length) {
+    if(typeof targetGraphValue.length !== 'undefined' && targetGraphValue.length) {
       const lastTime = targetGraphValue[targetGraphValue.length - 1].x
       const newTime = newValue.x
       if(newTime < lastTime) {
@@ -215,7 +215,6 @@ const actions = {
     if (ctx.state.board && ctx.state.board.isConnected() && !ctx.state.dataGetter) {
       ctx.state.dataGetter = new DataGetter(ctx.state.board)
     }
-
     // 両軸で描画する場合に同じ時間でプロットするためにここで時間を取得
     const date = dayjs().tz().format()
 
