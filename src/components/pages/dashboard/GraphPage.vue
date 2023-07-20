@@ -297,7 +297,7 @@ export default {
     lastMainValue() {
       const sensor = SensorMap.get(this.graphKind)
       if(sensor) {
-        const lastValue = this.source.main[this.source.main.length - 1]?.y ?? null
+        const lastValue = (this.source.main[this.source.main.length - 1] || { y: null }).y
         if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
           return lastValue
         } else {
@@ -309,7 +309,7 @@ export default {
     lastSubValue() {
       const sensor = SensorMap.get(this.graphKindSub)
       if(sensor) {
-        const lastValue = this.source.sub[this.source.sub.length - 1]?.y ?? null
+        const lastValue = (this.source.sub[this.source.sub.length - 1] || { y: null }).y
         if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
           return lastValue
         } else {
