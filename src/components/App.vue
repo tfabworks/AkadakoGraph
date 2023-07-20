@@ -10,12 +10,19 @@
 <script>
 import Header from  './TheHeader'
 import Dashboard from './pages/Dashboard'
+import { VersionInfo } from '../lib/constants'
+console.log({VersionInfo})
 
 export default {
   components:{ 
     Header,
     Dashboard 
-  }
+  },
+  data() {
+    return {
+      VersionInfo
+    }
+  },
 }
 </script>
 

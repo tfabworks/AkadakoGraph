@@ -1,9 +1,14 @@
+export const VersionInfo = {
+  commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
+  branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
+  tag: process.env.VUE_APP_GIT_TAG || 'dev',
+}
+
 export const Sensors = [
   {
     id: 1,
     name: '明るさ',
     unit: 'lx',
-    kind: '明るさ[lx]',
   },
   {
     id: 2,
