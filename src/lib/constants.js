@@ -1,3 +1,4 @@
+
 export const VersionInfo = {
   commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
   branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
@@ -84,6 +85,8 @@ export const Sensors = [
     id: 16,
     name: '酸素濃度',
     unit: '%',
+    flactionDigits: 3,
+    resolutuon: 0.1,
   },
   {
     id: 17,
