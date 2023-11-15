@@ -18,16 +18,20 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.nodeVersion }}
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
       - uses: actions/cache@v2
         id: node_modules_cache
         with:
           path: node_modules
-          key: ${{ matrix.os }}-node-v${{ matrix.nodeVersion }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
+          key: ${{ matrix.os }}-node-v${{ matrix.nodeVersion }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/bun.lockb')) }}
       - if: steps.node_modules_cache.outputs.cache-hit != 'true'
-        run: yarn
-      - run: yarn lint
-      - run: yarn test
-      - run: yarn build
+        run: bun install
+      - run: bun run bun-lint
+      - run: bun run bun-test
+      - run: bun run bun-build
       - uses: actions/upload-artifact@v2
         with:
           name: dist

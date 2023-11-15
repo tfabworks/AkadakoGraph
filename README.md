@@ -1,31 +1,37 @@
 # TFabGraph[AkaDako版]
 
-## インストール
-
+## yarn の場合
 ```
+# インストール
 yarn
-```
 
-### ローカルサーバー
-
-```
+# ローカルサーバー
 yarn serve
-```
 
-### ビルド
-
-```
+# ビルド
 yarn build
-```
 
-### テスト
-
-```
+# テスト
 yarn test
-```
 
 ### リント&フォーマット
-
-```
 yarn lint
+```
+
+## bun の場合
+```
+# インストール
+bun install
+
+# ローカルサーバー
+bun run bun-serve
+
+# ビルド
+bun run bun-build
+
+# テスト
+bun run bun-test
+
+### リント&フォーマット
+bun run bun-lint
 ```
