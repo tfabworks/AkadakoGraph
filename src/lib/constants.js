@@ -110,6 +110,13 @@ export const Sensors = [
     resolutuon: 100 / 2 ** 16,
   },
   {
+    id: 90001,
+    name: '酸素(空気電池)',
+    unit: '%',
+    flactionDigits: 2,
+    targetValueForCorrectionOnStart: 20.9,
+  },
+  {
     id: 10000,
     name: 'アナログA1',
   },

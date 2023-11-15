@@ -77,6 +77,8 @@ export default class DataGetter {
         return this.inputGetter.digitalLevelB1()
       } else if (kind === 10103) {
         return this.inputGetter.digitalLevelB2()
+      } else if (kind === 90001) {
+        return this.inputGetter.analogLevelA1()
       }
       return null
     } catch (e) {

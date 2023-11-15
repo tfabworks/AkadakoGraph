@@ -4,7 +4,7 @@ import utc from 'dayjs/plugin/utc'
 
 import DataGetter from '@/lib/firmata/dataGetter'
 import AkaDakoBoard from '@/lib/firmata/akadako-board'
-import { migrateSensorKind20230714 } from '@/lib/constants'
+import { SensorMap, migrateSensorKind20230714 } from '@/lib/constants'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
@@ -49,18 +49,22 @@ const state = {
   axisInfo: {
     main: {
       shouldRender: tmpAxisInfo.main ? true : false,
-      kind: tmpAxisInfo.main
+      kind: tmpAxisInfo.main,
+      dataCountSinceStart: 0,
+      correctionRate: 1,
     },
     sub: {
       shouldRender: tmpAxisInfo.sub ? true : false,
-      kind: tmpAxisInfo.sub
+      kind: tmpAxisInfo.sub,
+      dataCountSinceStart: 0,
+      correctionRate: 1,
     }
   },
   renderTimer: null,
   renderTimerStartTime: 0,
   graphValue: JSON.parse(localStorage.getItem('graphValue') || '[]'),
   graphValueSub: JSON.parse(localStorage.getItem('graphValueSub') || '[]'),
-  shouldPause: true
+  shouldPause: true,
 }
 
 const getters = {
@@ -89,19 +93,61 @@ const getters = {
 
 const mutations = {
   addValue(state, { isMain, newValue }) {
+    const newTime = newValue.x
+    const newValueY = newValue.y
+    const sensor = isMain ? SensorMap.get(state.axisInfo.main.kind) : SensorMap.get(state.axisInfo.sub.kind)
     const targetGraphValue = isMain ? state.graphValue : state.graphValueSub
     if(typeof targetGraphValue.length !== 'undefined' && targetGraphValue.length) {
       const lastTime = targetGraphValue[targetGraphValue.length - 1].x
-      const newTime = newValue.x
       if(newTime < lastTime) {
         console.log('addValue: reject old value')
         return
       }
     }
     if (isMain) {
+      state.axisInfo.main.dataCountSinceStart += 1
+      // スタート時の補正目標値が存在する場合は補正レートを更新する
+      if(state.axisInfo.main.dataCountSinceStart === 1) {
+        if(typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
+          state.axisInfo.main.correctionRate = sensor.targetValueForCorrectionOnStart / newValueY
+        } else {
+          state.axisInfo.main.correctionRate = 1
+        }
+      }
+      const correctedValueY = newValue.y * state.axisInfo.main.correctionRate
+      console.log({
+        target: 'main',
+        dataCountSinceStart: state.axisInfo.main.dataCountSinceStart,
+        newValueY,
+        correctedValueY,
+        correctionRate: state.axisInfo.main.correctionRate,
+        targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart
+      })
+      newValue.y = correctedValueY
       state.graphValue.push(newValue)
       localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
     } else {
+      state.axisInfo.sub.dataCountSinceStart += 1
+      // スタート時の補正目標値が存在する場合は補正レートを更新する
+      if(state.axisInfo.sub.dataCountSinceStart === 1) {
+        if(typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
+          state.axisInfo.sub.correctionRate = sensor.targetValueForCorrectionOnStart / newValueY
+        } else {
+          state.axisInfo.sub.correctionRate = 1
+        }
+      }
+      const correctedValueY = newValue.y * state.axisInfo.sub.correctionRate
+      if(typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
+        console.log({
+          target: 'sub',
+          dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
+          newValueY,
+          correctedValueY,
+          correctionRate: state.axisInfo.sub.correctionRate,
+          targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart
+        })
+      }
+      newValue.y = correctedValueY
       state.graphValueSub.push(newValue)
       localStorage.setItem('graphValueSub', JSON.stringify(state.graphValueSub))
     }
@@ -124,18 +170,27 @@ const mutations = {
     state.axisInfo.main.kind = payload
     localStorage.setItem('graphKind', payload)
     state.axisInfo.main.shouldRender = payload ? true : false
+    state.axisInfo.main.dataCountSinceStart = 0
+    state.axisInfo.main.correctionRate = 1
   },
   setKindSub(state, payload) {
     state.axisInfo.sub.kind = payload
     localStorage.setItem('graphKindSub', payload)
     state.axisInfo.sub.shouldRender = payload ? true : false
+    state.axisInfo.sub.dataCountSinceStart = 0
+    state.axisInfo.sub.correctionRate = 1
   },
   setShouldRender(state, { isMain, payload }) {
     if (isMain) {
       state.axisInfo.main.shouldRender = payload
+      state.axisInfo.main.dataCountSinceStart = 0
+      state.axisInfo.main.correctionRate = 1
     } else {
       state.axisInfo.sub.shouldRender = payload
+      state.axisInfo.sub.dataCountSinceStart = 0
+      state.axisInfo.sub.correctionRate = 1
     }
+
   }
 }
 
