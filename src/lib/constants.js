@@ -110,11 +110,20 @@ export const Sensors = [
     resolutuon: 100 / 2 ** 16,
   },
   {
-    id: 90001,
-    name: '酸素(空気電池)',
+    id: 20,
+    name: '酸素濃度', //実はアナログA1
     unit: '%',
     flactionDigits: 2,
     targetValueForCorrectionOnStart: 20.9,
+    sourceSensor: 10000,
+  },
+  {
+    id: 21,
+    name: '明るさ', //実はデジタルB2
+  },
+  {
+    id: 22,
+    name: '人感', //実はデジタルB2
   },
   {
     id: 10000,
