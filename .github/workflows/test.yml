@@ -13,22 +13,33 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         nodeVersion: [18.13.0]
+        bunVersion: [latest]
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.nodeVersion }}
-      - uses: actions/cache@v2
-        id: node_modules_cache
+      - name: Setup Bun
+        id: setup-bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: ${{ matrix.bunVersion }}
+      - name: check lock diff
+        run:  diff <(bun bun.lockb) yarn.lock
+      - name: Cache node modules
+        id: cache-node_modules
+        uses: actions/cache@v3
+        env:
+          cache-name: node_modules
         with:
           path: node_modules
-          key: ${{ matrix.os }}-node-v${{ matrix.nodeVersion }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/yarn.lock')) }}
-      - if: steps.node_modules_cache.outputs.cache-hit != 'true'
-        run: yarn
-      - run: yarn lint
-      - run: yarn test
-      - run: yarn build
-      - uses: actions/upload-artifact@v2
+          key: ${{ matrix.os }}-build-${{ env.cache-name }}-node-v${{ matrix.nodeVersion }}-bun-${{ steps.setup-bun.outputs.bun-version }}-deps-${{ hashFiles(format('{0}{1}', github.workspace, '/bun.lockb')) }}
+      - if: ${{ steps.cache-node_modules.outputs.cache-hit != 'true' }}
+        run: bun install
+      - run: bun run lint
+      - run: bun run test
+      - run: bun run build
+      - uses: actions/upload-artifact@v3
         with:
           name: dist
           path: ./dist
@@ -42,12 +53,12 @@ jobs:
         region: [ap-northeast-1]
     needs: CI
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v3
         with:
           name: dist
           path: ./dist
-      - uses: aws-actions/configure-aws-credentials@v1
+      - uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

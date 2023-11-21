@@ -25,7 +25,7 @@ export default class DataGetter {
     try {
       if (kind === 1) {
         return await this.ltr303.getBrightness()
-      } else if (kind === 2) { 
+      } else if (kind === 2) {
         return await this.envSensorGetter.getEvnTemperature()
       } else if (kind === 3) {
         return await this.envSensorGetter.getEnvPressure()
@@ -76,6 +76,12 @@ export default class DataGetter {
       } else if (kind === 10102) {
         return this.inputGetter.digitalLevelB1()
       } else if (kind === 10103) {
+        return this.inputGetter.digitalLevelB2()
+      } else if (kind === 20) {
+        return this.inputGetter.analogLevelA1()
+      } else if (kind === 21) {
+        return this.inputGetter.analogLevelB2()
+      } else if (kind === 22) {
         return this.inputGetter.digitalLevelB2()
       }
       return null

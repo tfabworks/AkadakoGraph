@@ -34,6 +34,7 @@ export default class O2CO2Sensor {
     this.board = board
     this.name = 'TFW-AD-GAS1'
     this.scd4x = new SCD4x(board)
+    this.o2buffer = []
   }
 
   async getCO2() {
@@ -57,9 +58,14 @@ export default class O2CO2Sensor {
   async getO2() {
     // O2 だけ SCD4x ではなく独立して取得する
     const o2 = await this.board.i2cReadOnce(I2C_ADDRESS_O2_SENSOR, 0x00, 1, timeout_short).then(data => data[0] / 10)
-    console.log(`${this.name}: getO2()`, o2)
-    this.o2 = o2
-    return o2
+    // O2センサーは制度が悪いので過去5回の平均値を返す
+    this.o2buffer.push(o2)
+    while (5 < this.o2buffer.length) {
+      this.o2buffer.shift()
+    }
+    const o2avg = this.o2buffer.reduce((sum, v) => sum + v, 0) / this.o2buffer.length
+    console.log(`${this.name}: getO2()`, o2, o2avg)
+    return o2avg
   }
 }
 

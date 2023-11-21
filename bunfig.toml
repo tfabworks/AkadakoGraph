@@ -1,0 +1,7 @@
+[install.lockfile]
+
+# bun.lockb を保存するかどうか。(default is true)
+save = true
+
+# bun.lockb と一緒に yarn.lock を作成する。(default is not set, onpy "yarn" is supported)
+print = "yarn"

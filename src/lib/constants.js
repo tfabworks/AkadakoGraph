@@ -1,3 +1,4 @@
+
 export const VersionInfo = {
   commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
   branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
@@ -84,6 +85,8 @@ export const Sensors = [
     id: 16,
     name: '酸素濃度',
     unit: '%',
+    flactionDigits: 3,
+    resolutuon: 0.1,
   },
   {
     id: 17,
@@ -105,6 +108,21 @@ export const Sensors = [
     unit: '%',
     flactionDigits: 4,
     resolutuon: 100 / 2 ** 16,
+  },
+  {
+    id: 20,
+    name: '酸素濃度', //実はアナログA1
+    unit: '%',
+    flactionDigits: 2,
+    targetValueForCorrectionOnStart: 20.9,
+  },
+  {
+    id: 21,
+    name: '明るさ', //実はアナログB2
+  },
+  {
+    id: 22,
+    name: '人感', //実はデジタルB2
   },
   {
     id: 10000,
