@@ -115,11 +115,10 @@ export const Sensors = [
     unit: '%',
     flactionDigits: 2,
     targetValueForCorrectionOnStart: 20.9,
-    sourceSensor: 10000,
   },
   {
     id: 21,
-    name: '明るさ', //実はデジタルB2
+    name: '明るさ', //実はアナログB2
   },
   {
     id: 22,
