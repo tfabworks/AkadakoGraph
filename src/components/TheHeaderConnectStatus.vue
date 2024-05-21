@@ -1,7 +1,7 @@
 <template>
   <section>
     <img
-      src="../../../public/img/blank.png"
+      src="../../public/img/blank.png"
       alt="akadako"
       :class="{ active: connected, inactive: !connected, 'akadako-icon': true }"
     >
@@ -13,7 +13,7 @@
   </section>
 </template>
 <script>
-import { mapGetters, mapActions } from 'vuex'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   computed: {
@@ -60,10 +60,10 @@ export default {
 <style scoped>
 .akadako-icon {
   display: block;
-  width: 150px;
-  height: 180px;
+  width: 15px;
+  height: 18px;
   margin: 0 auto 15px auto;
-  background: url("../../../public/img/status-akadako.svg");
+  background: url("../../public/img/status-akadako.svg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -102,7 +102,7 @@ export default {
   height: 100%;
   cursor: pointer;
   border-radius: 4px;
-  background: url("../../../public/img/icon-webusb.png") #F3F3F3 no-repeat center left 5px;
+  background: url("../../public/img/icon-webusb.png") #F3F3F3 no-repeat center left 5px;
   text-align: center;
 }
 
@@ -116,4 +116,5 @@ export default {
 
 .group-select-box button.active {
   background: #ffeb3b;
-}</style>
+}
+</style>

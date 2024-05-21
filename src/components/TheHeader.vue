@@ -6,8 +6,19 @@
         alt="TFabGraph[AkaDako版]"
       ></a>
     </h1>
+    <ConnnectStatus />
   </header>
 </template>
+
+<script>
+import ConnnectStatus from './TheHeaderConnectStatus'
+
+export default {
+  components: {
+    ConnnectStatus,
+  }
+}
+</script>
 
 <style scoped>
 .main-header {
@@ -15,6 +26,9 @@
   width: 100%;
   height: 50px;
   background: #333;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
 }
 
 .header-logo {
@@ -27,7 +41,7 @@
 
 @media (max-width: 485px) {
   .header-logo {
-      max-width: calc(100% - 210px);
+    max-width: calc(100% - 210px);
   }
 }
 
@@ -43,6 +57,7 @@
   right: 0;
   height: 50px;
 }
+
 @media (max-width: 485px) {
   .header-info-area {
     max-width: 210px;
@@ -55,22 +70,27 @@
 .header-info-area .select-language {
   padding: 0 20px;
 }
+
 @media (max-width: 485px) {
   .header-info-area .select-language {
     padding: 0;
   }
 }
+
 .header-info-area .select-language .language-list {
   display: flex;
 }
+
 .header-info-area .select-language .language-list li {
   width: 100px;
 }
+
 @media (max-width: 485px) {
   .header-info-area .select-language .language-list li {
     width: 90px;
   }
 }
+
 .header-info-area .select-language .language-list li a {
   display: block;
   padding: 0 15px;
@@ -83,21 +103,26 @@
   font-weight: bold;
   text-align: center;
 }
+
 @media (max-width: 485px) {
   .header-info-area .select-language .language-list li a {
     padding: 0 5px;
   }
 }
+
 .header-info-area .select-language .language-list li:nth-of-type(1) a {
   border-radius: 4px 0 0 4px;
 }
+
 .header-info-area .select-language .language-list li:nth-of-type(2) a {
   border-radius: 0 4px 4px 0;
 }
+
 .header-info-area .select-language .language-list li.active a {
   background: #27ae60;
   color: #fff;
 }
+
 .header-info-area .select-language select {
   font-size: 0.875rem;
   border: 1px solid #ddd;
