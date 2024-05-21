@@ -6,8 +6,19 @@
         alt="TFabGraph[AkaDako版]"
       ></a>
     </h1>
+    <ConnnectStatus />
   </header>
 </template>
+
+<script>
+import ConnnectStatus from './TheHeaderConnectStatus'
+
+export default {
+  components: {
+    ConnnectStatus,
+  }
+}
+</script>
 
 <style scoped>
 .main-header {

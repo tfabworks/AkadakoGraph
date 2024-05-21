@@ -1,7 +1,6 @@
 <template>
   <div id="wrapper">
     <nav class="menu-area">
-      <ConnnectStatus />
       <ul class="menu-area-btn-list">
         <!-- <li
           class="help-icon"
@@ -44,12 +43,9 @@
 </template>
 
 <script>
-import ConnnectStatus from './DashboardSideMenuStatus'
 
 export default {
-  components: {
-    ConnnectStatus,
-  },
+  components: {},
   methods: {
     modalReset() {
       this.newGroup = {
@@ -116,7 +112,7 @@ export default {
   height: 15px;
   content: "";
   position: absolute;
-  background-image: url("../../../public/img/icon-sprite.png");
+  background-image: url("../../public/img/icon-sprite.png");
   background-repeat: no-repeat;
 }
 

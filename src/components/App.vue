@@ -4,11 +4,13 @@
     <div>
       <Dashboard />
     </div>
+    <Footer />
   </div>
 </template>
 
 <script>
 import Header from  './TheHeader'
+import Footer from './TheFooter'
 import Dashboard from './pages/Dashboard'
 import { VersionInfo } from '../lib/constants'
 console.log({VersionInfo})
@@ -16,6 +18,7 @@ console.log({VersionInfo})
 export default {
   components:{ 
     Header,
+    Footer,
     Dashboard 
   },
   data() {

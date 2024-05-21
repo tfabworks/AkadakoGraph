@@ -1,18 +1,15 @@
 <template>
   <div class="content-wrap">
     <CommonAd />
-    <SideMenu />
     <GraphPage />
   </div>
 </template>
 
 <script>
-import SideMenu from './DashboardSideMenu.vue'
-import GraphPage from './dashboard/GraphPage'
 import CommonAd from '../view/CommonAd.vue'
+import GraphPage from './dashboard/GraphPage'
 export default {
   components: { 
-    SideMenu,
     GraphPage,
     CommonAd
   }
