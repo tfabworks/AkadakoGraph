@@ -9,7 +9,7 @@
 import CommonAd from '../view/CommonAd.vue'
 import GraphPage from './dashboard/GraphPage'
 export default {
-  components: { 
+  components: {
     GraphPage,
     CommonAd
   }
@@ -18,8 +18,9 @@ export default {
 <style scoped>
 .content-wrap {
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
 }
+
 .content-area {
   padding: 15px 5%;
   width: calc(100% - 220px);
