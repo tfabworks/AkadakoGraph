@@ -223,297 +223,336 @@
   </div>
 </template>
 <script>
-import { Sensors, SensorMap } from '../../../lib/constants'
-import Graph from '../../view/Graph'
-import ProgressTimer from '../../view/ProgressTimer.vue'
-import Vue from 'vue'
-import { mapGetters, mapState } from 'vuex'
-import VModal from 'vue-js-modal'
-import ExcelJS from 'exceljs'
-import encoding from 'encoding-japanese'
-Vue.use(VModal)
+import encoding from "encoding-japanese";
+import ExcelJS from "exceljs";
+import Vue from "vue";
+import VModal from "vue-js-modal";
+import { mapGetters, mapState } from "vuex";
+import { SensorMap, Sensors } from "../../../lib/constants";
+import Graph from "../../view/Graph";
+import ProgressTimer from "../../view/ProgressTimer.vue";
+Vue.use(VModal);
 
 export default {
-  components: {
-    Graph,
-    ProgressTimer,
-  },
-  data() {
-    return {
-      interval: 1000,
-      shouldReDo: {
-        main: true,
-        sub: true,
-        interval: true
-      },
-      deleteCallFrom: '',
-      newKindValue: {
-        main: '',
-        sub: ''
-      },
-      oldKindValue: {
-        main: '',
-        sub: ''
-      },
-      Sensors,
-      intervals: [
-        ...[1, 3, 5, 10, 30], // seconds
-        ...[1, 3, 5, 10].map(s => 60 * s) // minutes
-      ].map(s => s * 1000),
-    }
-  },
-  computed: {
-    ...mapState({
-      shouldPause: state => state.firmata.shouldPause,
-      graphValue: state => state.firmata.graphValue,
-      graphValueSub: state => state.firmata.graphValueSub,
-    }),
-    ...mapGetters({
-      source: 'firmata/values',
-      connected: 'firmata/connected',
-      existValue: 'firmata/existValue',
-      renderTimerStartTime: 'firmata/renderTimerStartTime',
-      milliSeconds: 'firmata/milliSeconds',
-    }),
-    graphKind: {
-      get() {
-        return this.$store.state.firmata.axisInfo.main.kind
-      },
-      set(payload) {
-        this.$store.commit('firmata/setKind', payload)
-      }
-    },
-    graphKindSub: {
-      get() {
-        return this.$store.state.firmata.axisInfo.sub.kind
-      },
-      set(payload) {
-        this.$store.commit('firmata/setKindSub', payload)
-      }
-    },
-    inProgress() {
-      return this.connected && !this.shouldPause && (this.$store.state.firmata.axisInfo.main.kind || this.$store.state.firmata.axisInfo.sub.kind)
-    },
-    lastMainValue() {
-      const sensor = SensorMap.get(this.graphKind)
-      if(sensor) {
-        const lastValue = (this.source.main[this.source.main.length - 1] || { y: null }).y
-        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
-          return lastValue
-        } else {
-          return lastValue.toFixed(sensor.flactionDigits)
-        }
-      }
-      return null
-    },
-    lastSubValue() {
-      const sensor = SensorMap.get(this.graphKindSub)
-      if(sensor) {
-        const lastValue = (this.source.sub[this.source.sub.length - 1] || { y: null }).y
-        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
-          return lastValue
-        } else {
-          return lastValue.toFixed(sensor.flactionDigits)
-        }
-      }
-      return null
-    },
-  },
-  watch: {
-    graphKind: function (newVal, oldVal) {
-      if (this.existValue) {
-        if (this.shouldReDo.main) {
-          this.newKindValue.main = newVal
-          this.oldKindValue.main = oldVal
-          this.shouldReDo.main = false
-          this.graphKind = oldVal
-          this.deleteModalOpen('main')
-        } else {
-          this.shouldReDo.main = true
-        }
-      }
-    },
-    graphKindSub: function (newVal, oldVal) {
-      if (this.existValue) {
-        if (this.shouldReDo.sub) {
-          this.newKindValue.sub = newVal
-          this.oldKindValue.sub = oldVal
-          this.shouldReDo.sub = false
-          this.graphKindSub = oldVal
-          this.deleteModalOpen('sub')
-        } else {
-          this.shouldReDo.sub = true
-        }
-      }
-    },
-    interval: function (newValue, oldValue) {
-      if (this.shouldReDo.interval) {
-        // this.deleteModalOpen('interval', () => 
-        this.$store.dispatch('firmata/setMilliSeconds', Number(newValue))
-          .catch(() => {
-            console.error('unexpected interval value.')
-            this.shouldReDo = false
-            this.interval = oldValue
-          })
-        // })   
-      } else {
-        this.shouldReDo.interval = true
-      }
-    }
-  },
-  mounted() {
-    this.oldKindValue.main = this.graphKind
-    this.oldKindValue.sub = this.graphKindSub
-  },
-  methods: {
-    reset() {
-      this.$store.commit('firmata/resetValue', 'all')
-    },
-    reverseShouldPause() {
-      if (this.connected) {
-        this.$store.dispatch('firmata/setShouldPause', !this.shouldPause)
-      }
-    },
-    transDate(iso8601String) {
-      const date = new Date(iso8601String)
-      return date.getFullYear() + '/' +
-        (date.getMonth() + 1) + '/' +
-        date.getDate() + ' ' +
-        date.getHours() + ':' +
-        date.getMinutes() + ':' +
-        date.getSeconds()
-    },
-    async exportData(isCsv, isSJIS) {
-      const name = 'TFabGraph_AkaDako版'
+	components: {
+		Graph,
+		ProgressTimer,
+	},
+	data() {
+		return {
+			interval: 1000,
+			shouldReDo: {
+				main: true,
+				sub: true,
+				interval: true,
+			},
+			deleteCallFrom: "",
+			newKindValue: {
+				main: "",
+				sub: "",
+			},
+			oldKindValue: {
+				main: "",
+				sub: "",
+			},
+			Sensors,
+			intervals: [
+				...[1, 3, 5, 10, 30], // seconds
+				...[1, 3, 5, 10].map((s) => 60 * s), // minutes
+			].map((s) => s * 1000),
+		};
+	},
+	computed: {
+		...mapState({
+			shouldPause: (state) => state.firmata.shouldPause,
+			graphValue: (state) => state.firmata.graphValue,
+			graphValueSub: (state) => state.firmata.graphValueSub,
+		}),
+		...mapGetters({
+			source: "firmata/values",
+			connected: "firmata/connected",
+			existValue: "firmata/existValue",
+			renderTimerStartTime: "firmata/renderTimerStartTime",
+			milliSeconds: "firmata/milliSeconds",
+		}),
+		graphKind: {
+			get() {
+				return this.$store.state.firmata.axisInfo.main.kind;
+			},
+			set(payload) {
+				this.$store.commit("firmata/setKind", payload);
+			},
+		},
+		graphKindSub: {
+			get() {
+				return this.$store.state.firmata.axisInfo.sub.kind;
+			},
+			set(payload) {
+				this.$store.commit("firmata/setKindSub", payload);
+			},
+		},
+		inProgress() {
+			return (
+				this.connected &&
+				!this.shouldPause &&
+				(this.$store.state.firmata.axisInfo.main.kind ||
+					this.$store.state.firmata.axisInfo.sub.kind)
+			);
+		},
+		lastMainValue() {
+			const sensor = SensorMap.get(this.graphKind);
+			if (sensor) {
+				const lastValue = (
+					this.source.main[this.source.main.length - 1] || { y: null }
+				).y;
+				if (
+					typeof sensor.flactionDigits === "undefined" ||
+					lastValue === null
+				) {
+					return lastValue;
+				} else {
+					return lastValue.toFixed(sensor.flactionDigits);
+				}
+			}
+			return null;
+		},
+		lastSubValue() {
+			const sensor = SensorMap.get(this.graphKindSub);
+			if (sensor) {
+				const lastValue = (
+					this.source.sub[this.source.sub.length - 1] || { y: null }
+				).y;
+				if (
+					typeof sensor.flactionDigits === "undefined" ||
+					lastValue === null
+				) {
+					return lastValue;
+				} else {
+					return lastValue.toFixed(sensor.flactionDigits);
+				}
+			}
+			return null;
+		},
+	},
+	watch: {
+		graphKind: function (newVal, oldVal) {
+			if (this.existValue) {
+				if (this.shouldReDo.main) {
+					this.newKindValue.main = newVal;
+					this.oldKindValue.main = oldVal;
+					this.shouldReDo.main = false;
+					this.graphKind = oldVal;
+					this.deleteModalOpen("main");
+				} else {
+					this.shouldReDo.main = true;
+				}
+			}
+		},
+		graphKindSub: function (newVal, oldVal) {
+			if (this.existValue) {
+				if (this.shouldReDo.sub) {
+					this.newKindValue.sub = newVal;
+					this.oldKindValue.sub = oldVal;
+					this.shouldReDo.sub = false;
+					this.graphKindSub = oldVal;
+					this.deleteModalOpen("sub");
+				} else {
+					this.shouldReDo.sub = true;
+				}
+			}
+		},
+		interval: function (newValue, oldValue) {
+			if (this.shouldReDo.interval) {
+				// this.deleteModalOpen('interval', () =>
+				this.$store
+					.dispatch("firmata/setMilliSeconds", Number(newValue))
+					.catch(() => {
+						console.error("unexpected interval value.");
+						this.shouldReDo = false;
+						this.interval = oldValue;
+					});
+				// })
+			} else {
+				this.shouldReDo.interval = true;
+			}
+		},
+	},
+	mounted() {
+		this.oldKindValue.main = this.graphKind;
+		this.oldKindValue.sub = this.graphKindSub;
+	},
+	methods: {
+		reset() {
+			this.$store.commit("firmata/resetValue", "all");
+		},
+		reverseShouldPause() {
+			if (this.connected) {
+				this.$store.dispatch("firmata/setShouldPause", !this.shouldPause);
+			}
+		},
+		transDate(iso8601String) {
+			const date = new Date(iso8601String);
+			return (
+				date.getFullYear() +
+				"/" +
+				(date.getMonth() + 1) +
+				"/" +
+				date.getDate() +
+				" " +
+				date.getHours() +
+				":" +
+				date.getMinutes() +
+				":" +
+				date.getSeconds()
+			);
+		},
+		async exportData(isCsv, isSJIS) {
+			const name = "TFabGraph_AkaDako版";
 
-      // それぞれの軸のデータがあればローカルストレージから項目名を取得
-      // ローカルストレージに値がなければ「主軸」等の名前を付ける
-      // データが無い場合は空欄にする
-      const graphKind = (SensorMap.get(parseInt(localStorage.getItem('graphKind'))) || { kind: '' }).kind
-      const graphKindSub = (SensorMap.get(parseInt(localStorage.getItem('graphKindSub'))) || { kind: '' }).kind
-      const valueHeader = {
-        main: this.graphValue.length ? graphKind ? graphKind : '主軸' : '',
-        sub: this.graphValueSub.length ? graphKindSub ? graphKindSub : '第2軸' : '',
-      }
+			// それぞれの軸のデータがあればローカルストレージから項目名を取得
+			// ローカルストレージに値がなければ「主軸」等の名前を付ける
+			// データが無い場合は空欄にする
+			const graphKind = (
+				SensorMap.get(parseInt(localStorage.getItem("graphKind"))) || {
+					kind: "",
+				}
+			).kind;
+			const graphKindSub = (
+				SensorMap.get(parseInt(localStorage.getItem("graphKindSub"))) || {
+					kind: "",
+				}
+			).kind;
+			const valueHeader = {
+				main: this.graphValue.length ? (graphKind ? graphKind : "主軸") : "",
+				sub: this.graphValueSub.length
+					? graphKindSub
+						? graphKindSub
+						: "第2軸"
+					: "",
+			};
 
-      // ワークシート全体の設定
-      const workbook = new ExcelJS.Workbook()
-      workbook.addWorksheet(name)
-      const worksheet = workbook.getWorksheet(name)
-      worksheet.columns = [
-        { header: '時刻', key: 'x' },
-        { header: valueHeader.main, key: 'yMain' },
-        { header: valueHeader.sub, key: 'ySub' }
-      ]
+			// ワークシート全体の設定
+			const workbook = new ExcelJS.Workbook();
+			workbook.addWorksheet(name);
+			const worksheet = workbook.getWorksheet(name);
+			worksheet.columns = [
+				{ header: "時刻", key: "x" },
+				{ header: valueHeader.main, key: "yMain" },
+				{ header: valueHeader.sub, key: "ySub" },
+			];
 
-      // ファイルの元となるデータの配列
-      // 両軸のデータを統合したものを格納する
-      let sourceForDL = []
+			// ファイルの元となるデータの配列
+			// 両軸のデータを統合したものを格納する
+			let sourceForDL = [];
 
-      // 主軸のデータをまずはそのまま格納
-      this.source.main.forEach(e => {
-        sourceForDL.push({
-          x: e.x,
-          yMain: e.y,
-          ySub: null
-        })
-      })
+			// 主軸のデータをまずはそのまま格納
+			this.source.main.forEach((e) => {
+				sourceForDL.push({
+					x: e.x,
+					yMain: e.y,
+					ySub: null,
+				});
+			});
 
-      // 第2軸のデータを格納
-      this.source.sub.forEach(e => {
-        // 両軸で時刻が一致しているものを見つける
-        const found = sourceForDL.find(el => el.x == e.x)
+			// 第2軸のデータを格納
+			this.source.sub.forEach((e) => {
+				// 両軸で時刻が一致しているものを見つける
+				const found = sourceForDL.find((el) => el.x == e.x);
 
-        // 一致したデータがあった場合はその要素にプロパティとして第2軸のデータを格納
-        if (found) {
-          found.ySub = e.y
-        } else {
-          // 一致したデータがなかった場合は新規要素として第2軸のデータを格納
-          sourceForDL.push({
-            x: e.x,
-            yMain: null,
-            ySub: e.y
-          })
-        }
-      })
+				// 一致したデータがあった場合はその要素にプロパティとして第2軸のデータを格納
+				if (found) {
+					found.ySub = e.y;
+				} else {
+					// 一致したデータがなかった場合は新規要素として第2軸のデータを格納
+					sourceForDL.push({
+						x: e.x,
+						yMain: null,
+						ySub: e.y,
+					});
+				}
+			});
 
-      // 統合した後の配列を時系列順にソート
-      sourceForDL.sort((a, b) => {
-        return (a.x < b.x) ? -1 : 1
-      })
+			// 統合した後の配列を時系列順にソート
+			sourceForDL.sort((a, b) => {
+				return a.x < b.x ? -1 : 1;
+			});
 
-      // データをシートに追加
-      worksheet.addRows(sourceForDL)
+			// データをシートに追加
+			worksheet.addRows(sourceForDL);
 
-      // 3通りのファイル形式を引数に応じて生成
-      const uint8Array = isCsv ? (isSJIS ? new Uint8Array(
-        encoding.convert(await workbook.csv.writeBuffer(), {
-          from: 'UTF8',
-          to: 'SJIS'
-        })
-      ) : await workbook.csv.writeBuffer()) : await workbook.xlsx.writeBuffer()
+			// 3通りのファイル形式を引数に応じて生成
+			const uint8Array = isCsv
+				? isSJIS
+					? new Uint8Array(
+							encoding.convert(await workbook.csv.writeBuffer(), {
+								from: "UTF8",
+								to: "SJIS",
+							}),
+						)
+					: await workbook.csv.writeBuffer()
+				: await workbook.xlsx.writeBuffer();
 
-      // DLするための処理
-      const blob = new Blob([uint8Array], { type: 'application/octet-binary' })
-      const link = document.createElement('a')
-      link.href = (window.URL || window.webkitURL).createObjectURL(blob)
-      link.download = `${name}.${isCsv ? 'csv' : 'xlsx'}`
-      link.click()
-      link.remove()
-    },
-    async deleteModalOK() {
-      this.reset()
-      if (this.deleteCallFrom === 'main') {
-        // this.$store.dispatch('firmata/setShouldPause', true)
-        this.shouldReDo.main = false
-        this.graphKind = this.newKindValue.main
-        this.shouldReDo.main = true
-        if (this.graphKind) {
-          await this.$store.dispatch('firmata/render', true)
-        }
-      } else if (this.deleteCallFrom === 'sub') {
-        // this.$store.dispatch('firmata/setShouldPause', true)
-        this.shouldReDo.sub = false
-        this.graphKindSub = this.newKindValue.sub
-        this.shouldReDo.sub = true
-        if (this.graphKindSub) {
-          await this.$store.dispatch('firmata/render', false)
-        }
-      } else if (this.deleteCallFrom === 'reset') {
-        // this.$store.dispatch('firmata/setShouldPause', true)
-      } else if (typeof this.deleteModalOKCallback === 'function') {
-        await this.deleteModalOKCallback()
-      }
-      this.deleteModalClose()
-    },
-    async deleteModalNG() {
-      if (this.deleteCallFrom === 'main') {
-        this.shouldReDo.main = true
-      } else if (this.deleteCallFrom === 'sub') {
-        this.shouldReDo.sub = true
-      } else if (typeof this.deleteModalNGCallback === 'function') {
-        await this.deleteModalNGCallback()
-      }
-      this.deleteModalClose()
-    },
-    deleteModalOpen(callFrom, okCallback, ngCallback) {
-      // this.$store.dispatch('firmata/setShouldPause', true)
-      this.deleteCallFrom = callFrom
-      this.deleteModalOKCallback = okCallback
-      this.deleteModalNGCallback = ngCallback
-      this.$modal.show('delete-confirm')
-    },
-    deleteModalClose() {
-      this.$modal.hide('delete-confirm')
-    },
-    DLModalOpen() {
-      this.$modal.show('download')
-    },
-    DLModalClose() {
-      this.$modal.hide('download')
-    }
-  }
-}
+			// DLするための処理
+			const blob = new Blob([uint8Array], { type: "application/octet-binary" });
+			const link = document.createElement("a");
+			link.href = (window.URL || window.webkitURL).createObjectURL(blob);
+			link.download = `${name}.${isCsv ? "csv" : "xlsx"}`;
+			link.click();
+			link.remove();
+		},
+		async deleteModalOK() {
+			this.reset();
+			if (this.deleteCallFrom === "main") {
+				// this.$store.dispatch('firmata/setShouldPause', true)
+				this.shouldReDo.main = false;
+				this.graphKind = this.newKindValue.main;
+				this.shouldReDo.main = true;
+				if (this.graphKind) {
+					await this.$store.dispatch("firmata/render", true);
+				}
+			} else if (this.deleteCallFrom === "sub") {
+				// this.$store.dispatch('firmata/setShouldPause', true)
+				this.shouldReDo.sub = false;
+				this.graphKindSub = this.newKindValue.sub;
+				this.shouldReDo.sub = true;
+				if (this.graphKindSub) {
+					await this.$store.dispatch("firmata/render", false);
+				}
+			} else if (this.deleteCallFrom === "reset") {
+				// this.$store.dispatch('firmata/setShouldPause', true)
+			} else if (typeof this.deleteModalOKCallback === "function") {
+				await this.deleteModalOKCallback();
+			}
+			this.deleteModalClose();
+		},
+		async deleteModalNG() {
+			if (this.deleteCallFrom === "main") {
+				this.shouldReDo.main = true;
+			} else if (this.deleteCallFrom === "sub") {
+				this.shouldReDo.sub = true;
+			} else if (typeof this.deleteModalNGCallback === "function") {
+				await this.deleteModalNGCallback();
+			}
+			this.deleteModalClose();
+		},
+		deleteModalOpen(callFrom, okCallback, ngCallback) {
+			// this.$store.dispatch('firmata/setShouldPause', true)
+			this.deleteCallFrom = callFrom;
+			this.deleteModalOKCallback = okCallback;
+			this.deleteModalNGCallback = ngCallback;
+			this.$modal.show("delete-confirm");
+		},
+		deleteModalClose() {
+			this.$modal.hide("delete-confirm");
+		},
+		DLModalOpen() {
+			this.$modal.show("download");
+		},
+		DLModalClose() {
+			this.$modal.hide("download");
+		},
+	},
+};
 </script>
 <style scoped>
 .graph {

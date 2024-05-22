@@ -13,27 +13,18 @@
           </a>
         </li> -->
         <li class="fa-solid fa-temperature-list">
-          <a
-            href="https://399.jp/AkaDakoGraphSupportSensor"
-            target="_blank"
-          >
+          <a href="https://399.jp/AkaDakoGraphSupportSensor" target="_blank">
             対応センサー
           </a>
         </li>
 
         <li class="privacy-icon">
-          <a
-            href="https://tfabworks.com/service_privacy/"
-            target="_blank"
-          >
+          <a href="https://tfabworks.com/service_privacy/" target="_blank">
             プライバシーポリシー
           </a>
         </li>
         <li class="brand-icon">
-          <a
-            href="https://akadako.com/"
-            target="_blank"
-          >
+          <a href="https://akadako.com/" target="_blank">
             AkaDako.com
           </a>
         </li>
@@ -43,21 +34,20 @@
 </template>
 
 <script>
-
 export default {
-  components: {},
-  methods: {
-    modalReset() {
-      this.newGroup = {
-        tabState: 1,
-        isPublic: 'Private',
-        modalActive: false,
-        name: '',
-        joinNumber: null,
-      }
-    },
-  },
-}
+	components: {},
+	methods: {
+		modalReset() {
+			this.newGroup = {
+				tabState: 1,
+				isPublic: "Private",
+				modalActive: false,
+				name: "",
+				joinNumber: null,
+			};
+		},
+	},
+};
 </script>
 <style scoped>
 #wrapper {

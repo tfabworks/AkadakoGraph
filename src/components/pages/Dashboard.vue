@@ -6,14 +6,14 @@
 </template>
 
 <script>
-import CommonAd from '../view/CommonAd.vue'
-import GraphPage from './dashboard/GraphPage'
+import CommonAd from "../view/CommonAd.vue";
+import GraphPage from "./dashboard/GraphPage";
 export default {
-  components: {
-    GraphPage,
-    CommonAd
-  }
-}
+	components: {
+		GraphPage,
+		CommonAd,
+	},
+};
 </script>
 <style scoped>
 .content-wrap {

@@ -24,19 +24,18 @@
   </div>
 </template>
 <script>
-
 export default {
-  data() {
-    return {
-      loading: true
-    }
-  },
-  mounted() {
-    setTimeout(() => {
-      this.loading = false
-    }, 2000)
-  }
-}
+	data() {
+		return {
+			loading: true,
+		};
+	},
+	mounted() {
+		setTimeout(() => {
+			this.loading = false;
+		}, 2000);
+	},
+};
 </script>
 
 <style scoped>

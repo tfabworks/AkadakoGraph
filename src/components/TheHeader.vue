@@ -11,13 +11,13 @@
 </template>
 
 <script>
-import ConnnectStatus from './TheHeaderConnectStatus'
+import ConnnectStatus from "./TheHeaderConnectStatus";
 
 export default {
-  components: {
-    ConnnectStatus,
-  }
-}
+	components: {
+		ConnnectStatus,
+	},
+};
 </script>
 
 <style scoped>
