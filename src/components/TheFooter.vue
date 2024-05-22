@@ -35,19 +35,19 @@
 
 <script>
 export default {
-	components: {},
-	methods: {
-		modalReset() {
-			this.newGroup = {
-				tabState: 1,
-				isPublic: "Private",
-				modalActive: false,
-				name: "",
-				joinNumber: null,
-			};
-		},
-	},
-};
+  components: {},
+  methods: {
+    modalReset() {
+      this.newGroup = {
+        tabState: 1,
+        isPublic: 'Private',
+        modalActive: false,
+        name: '',
+        joinNumber: null,
+      }
+    },
+  },
+}
 </script>
 <style scoped>
 #wrapper {

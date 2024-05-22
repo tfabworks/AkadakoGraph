@@ -13,47 +13,47 @@
   </section>
 </template>
 <script>
-import { mapActions, mapGetters } from "vuex";
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
-	computed: {
-		...mapGetters({
-			connected: "firmata/connected",
-		}),
-		connectButtonString: function () {
-			return this.connected ? "AkaDakoを切断する" : "AkaDakoを接続する";
-		},
-	},
-	watch: {
-		selected: function () {
-			if (this.connected) {
-				this.mDisConnect().catch((e) => {
-					console.error(e);
-					this.$buefy.toast.open({
-						duration: 7000,
-						message: "不明なエラーが発生しました",
-						position: "is-top",
-						type: "is-danger",
-					});
-					return Promise.resolve();
-				});
-			}
-		},
-	},
-	methods: {
-		toggleConnection() {
-			if (this.connected) {
-				this.disConnect();
-			} else {
-				this.connect();
-			}
-		},
-		...mapActions({
-			connect: "firmata/connect",
-			disConnect: "firmata/disConnect",
-		}),
-	},
-};
+  computed: {
+    ...mapGetters({
+      connected: 'firmata/connected',
+    }),
+    connectButtonString: function () {
+      return this.connected ? 'AkaDakoを切断する' : 'AkaDakoを接続する'
+    },
+  },
+  watch: {
+    selected: function () {
+      if (this.connected) {
+        this.mDisConnect().catch((e) => {
+          console.error(e)
+          this.$buefy.toast.open({
+            duration: 7000,
+            message: '不明なエラーが発生しました',
+            position: 'is-top',
+            type: 'is-danger',
+          })
+          return Promise.resolve()
+        })
+      }
+    },
+  },
+  methods: {
+    toggleConnection() {
+      if (this.connected) {
+        this.disConnect()
+      } else {
+        this.connect()
+      }
+    },
+    ...mapActions({
+      connect: 'firmata/connect',
+      disConnect: 'firmata/disConnect',
+    }),
+  },
+}
 </script>
 <style scoped>
 .akadako-icon {

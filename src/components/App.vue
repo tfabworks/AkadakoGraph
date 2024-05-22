@@ -9,24 +9,24 @@
 </template>
 
 <script>
-import { VersionInfo } from "../lib/constants";
-import Footer from "./TheFooter";
-import Header from "./TheHeader";
-import Dashboard from "./pages/Dashboard";
-console.log({ VersionInfo });
+import { VersionInfo } from '../lib/constants'
+import Footer from './TheFooter'
+import Header from './TheHeader'
+import Dashboard from './pages/Dashboard'
+console.log({ VersionInfo })
 
 export default {
-	components: {
-		Header,
-		Footer,
-		Dashboard,
-	},
-	data() {
-		return {
-			VersionInfo,
-		};
-	},
-};
+  components: {
+    Header,
+    Footer,
+    Dashboard,
+  },
+  data() {
+    return {
+      VersionInfo,
+    }
+  },
+}
 </script>
 
 <style lang="scss">
