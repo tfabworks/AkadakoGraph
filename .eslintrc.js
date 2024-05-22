@@ -9,6 +9,7 @@ module.exports = {
     'no-control-regex': 'off',
     'vue/multi-word-component-names': 'off',
     'vue/no-reserved-component-names': 'off',
+    'vue/max-attributes-per-line': 'off',
   },
   env: {
     browser: true,
