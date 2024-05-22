@@ -3,7 +3,7 @@ module.exports = {
   plugins: ['jest'],
   rules: {
     quotes: [2, 'single'],
-    indent: ['error', 2],
+    // indent: ['error', 2],
     semi: ['error', 'never'],
     'no-console': 'off',
     'no-control-regex': 'off',

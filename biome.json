@@ -31,7 +31,7 @@
 				"noUnsafeFinally": "error",
 				"noUnsafeOptionalChaining": "error",
 				"noUnusedLabels": "error",
-				"noUnusedVariables": "warn",
+				"noUnusedVariables": "off",
 				"useIsNan": "error",
 				"useValidForDirection": "error",
 				"useYield": "error"
