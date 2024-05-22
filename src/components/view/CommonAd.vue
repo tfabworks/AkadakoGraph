@@ -24,18 +24,17 @@
   </div>
 </template>
 <script>
-
 export default {
   data() {
     return {
-      loading: true
+      loading: true,
     }
   },
   mounted() {
     setTimeout(() => {
       this.loading = false
     }, 2000)
-  }
+  },
 }
 </script>
 

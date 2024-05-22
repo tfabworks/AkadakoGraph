@@ -1,8 +1,8 @@
-import EnvSensorGetter from './envSensor'
 import AccelerationGetter from './acceleration'
 import DistanceGetter from './distance'
-import WaterTempertureGetter from './waterTemperture'
+import EnvSensorGetter from './envSensor'
 import InputGetter from './input'
+import WaterTempertureGetter from './waterTemperture'
 
 import LTR303 from '../ltr303'
 import O2CO2Sensor from '../o2co2'
@@ -21,7 +21,7 @@ export default class DataGetter {
     }
   }
 
-  async getData (kind) {
+  async getData(kind) {
     try {
       if (kind === 1) {
         return await this.ltr303.getBrightness()

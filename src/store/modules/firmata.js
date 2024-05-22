@@ -2,39 +2,28 @@ import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
 
-import DataGetter from '@/lib/firmata/dataGetter'
-import AkaDakoBoard from '@/lib/firmata/akadako-board'
 import { SensorMap, migrateSensorKind20230714 } from '@/lib/constants'
+import AkaDakoBoard from '@/lib/firmata/akadako-board'
+import DataGetter from '@/lib/firmata/dataGetter'
 
 dayjs.extend(utc)
 dayjs.extend(timezone)
 dayjs.tz.setDefault(dayjs.tz.guess())
 
-const milliSecondsList = [
-  1000,
-  3000,
-  5000,
-  10000,
-  30000,
-  60000,
-  180000,
-  300000,
-  600000,
-  1800000
-]
+const milliSecondsList = [1000, 3000, 5000, 10000, 30000, 60000, 180000, 300000, 600000, 1800000]
 
 const midiPortFilters = [
-  {manufacturer: null, name: /STEAM BOX/},
-  {manufacturer: null, name: /MidiDako/},
-  {manufacturer: null, name: /AkaDako/}
+  { manufacturer: null, name: /STEAM BOX/ },
+  { manufacturer: null, name: /MidiDako/ },
+  { manufacturer: null, name: /AkaDako/ },
 ]
 
 const serialPortOptions = {
   filters: [
-    {usbVendorId: 0x04D8, usbProductId: 0xE83A}, // Licensed for AkaDako
-    {usbVendorId: 0x04D8, usbProductId: 0x000A}, // Dev board
-    {usbVendorId: 0x04D9, usbProductId: 0xB534} // Use in the future
-  ]
+    { usbVendorId: 0x04d8, usbProductId: 0xe83a }, // Licensed for AkaDako
+    { usbVendorId: 0x04d8, usbProductId: 0x000a }, // Dev board
+    { usbVendorId: 0x04d9, usbProductId: 0xb534 }, // Use in the future
+  ],
 }
 
 const tmpAxisInfo = {
@@ -58,7 +47,7 @@ const state = {
       kind: tmpAxisInfo.sub,
       dataCountSinceStart: 0,
       correctionRate: 1,
-    }
+    },
   },
   renderTimer: null,
   renderTimerStartTime: 0,
@@ -77,7 +66,7 @@ const getters = {
   values() {
     return {
       main: state.graphValue,
-      sub: state.graphValueSub
+      sub: state.graphValueSub,
     }
   },
   existValue() {
@@ -88,7 +77,7 @@ const getters = {
   },
   renderTimerStartTime() {
     return state.renderTimerStartTime
-  }
+  },
 }
 
 const mutations = {
@@ -97,9 +86,9 @@ const mutations = {
     const newValueY = newValue.y
     const sensor = isMain ? SensorMap.get(state.axisInfo.main.kind) : SensorMap.get(state.axisInfo.sub.kind)
     const targetGraphValue = isMain ? state.graphValue : state.graphValueSub
-    if(typeof targetGraphValue.length !== 'undefined' && targetGraphValue.length) {
+    if (typeof targetGraphValue.length !== 'undefined' && targetGraphValue.length) {
       const lastTime = targetGraphValue[targetGraphValue.length - 1].x
-      if(newTime < lastTime) {
+      if (newTime < lastTime) {
         console.log('addValue: reject old value')
         return
       }
@@ -107,8 +96,8 @@ const mutations = {
     if (isMain) {
       state.axisInfo.main.dataCountSinceStart += 1
       // スタート時の補正目標値が存在する場合は補正レートを更新する
-      if(state.axisInfo.main.dataCountSinceStart === 1) {
-        if(typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
+      if (state.axisInfo.main.dataCountSinceStart === 1) {
+        if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
           state.axisInfo.main.correctionRate = sensor.targetValueForCorrectionOnStart / newValueY
         } else {
           state.axisInfo.main.correctionRate = 1
@@ -121,7 +110,7 @@ const mutations = {
         newValueY,
         correctedValueY,
         correctionRate: state.axisInfo.main.correctionRate,
-        targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart
+        targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart,
       })
       newValue.y = correctedValueY
       state.graphValue.push(newValue)
@@ -129,22 +118,22 @@ const mutations = {
     } else {
       state.axisInfo.sub.dataCountSinceStart += 1
       // スタート時の補正目標値が存在する場合は補正レートを更新する
-      if(state.axisInfo.sub.dataCountSinceStart === 1) {
-        if(typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
+      if (state.axisInfo.sub.dataCountSinceStart === 1) {
+        if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
           state.axisInfo.sub.correctionRate = sensor.targetValueForCorrectionOnStart / newValueY
         } else {
           state.axisInfo.sub.correctionRate = 1
         }
       }
       const correctedValueY = newValue.y * state.axisInfo.sub.correctionRate
-      if(typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
+      if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
         console.log({
           target: 'sub',
           dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
           newValueY,
           correctedValueY,
           correctionRate: state.axisInfo.sub.correctionRate,
-          targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart
+          targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart,
         })
       }
       newValue.y = correctedValueY
@@ -190,16 +179,16 @@ const mutations = {
       state.axisInfo.sub.dataCountSinceStart = 0
       state.axisInfo.sub.correctionRate = 1
     }
-
-  }
+  },
 }
 
 const actions = {
   midiConnect(ctx) {
     try {
       return new Promise((resolve, reject) => {
-        new AkaDakoBoard().connectMIDI(midiPortFilters)
-          .then(connected => {
+        new AkaDakoBoard()
+          .connectMIDI(midiPortFilters)
+          .then((connected) => {
             if (connected == undefined) {
               reject('[MIDI]board is undefined')
             }
@@ -225,32 +214,29 @@ const actions = {
         return Promise.reject('This browser does not support Web Serial API.')
       }
 
-      new AkaDakoBoard().connectSerial(serialPortOptions)
-        .then(connected => {
-          if (connected == undefined) {
-            throw new Error('[Serial]board is undefined')
-          }
+      new AkaDakoBoard().connectSerial(serialPortOptions).then((connected) => {
+        if (connected == undefined) {
+          throw new Error('[Serial]board is undefined')
+        }
 
-          ctx.state.board = connected
-          connected.once(AkaDakoBoard.RELEASED, () => {
-            ctx.state.board = null
-          })
-          ctx.state.dataGetter = new DataGetter(ctx.state.board)
-          return
+        ctx.state.board = connected
+        connected.once(AkaDakoBoard.RELEASED, () => {
+          ctx.state.board = null
         })
+        ctx.state.dataGetter = new DataGetter(ctx.state.board)
+        return
+      })
     } catch (e) {
       return Promise.reject(e)
     }
   },
   async connect(ctx) {
-    ctx.dispatch('midiConnect')
-      .catch((e) => {
-        console.error(e)
-        ctx.dispatch('serialConnect')
-          .catch((err) => {
-            console.error(err)
-          })
+    ctx.dispatch('midiConnect').catch((e) => {
+      console.error(e)
+      ctx.dispatch('serialConnect').catch((err) => {
+        console.error(err)
       })
+    })
   },
   disConnect(ctx) {
     ctx.state.board.disconnect()
@@ -273,23 +259,21 @@ const actions = {
     // 両軸で描画する場合に同じ時間でプロットするためにここで時間を取得
     const date = dayjs().tz().format()
 
-    if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) { // 両方の軸で描画する場合
+    if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) {
+      // 両方の軸で描画する場合
       // 両方の軸で使うデータが全て取得完了するまで待機し、でき次第次の処理に移る
       // どちらかの取得に失敗した場合は描画しない
 
-      Promise.allSettled([
-        ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind),
-        ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
-      ])
+      Promise.allSettled([ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind), ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)])
         .then((values) => {
-          const res = values.map((value) => value.status == 'fulfilled' ? value.value : null)
+          const res = values.map((value) => (value.status == 'fulfilled' ? value.value : null))
           if (res[0] !== null) {
             ctx.commit('addValue', {
               isMain: true,
               newValue: {
                 y: res[0],
-                x: date
-              }
+                x: date,
+              },
             })
           }
           if (res[1] !== null) {
@@ -297,34 +281,36 @@ const actions = {
               isMain: false,
               newValue: {
                 y: res[1],
-                x: date
-              }
+                x: date,
+              },
             })
           }
         })
         .catch((e) => {
           console.error(e)
         })
-    } else if (ctx.state.axisInfo.main.shouldRender) { //main軸だけ描画する場合
+    } else if (ctx.state.axisInfo.main.shouldRender) {
+      //main軸だけ描画する場合
       const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.main.kind)
       if (data !== null) {
         ctx.commit('addValue', {
           isMain: true,
           newValue: {
             y: data,
-            x: date
-          }
+            x: date,
+          },
         })
       }
-    } else if (ctx.state.axisInfo.sub.shouldRender) { //sub軸だけ描画する場合
+    } else if (ctx.state.axisInfo.sub.shouldRender) {
+      //sub軸だけ描画する場合
       const data = await ctx.state.dataGetter.getData(ctx.state.axisInfo.sub.kind)
       if (data !== null) {
         ctx.commit('addValue', {
           isMain: false,
           newValue: {
             y: data,
-            x: date
-          }
+            x: date,
+          },
         })
       }
     }
@@ -343,7 +329,7 @@ const actions = {
     // 各軸で描画すべきかどうかを更新
     ctx.commit('setShouldRender', {
       isMain: isMain,
-      payload: isMain ? (ctx.state.axisInfo.main.kind === '' ? false : true) : (ctx.state.axisInfo.main.kind === '' ? false : true)
+      payload: isMain ? (ctx.state.axisInfo.main.kind === '' ? false : true) : ctx.state.axisInfo.main.kind === '' ? false : true,
     })
 
     // ループさせる関数を定義
@@ -368,11 +354,11 @@ const actions = {
       // 各軸で描画すべきかどうかを更新
       ctx.commit('setShouldRender', {
         isMain: true,
-        payload: ctx.state.axisInfo.main.kind === '' ? false : true
+        payload: ctx.state.axisInfo.main.kind === '' ? false : true,
       })
       ctx.commit('setShouldRender', {
         isMain: false,
-        payload: ctx.state.axisInfo.sub.kind === '' ? false : true
+        payload: ctx.state.axisInfo.sub.kind === '' ? false : true,
       })
 
       if (!payload) {
@@ -403,7 +389,7 @@ const actions = {
       }
       reject()
     })
-  }
+  },
 }
 
 export default {
@@ -411,5 +397,5 @@ export default {
   state,
   getters,
   actions,
-  mutations
+  mutations,
 }

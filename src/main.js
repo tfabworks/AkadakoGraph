@@ -1,6 +1,6 @@
-import Vue from 'vue'
-import Buefy from 'buefy'
 import App from '@/components/App'
+import Buefy from 'buefy'
+import Vue from 'vue'
 import store from './store'
 
 Vue.use(Buefy)
@@ -19,5 +19,5 @@ Vue.config.warnHandler = function (msg, vm, trace) {
 
 new Vue({
   store,
-  render: h => h(App)
+  render: (h) => h(App),
 }).$mount('#app')

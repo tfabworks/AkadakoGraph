@@ -11,8 +11,8 @@ import GraphPage from './dashboard/GraphPage'
 export default {
   components: {
     GraphPage,
-    CommonAd
-  }
+    CommonAd,
+  },
 }
 </script>
 <style scoped>

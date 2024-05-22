@@ -9,18 +9,16 @@ module.exports = {
     index: {
       entry: 'src/main.js',
       template: 'templates/index.html',
-      filename: 'index.html'
-    }
+      filename: 'index.html',
+    },
   },
   configureWebpack: {
     resolve: {
       fallback: {
         fs: false,
-        child_process: false
-      }
+        child_process: false,
+      },
     },
-    plugins: [
-      new NodePolyfillPlugin()
-    ]
-  }
+    plugins: [new NodePolyfillPlugin()],
+  },
 }

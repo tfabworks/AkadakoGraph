@@ -1,5 +1,6 @@
-import { mount, createLocalVue, config } from '@vue/test-utils'
 import Dashboard from '@/components/pages/Dashboard.vue'
+import { beforeEach, describe, expect, jest, test } from '@jest/globals'
+import { config, createLocalVue, mount } from '@vue/test-utils'
 import Vuex from 'vuex'
 jest.mock('chart.js')
 
@@ -11,15 +12,15 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 const store = new Vuex.Store({
   modules: {
-    firmata: require('@/store/modules/firmata').default
-  }
+    firmata: require('@/store/modules/firmata').default,
+  },
 })
 let wrapper = {}
 
 beforeEach(() => {
   wrapper = mount(Dashboard, {
     localVue,
-    store
+    store,
   })
 })
 

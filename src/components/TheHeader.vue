@@ -1,10 +1,7 @@
 <template>
   <header class="main-header">
     <h1 class="header-logo">
-      <a><img
-        src="../../public/img/header-tfc-logo.png"
-        alt="TFabGraph[AkaDako版]"
-      ></a>
+      <a><img src="../../public/img/header-tfc-logo.png" alt="TFabGraph[AkaDako版]"></a>
     </h1>
     <ConnnectStatus />
   </header>
@@ -16,7 +13,7 @@ import ConnnectStatus from './TheHeaderConnectStatus'
 export default {
   components: {
     ConnnectStatus,
-  }
+  },
 }
 </script>
 

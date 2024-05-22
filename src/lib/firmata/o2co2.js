@@ -1,6 +1,6 @@
 /**
  * O2CO2Sensor は SCD4x と酸素センサーを接続したセンサーです。
- * 
+ *
  * SCD4x API
  * 酸素＆二酸化炭素濃度取得のサンプルコード(Scratch)
  * https://xcratch.github.io/editor/#https://akadako.com/xcratch/files/06fe7b7680a26ce38389ac95d70b8fb9/5wgi0ik81sw0swcocg8og8go.sb3
@@ -8,7 +8,6 @@
  * https://files.seeedstudio.com/wiki/Grove-CO2&Temperature&HumiditySensor-SCD4/res/Sensirion_CO2_Sensors_SCD4x_Datasheet.pdf
  * https://www.winsen-sensor.com/sensors/o2-sensor/ze03-o2.html
  */
-
 
 /**
  * SCD4x I2C Address
@@ -38,26 +37,26 @@ export default class O2CO2Sensor {
   }
 
   async getCO2() {
-    const co2 = await this.scd4x.getPeriodicMeasurement().then(data => data.co2 || null)
+    const co2 = await this.scd4x.getPeriodicMeasurement().then((data) => data.co2 || null)
     console.log(`${this.name}: getCO2()`, co2)
     return co2
   }
 
   async getTemperature() {
-    const temperature = await this.scd4x.getPeriodicMeasurement().then(data => data.temperature || null)
+    const temperature = await this.scd4x.getPeriodicMeasurement().then((data) => data.temperature || null)
     console.log(`${this.name}: getTemperature()`, temperature)
     return temperature
   }
 
   async getHumidity() {
-    const humidity = await this.scd4x.getPeriodicMeasurement().then(data => data.humidity || null)
+    const humidity = await this.scd4x.getPeriodicMeasurement().then((data) => data.humidity || null)
     console.log(`${this.name}: getHumidity()`, humidity)
     return humidity
   }
 
   async getO2() {
     // O2 だけ SCD4x ではなく独立して取得する
-    const o2 = await this.board.i2cReadOnce(I2C_ADDRESS_O2_SENSOR, 0x00, 1, timeout_short).then(data => data[0] / 10)
+    const o2 = await this.board.i2cReadOnce(I2C_ADDRESS_O2_SENSOR, 0x00, 1, timeout_short).then((data) => data[0] / 10)
     // O2センサーは制度が悪いので過去5回の平均値を返す
     this.o2buffer.push(o2)
     while (5 < this.o2buffer.length) {
@@ -68,7 +67,6 @@ export default class O2CO2Sensor {
     return o2avg
   }
 }
-
 
 const SCD4x_NULL_MEASUREMENT = {
   co2: null,
@@ -131,14 +129,14 @@ class SCD4x {
    * @returns {Promise<{co2: number, temperature: number, humidity: number}>} CO2 concentration [ppm], temperature [°C], humidity [%RH]
    */
   getPeriodicMeasurement() {
-    if(typeof this.getPeriodicMeasurement_listeners === 'undefined') {
+    if (typeof this.getPeriodicMeasurement_listeners === 'undefined') {
       this.getPeriodicMeasurement_listeners = []
     }
-    if(typeof this.getPeriodicMeasurement_getting === 'undefined') {
+    if (typeof this.getPeriodicMeasurement_getting === 'undefined') {
       this.getPeriodicMeasurement_getting = false
     }
-    if(this.getPeriodicMeasurement_getting) {
-      return new Promise(resolve => this.getPeriodicMeasurement_listeners.push(resolve))
+    if (this.getPeriodicMeasurement_getting) {
+      return new Promise((resolve) => this.getPeriodicMeasurement_listeners.push(resolve))
     }
     this.getPeriodicMeasurement_getting = true
     return (async () => {
@@ -168,7 +166,7 @@ class SCD4x {
           }
         }
         // 最後にデータを取得してから6秒以上経過している場合は状態をリセットして継続読み取りモードを再起動する
-        if(this.waitingDataReadyLastSuccess + 6000 < Date.now()) {
+        if (this.waitingDataReadyLastSuccess + 6000 < Date.now()) {
           console.log('SCD4x: reset force because last success is too old.')
           try {
             this.reset()
@@ -176,14 +174,14 @@ class SCD4x {
             await this.startPeriodicMesurement(true)
             // 最終正常時刻をリセット
             this.waitingDataReadyLastSuccess = Date.now()
-          } catch(e) {
+          } catch (e) {
             console.error('SCD4x: getPeriodicMeasurement() error', e)
           }
         }
       } catch (e) {
         console.error('SCD4x: getPeriodicMeasurement() failed', e)
       }
-      if(result == null) {
+      if (result == null) {
         result = {
           ...SCD4x_NULL_MEASUREMENT,
           timestamp: Date.now(),
@@ -193,7 +191,7 @@ class SCD4x {
         }
       }
       // リスナーに結果を返す
-      this.getPeriodicMeasurement_listeners.forEach(resolve => resolve(result))
+      this.getPeriodicMeasurement_listeners.forEach((resolve) => resolve(result))
       this.getPeriodicMeasurement_listeners = []
       this.getPeriodicMeasurement_getting = false
       return result
@@ -223,24 +221,24 @@ class SCD4x {
   /**
    * データ取得準備が出来るまで待つ
    * @param {number} timeoutMs 継続取得モードの場合は最大5000かかる
-   * @param {number} checkIntervalMs 
+   * @param {number} checkIntervalMs
    * @returns {Promise<boolean>} true: データ取得準備が出来ている, false: データ取得準備が出来ていない
    */
   async waitDataReady(timeoutMs = 200, checkIntervalMs = 20) {
     // 2重待ち防止
-    if(this.waitingDataReady) {
+    if (this.waitingDataReady) {
       return false
     }
     this.waitingDataReady = true
     // タイムアウトまでポーリングする
-    const expiryTimeMs = Date.now() + timeoutMs    
+    const expiryTimeMs = Date.now() + timeoutMs
     while (Date.now() < expiryTimeMs) {
       if (await this.isDataReady()) {
         this.waitingDataReady = false
         this.waitingDataReadyLastSuccess = Date.now()
         return true
-      }  
-      await new Promise(resolve => setTimeout(resolve, checkIntervalMs))
+      }
+      await new Promise((resolve) => setTimeout(resolve, checkIntervalMs))
     }
     this.waitingDataReady = false
     return false
@@ -299,7 +297,7 @@ class SCD4x {
    * emptied upon read-out. If no data is available in the buffer, the sensor returns a NACK. To avoid a NACK response, the
    * get_data_ready_status can be issued to check data status (see chapter 3.8.2 for further details). The I2C master can abort the
    * read transfer with a NACK followed by a STOP condition after any data byte if the user is not interested in subsequent data.
-   * 
+   *
    * センサー出力を読み出します。バッファは読み出し時に空になるため、信号更新間隔ごとに測定データを1回しか読み出すことはできません。
    * バッファにデータがない場合、センサーはNACKを返します。NACK応答を回避するには、データステータスを確認するために get_data_ready_status を発行できます
    * （詳細については、3.8.2章を参照）。ユーザーが後続のデータに興味がない場合、I2CマスターはNACKを送信し、任意のデータバイトの後にSTOP条件で読み取り転送を中止できます。
@@ -308,13 +306,13 @@ class SCD4x {
     // Send the 'read_measurement' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0xec, 0x05)
     // Max. command duration [ms]: 1
-    await new Promise(resolve => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 10))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 9, timeout_short)
     const words = this.parseDataWithCRCValidation(data)
     const co2 = words[0] / 10000 // ppm を % に変換する
-    const temperature = -45 + 175 * words[1] / 2 ** 16
-    const humidity = 100 * words[2] / 2 ** 16
-    const measurement = {co2, temperature, humidity }
+    const temperature = -45 + (175 * words[1]) / 2 ** 16
+    const humidity = (100 * words[2]) / 2 ** 16
+    const measurement = { co2, temperature, humidity }
     console.log('SCD4x: read_measurement', `{ co2: ${co2}, temperature: ${temperature}, humidity: ${humidity} }`, measurement)
     return measurement
   }
@@ -330,10 +328,8 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x3f, 0x86)
     console.log('SCD4x: stop_periodic_measurement')
     // Max. command duration [ms]: 500
-    await new Promise(resolve => setTimeout(resolve, 500))
+    await new Promise((resolve) => setTimeout(resolve, 500))
   }
-
-
 
   /*
     3.6 On-Chip Output Signal Compensation
@@ -360,7 +356,6 @@ class SCD4x {
     4. I2Cマスターは、センサーを再び動作モードに設定するために測定開始コマンドを送信します。
   */
 
-
   /**
    * 3.6.1 set_temperature_offset
    * The temperature offset has no influence on the SCD4x CO2 accuracy. Setting the temperature offset of the SCD4x
@@ -369,8 +364,8 @@ class SCD4x {
    * temperature and air flow. Thus, the SCD4x temperature offset should be determined inside the customer device under its typical
    * operation conditions (including the operation mode to be used in the application) and in thermal equilibrium. Per default, the
    * temperature offset is set to 4° C. To save the setting to the EEPROM, the persist setting (see chapter 3.9.1) command must be
-   * issued. Equation (1) shows how the characteristic temperature offset can be obtained. 
-   * 
+   * issued. Equation (1) shows how the characteristic temperature offset can be obtained.
+   *
    * ja:
    * 温度オフセットはSCD4x CO2の精度に影響しません。
    * デバイス内のSCD4xの温度オフセットを正しく設定すると、ユーザーはRHおよびT出力信号を活用できます。
@@ -379,9 +374,9 @@ class SCD4x {
    * 顧客デバイス内で決定する必要があります。デフォルトでは、温度オフセットは4°Cに設定されています。
    * EEPROMに設定を保存するには、persist setting（3.9.1章を参照）コマンドを発行する必要があります。
    * 式（1）は、特性温度オフセットを取得する方法を示しています。
-   * 
-   * 𝑇𝑜𝑓𝑓𝑠𝑒𝑡_𝑎𝑐𝑡𝑢𝑎𝑙 = 𝑇𝑆𝐶𝐷40 − 𝑇𝑅𝑒𝑓𝑒𝑟𝑒𝑛𝑐𝑒 + 𝑇𝑜𝑓𝑓𝑠𝑒𝑡_ 𝑝𝑟𝑒𝑣𝑖𝑜𝑢𝑠 
-   * 
+   *
+   * 𝑇𝑜𝑓𝑓𝑠𝑒𝑡_𝑎𝑐𝑡𝑢𝑎𝑙 = 𝑇𝑆𝐶𝐷40 − 𝑇𝑅𝑒𝑓𝑒𝑟𝑒𝑛𝑐𝑒 + 𝑇𝑜𝑓𝑓𝑠𝑒𝑡_ 𝑝𝑟𝑒𝑣𝑖𝑜𝑢𝑠
+   *
    */
   async set_temperature_offset() {
     if (this.periodic_measurement_started) {
@@ -392,7 +387,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x24, 0x1d)
     console.log('SCD4x: set_temperature_offset')
     // Max. command duration [ms]: 1
-    await new Promise(resolve => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 10))
   }
 
   /**
@@ -416,17 +411,20 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x36, 0x82)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 9, timeout_short)
     const serial_number = [data[0], data[1], data[3], data[4], data[6], data[7]]
-    const serial_number_string = serial_number.map(u8 => u8.toString(16).padEnd(2, '0')).join('').toUpperCase()
+    const serial_number_string = serial_number
+      .map((u8) => u8.toString(16).padEnd(2, '0'))
+      .join('')
+      .toUpperCase()
     console.log('SCD4x: get_serial_number', serial_number_string)
     return serial_number_string
   }
 
   /**
    * 3.9.3 perform_self_test
-   * The perform_self_test feature can be used as an end-of-line test to check sensor functionality and the customer power supply to the sensor. 
+   * The perform_self_test feature can be used as an end-of-line test to check sensor functionality and the customer power supply to the sensor.
    * 0 → self-test passed (no malfunction detected)
    * else → self-test failed (malfunction detected)
-   * 
+   *
    * @returns {Promise<boolean>} self-test passed (true) or failed (false)
    */
   async perform_self_test() {
@@ -437,7 +435,7 @@ class SCD4x {
     // Send the 'perform_self_test' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x36, 0x84)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, 10000)
-    const self_test = (data[0] << 8 | data[1])
+    const self_test = (data[0] << 8) | data[1]
     const self_test_passed = self_test == 0
     console.log('SCD4x: perform_self_test', self_test, self_test_passed)
     return self_test_passed
@@ -445,7 +443,7 @@ class SCD4x {
 
   /**
    * 3.9.4 perfom_factory_reset
-   * The perform_factory_reset command resets all configuration settings stored in the EEPROM and erases the FRC and ASC algorithm history. 
+   * The perform_factory_reset command resets all configuration settings stored in the EEPROM and erases the FRC and ASC algorithm history.
    */
   async perfom_factory_reset() {
     if (this.periodic_measurement_started) {
@@ -455,7 +453,7 @@ class SCD4x {
     // Send the 'perfom_factory_reset' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x36, 0x32)
     console.log('SCD4x: perfom_factory_reset')
-    await new Promise(resolve => setTimeout(resolve, 1200))
+    await new Promise((resolve) => setTimeout(resolve, 1200))
   }
 
   /**
@@ -463,7 +461,7 @@ class SCD4x {
    * The reinit command reinitializes the sensor by reloading user settings from EEPROM. Before sending the reinit command,
    * the stop measurement command must be issued. If the reinit command does not trigger the desired re-initialization,
    * a power-cycle should be applied to the SCD4x
-   * @returns 
+   * @returns
    */
   async reinit() {
     if (this.periodic_measurement_started) {
@@ -473,7 +471,7 @@ class SCD4x {
     // Send the 'reinit' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x36, 0x46)
     console.log('SCD4x: reinit')
-    await new Promise(resolve => setTimeout(resolve, 10))
+    await new Promise((resolve) => setTimeout(resolve, 10))
   }
 
   /*
@@ -512,8 +510,8 @@ class SCD4x {
     自動自己キャリブレーションと対応するコマンドの詳細な説明については第3.7章を参照してください。
   */
 
-  /** 
-   * 3.10.1 measure_single_shot 
+  /**
+   * 3.10.1 measure_single_shot
    * On-demand measurement of CO2 concentration, relative humidity and temperature. The sensor output is read using the read_measurement command (chapter 3.5.2).
    * 二酸化炭素濃度、相対湿度、温度のオンデマンド測定。センサー出力は、read_measurementコマンド（3.5.2章）を使用して読み出されます。
    */
@@ -526,7 +524,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x21, 0x9d)
     console.log('SCD4x: measure_single_shot')
     // Max command duration [ms]: 5000
-    await new Promise(resolve => setTimeout(resolve, 5000))
+    await new Promise((resolve) => setTimeout(resolve, 5000))
   }
 
   /**
@@ -543,7 +541,7 @@ class SCD4x {
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x21, 0x96)
     console.log('SCD4x: measure_single_shot_rht_only')
     // Max command duration [ms]: 50
-    await new Promise(resolve => setTimeout(resolve, 50))
+    await new Promise((resolve) => setTimeout(resolve, 50))
   }
 
   async get_temperature_offset() {
@@ -554,7 +552,7 @@ class SCD4x {
     // Send the 'get_temperature_offset' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x23, 0x18)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
-    const temperature_offset_celsius = 175 * (data[0] << 8 | data[1]) / 65536
+    const temperature_offset_celsius = (175 * ((data[0] << 8) | data[1])) / 65536
     console.log('SCD4x: get_temperature_offset', temperature_offset_celsius)
     return temperature_offset_celsius
   }
@@ -567,7 +565,7 @@ class SCD4x {
     // Send the 'get_sensor_altitude' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x23, 0x22)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
-    const sensor_altitude = (data[0] << 8 | data[1])
+    const sensor_altitude = (data[0] << 8) | data[1]
     console.log('SCD4x: get_sensor_altitude', sensor_altitude)
     return sensor_altitude
   }
@@ -580,7 +578,7 @@ class SCD4x {
     // Send the 'get_automatic_self_calibration_enabled' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0x23, 0x13)
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
-    const automatic_self_calibration_enabled = (data[0] << 8 | data[1]) == 1
+    const automatic_self_calibration_enabled = ((data[0] << 8) | data[1]) == 1
     console.log('SCD4x: get_automatic_self_calibration_enabled', automatic_self_calibration_enabled, automatic_self_calibration_enabled == 1)
     return automatic_self_calibration_enabled == 1
   }
@@ -604,7 +602,7 @@ class SCD4x {
   /**
    * 3.8.1 start_low_power_periodic_measurement
    * start low power periodic measurement, signal update interval is approximately 30 seconds
-   * 
+   *
    * 低消費電力周期測定を開始します。信号更新間隔は約30秒です。
    */
   async start_low_power_periodic_measurement() {
@@ -624,7 +622,7 @@ class SCD4x {
     // Send the 'get_data_ready_status' command
     await this.board.i2cWrite(I2C_ADDRESS_SCD4x, 0xe4, 0xb8)
     // Max. command duration [ms]: 1
-    await new Promise(resolve => setTimeout(resolve, 20))
+    await new Promise((resolve) => setTimeout(resolve, 20))
     const data = await this.board.i2cReadOnce(I2C_ADDRESS_SCD4x, 0x00, 3, timeout_short)
     try {
       const words = this.parseDataWithCRCValidation(data)
@@ -644,7 +642,7 @@ class SCD4x {
   parseDataWithCRCValidation(data) {
     const words = []
     for (let i = 0; i < data.length; i += 3) {
-      const word = data[i] << 8 | data[i + 1]
+      const word = (data[i] << 8) | data[i + 1]
       const crc = data[i + 2]
       if (crc != this.sensirion_common_generate_crc([data[i], data[i + 1]], 2)) {
         throw new Error('SCD4x: crc error')
@@ -662,26 +660,21 @@ class SCD4x {
    */
   sensirion_common_generate_crc(data, count) {
     const CRC8_POLYNOMIAL = 0x31
-    const CRC8_INIT = 0xFF
+    const CRC8_INIT = 0xff
     let crc = CRC8_INIT
     let crc_bit
     // calculates 8-Bit checksum with given polynomial
     for (let current_byte = 0; current_byte < count; ++current_byte) {
-      crc ^= (data[current_byte])
+      crc ^= data[current_byte]
 
       for (crc_bit = 8; crc_bit > 0; --crc_bit) {
-        if (crc & 0x80)
-          crc = (crc << 1) ^ CRC8_POLYNOMIAL
-        else
-          crc = (crc << 1)
+        if (crc & 0x80) crc = (crc << 1) ^ CRC8_POLYNOMIAL
+        else crc = crc << 1
         // JavaScript bitwise operations use 32-bit signed integers, so we need
         // to ensure that the high bits are zeroed out and the result is a uint8
-        crc &= 0xFF
+        crc &= 0xff
       }
     }
     return crc
   }
-
 }
-
-

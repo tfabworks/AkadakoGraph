@@ -19,11 +19,11 @@ export default {
   components: {
     Header,
     Footer,
-    Dashboard
+    Dashboard,
   },
   data() {
     return {
-      VersionInfo
+      VersionInfo,
     }
   },
 }

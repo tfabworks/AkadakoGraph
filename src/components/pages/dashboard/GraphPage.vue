@@ -223,14 +223,14 @@
   </div>
 </template>
 <script>
-import { Sensors, SensorMap } from '../../../lib/constants'
+import encoding from 'encoding-japanese'
+import ExcelJS from 'exceljs'
+import Vue from 'vue'
+import VModal from 'vue-js-modal'
+import { mapGetters, mapState } from 'vuex'
+import { SensorMap, Sensors } from '../../../lib/constants'
 import Graph from '../../view/Graph'
 import ProgressTimer from '../../view/ProgressTimer.vue'
-import Vue from 'vue'
-import { mapGetters, mapState } from 'vuex'
-import VModal from 'vue-js-modal'
-import ExcelJS from 'exceljs'
-import encoding from 'encoding-japanese'
 Vue.use(VModal)
 
 export default {
@@ -244,29 +244,29 @@ export default {
       shouldReDo: {
         main: true,
         sub: true,
-        interval: true
+        interval: true,
       },
       deleteCallFrom: '',
       newKindValue: {
         main: '',
-        sub: ''
+        sub: '',
       },
       oldKindValue: {
         main: '',
-        sub: ''
+        sub: '',
       },
       Sensors,
       intervals: [
         ...[1, 3, 5, 10, 30], // seconds
-        ...[1, 3, 5, 10].map(s => 60 * s) // minutes
-      ].map(s => s * 1000),
+        ...[1, 3, 5, 10].map((s) => 60 * s), // minutes
+      ].map((s) => s * 1000),
     }
   },
   computed: {
     ...mapState({
-      shouldPause: state => state.firmata.shouldPause,
-      graphValue: state => state.firmata.graphValue,
-      graphValueSub: state => state.firmata.graphValueSub,
+      shouldPause: (state) => state.firmata.shouldPause,
+      graphValue: (state) => state.firmata.graphValue,
+      graphValueSub: (state) => state.firmata.graphValueSub,
     }),
     ...mapGetters({
       source: 'firmata/values',
@@ -281,7 +281,7 @@ export default {
       },
       set(payload) {
         this.$store.commit('firmata/setKind', payload)
-      }
+      },
     },
     graphKindSub: {
       get() {
@@ -289,16 +289,16 @@ export default {
       },
       set(payload) {
         this.$store.commit('firmata/setKindSub', payload)
-      }
+      },
     },
     inProgress() {
       return this.connected && !this.shouldPause && (this.$store.state.firmata.axisInfo.main.kind || this.$store.state.firmata.axisInfo.sub.kind)
     },
     lastMainValue() {
       const sensor = SensorMap.get(this.graphKind)
-      if(sensor) {
+      if (sensor) {
         const lastValue = (this.source.main[this.source.main.length - 1] || { y: null }).y
-        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
+        if (typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
           return lastValue
         } else {
           return lastValue.toFixed(sensor.flactionDigits)
@@ -308,9 +308,9 @@ export default {
     },
     lastSubValue() {
       const sensor = SensorMap.get(this.graphKindSub)
-      if(sensor) {
+      if (sensor) {
         const lastValue = (this.source.sub[this.source.sub.length - 1] || { y: null }).y
-        if(typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
+        if (typeof sensor.flactionDigits === 'undefined' || lastValue === null) {
           return lastValue
         } else {
           return lastValue.toFixed(sensor.flactionDigits)
@@ -348,18 +348,17 @@ export default {
     },
     interval: function (newValue, oldValue) {
       if (this.shouldReDo.interval) {
-        // this.deleteModalOpen('interval', () => 
-        this.$store.dispatch('firmata/setMilliSeconds', Number(newValue))
-          .catch(() => {
-            console.error('unexpected interval value.')
-            this.shouldReDo = false
-            this.interval = oldValue
-          })
-        // })   
+        // this.deleteModalOpen('interval', () =>
+        this.$store.dispatch('firmata/setMilliSeconds', Number(newValue)).catch(() => {
+          console.error('unexpected interval value.')
+          this.shouldReDo = false
+          this.interval = oldValue
+        })
+        // })
       } else {
         this.shouldReDo.interval = true
       }
-    }
+    },
   },
   mounted() {
     this.oldKindValue.main = this.graphKind
@@ -376,12 +375,7 @@ export default {
     },
     transDate(iso8601String) {
       const date = new Date(iso8601String)
-      return date.getFullYear() + '/' +
-        (date.getMonth() + 1) + '/' +
-        date.getDate() + ' ' +
-        date.getHours() + ':' +
-        date.getMinutes() + ':' +
-        date.getSeconds()
+      return date.getFullYear() + '/' + (date.getMonth() + 1) + '/' + date.getDate() + ' ' + date.getHours() + ':' + date.getMinutes() + ':' + date.getSeconds()
     },
     async exportData(isCsv, isSJIS) {
       const name = 'TFabGraph_AkaDako版'
@@ -389,11 +383,19 @@ export default {
       // それぞれの軸のデータがあればローカルストレージから項目名を取得
       // ローカルストレージに値がなければ「主軸」等の名前を付ける
       // データが無い場合は空欄にする
-      const graphKind = (SensorMap.get(parseInt(localStorage.getItem('graphKind'))) || { kind: '' }).kind
-      const graphKindSub = (SensorMap.get(parseInt(localStorage.getItem('graphKindSub'))) || { kind: '' }).kind
+      const graphKind = (
+        SensorMap.get(parseInt(localStorage.getItem('graphKind'))) || {
+          kind: '',
+        }
+      ).kind
+      const graphKindSub = (
+        SensorMap.get(parseInt(localStorage.getItem('graphKindSub'))) || {
+          kind: '',
+        }
+      ).kind
       const valueHeader = {
-        main: this.graphValue.length ? graphKind ? graphKind : '主軸' : '',
-        sub: this.graphValueSub.length ? graphKindSub ? graphKindSub : '第2軸' : '',
+        main: this.graphValue.length ? (graphKind ? graphKind : '主軸') : '',
+        sub: this.graphValueSub.length ? (graphKindSub ? graphKindSub : '第2軸') : '',
       }
 
       // ワークシート全体の設定
@@ -403,7 +405,7 @@ export default {
       worksheet.columns = [
         { header: '時刻', key: 'x' },
         { header: valueHeader.main, key: 'yMain' },
-        { header: valueHeader.sub, key: 'ySub' }
+        { header: valueHeader.sub, key: 'ySub' },
       ]
 
       // ファイルの元となるデータの配列
@@ -411,18 +413,18 @@ export default {
       let sourceForDL = []
 
       // 主軸のデータをまずはそのまま格納
-      this.source.main.forEach(e => {
+      this.source.main.forEach((e) => {
         sourceForDL.push({
           x: e.x,
           yMain: e.y,
-          ySub: null
+          ySub: null,
         })
       })
 
       // 第2軸のデータを格納
-      this.source.sub.forEach(e => {
+      this.source.sub.forEach((e) => {
         // 両軸で時刻が一致しているものを見つける
-        const found = sourceForDL.find(el => el.x == e.x)
+        const found = sourceForDL.find((el) => el.x == e.x)
 
         // 一致したデータがあった場合はその要素にプロパティとして第2軸のデータを格納
         if (found) {
@@ -432,26 +434,30 @@ export default {
           sourceForDL.push({
             x: e.x,
             yMain: null,
-            ySub: e.y
+            ySub: e.y,
           })
         }
       })
 
       // 統合した後の配列を時系列順にソート
       sourceForDL.sort((a, b) => {
-        return (a.x < b.x) ? -1 : 1
+        return a.x < b.x ? -1 : 1
       })
 
       // データをシートに追加
       worksheet.addRows(sourceForDL)
 
       // 3通りのファイル形式を引数に応じて生成
-      const uint8Array = isCsv ? (isSJIS ? new Uint8Array(
-        encoding.convert(await workbook.csv.writeBuffer(), {
-          from: 'UTF8',
-          to: 'SJIS'
-        })
-      ) : await workbook.csv.writeBuffer()) : await workbook.xlsx.writeBuffer()
+      const uint8Array = isCsv
+        ? isSJIS
+          ? new Uint8Array(
+              encoding.convert(await workbook.csv.writeBuffer(), {
+                from: 'UTF8',
+                to: 'SJIS',
+              }),
+            )
+          : await workbook.csv.writeBuffer()
+        : await workbook.xlsx.writeBuffer()
 
       // DLするための処理
       const blob = new Blob([uint8Array], { type: 'application/octet-binary' })
@@ -511,8 +517,8 @@ export default {
     },
     DLModalClose() {
       this.$modal.hide('download')
-    }
-  }
+    },
+  },
 }
 </script>
 <style scoped>

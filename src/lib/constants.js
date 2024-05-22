@@ -1,4 +1,3 @@
-
 export const VersionInfo = {
   commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
   branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
@@ -158,10 +157,10 @@ export const Sensors = [
   },
 ].map((sensor) => {
   sensor.kind = sensor.name
-  if(sensor.id < 10000) {
+  if (sensor.id < 10000) {
     sensor.kind = `${sensor.id}.${sensor.kind}`
   }
-  if(typeof sensor.unit !== 'undefined') {
+  if (typeof sensor.unit !== 'undefined') {
     sensor.kind = `${sensor.kind}[${sensor.unit}]`
   }
   return sensor
@@ -170,11 +169,11 @@ export const Sensors = [
 export const SensorMap = new Map(Sensors.map((sensor) => [sensor.id, sensor]))
 
 export const migrateSensorKind20230714 = (kind) => {
-  if(/^\d+$/.test(kind)) {
+  if (/^\d+$/.test(kind)) {
     return kind
   }
   const sensor = Sensors.find((sensor) => sensor.kind.replace(/^\d+\./, '') === kind)
-  if(sensor) {
+  if (sensor) {
     return `${sensor.id}`
   }
   return ''
