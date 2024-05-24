@@ -7,8 +7,13 @@ module.exports = {
     semi: ['error', 'never'],
     'no-console': 'off',
     'no-control-regex': 'off',
+    'vue/first-attribute-linebreak': 'off',
     'vue/multi-word-component-names': 'off',
     'vue/no-reserved-component-names': 'off',
+    'vue/max-attributes-per-line': 'off',
+    'vue/multiline-html-element-content-newline': 'off',
+    'vue/html-closing-bracket-newline': 'off',
+    'vue/html-indent': 'off',
   },
   env: {
     browser: true,

@@ -1,8 +1,11 @@
 <template>
   <div class="wrapper">
     <Header />
-    <div>
+    <div v-if="currentRoute === '/'">
       <Dashboard />
+    </div>
+    <div v-if="/^\/share(\/.*)/.test(currentRoute)">
+      <Shareboard />
     </div>
     <Footer />
   </div>
@@ -13,6 +16,7 @@ import { VersionInfo } from '../lib/constants'
 import Footer from './TheFooter'
 import Header from './TheHeader'
 import Dashboard from './pages/Dashboard'
+import Shareboard from './pages/Shareboard'
 console.log({ VersionInfo })
 
 export default {
@@ -20,9 +24,11 @@ export default {
     Header,
     Footer,
     Dashboard,
+    Shareboard,
   },
   data() {
     return {
+      currentRoute: window.location.pathname,
       VersionInfo,
     }
   },
