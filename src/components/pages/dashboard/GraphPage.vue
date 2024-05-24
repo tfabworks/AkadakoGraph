@@ -190,10 +190,14 @@ export default {
       },
     },
     canOpenShareboard: {
-      get() { return this.shareKey !== '' }
+      get() {
+        return this.shareKey !== ''
+      },
     },
     canStartShare: {
-      get() { return this.shareKey !== '' && this.shareMyName !== '' }
+      get() {
+        return this.shareKey !== '' && this.shareMyName !== ''
+      },
     },
     graphKind: {
       get() {
@@ -371,11 +375,11 @@ export default {
       const uint8Array = isCsv
         ? isSJIS
           ? new Uint8Array(
-            encoding.convert(await workbook.csv.writeBuffer(), {
-              from: 'UTF8',
-              to: 'SJIS',
-            }),
-          )
+              encoding.convert(await workbook.csv.writeBuffer(), {
+                from: 'UTF8',
+                to: 'SJIS',
+              }),
+            )
           : await workbook.csv.writeBuffer()
         : await workbook.xlsx.writeBuffer()
 
@@ -447,13 +451,14 @@ export default {
       const canvas = document.body.querySelector('canvas')
       const dataUrl = canvas.toDataURL('image/webp', 0.01)
       const b64 = dataUrl.split(/,/, 2)[1]
-      const u8 = new Uint8Array([].map.call(atob(b64), c => c.charCodeAt(0)))
+      const u8 = new Uint8Array([].map.call(atob(b64), (c) => c.charCodeAt(0)))
       console.log({ dataUrl, b64, u8 })
       const blob = new Blob([u8], { type: 'application/octet-binary' })
       // 日時文字列作成
       const now = new Date()
       const tz = `${now.getTimezoneOffset() < 0 ? '+' : '-'}${new Date(Math.abs(now.getTimezoneOffset())).toTimeString().substr(0, 5)}`
-      const o = { year: 'numeric' }; o.month = o.day = o.hour = o.minute = o.second = '2-digit'
+      const o = { year: 'numeric' }
+      o.month = o.day = o.hour = o.minute = o.second = '2-digit'
       const dt = now.toLocaleString('ja', o).replace(/ /, 'T').replace(/[/:-]/g, '') + tz.replace(/:/, '')
       // ダウンロードさせる
       const link = document.createElement('a')
