@@ -86,6 +86,6 @@
 		}
 	},
 	"files": {
-		"ignore": ["dist/**", "coverage/**"]
+		"ignore": ["dist", "coverage", "package.json"]
 	}
 }
