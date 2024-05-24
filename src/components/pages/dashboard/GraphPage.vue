@@ -1,162 +1,98 @@
 <template>
   <div class="content-area">
+    <div>
+      <div class="btn-bar">
+        <details>
+          <summary>[共有]</summary>
+          <ul class="left-btn-list">
+            <li>
+              合言葉<input v-model="shareKey">
+            </li>
+            <li>
+              班名<input v-model="shareMyName">
+            </li>
+            <li>
+              <a :href="shareUrl" target="shareboard" :class="canOpenShareboard ? '' : 'disable'"
+                @click="openShareboard">[共有ボードを開く]</a>
+            </li>
+            <li>
+              <a v-if="!shareEnabled" :class="canStartShare ? '' : 'disable'" @click="toggleShare">[共有開始]</a>
+              <a v-if="shareEnabled" @click="toggleShare">[共有停止]</a>
+            </li>
+          </ul>
+        </details>
+        <div class=" control-btn">
+          <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
+            <img src="../../../../public/img/icon-play.svg" alt="取得開始">
+          </a>
+          <a v-else id="pause-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
+            <img src="../../../../public/img/icon-pause.svg" alt="取得停止">
+          </a>
+        </div>
+        <ul class="right-btn-list">
+          <li>
+            <a id="delete-btn" :class="existValue ? '' : 'disable'" @click="deleteModalOpen('reset')">
+              <img src="../../../../public/img/icon-reset.svg" alt="リセット">
+            </a>
+          </li>
+          <li>
+            <a id="dl-csv" :class="existValue ? '' : 'disable'" @click="DLModalOpen">
+              <img src="../../../../public/img/icon-download.svg" alt="ダウンロード">
+            </a>
+          </li>
+          <li><a @click="saveChartImage">[画像保存]</a></li>
+          <li><a @click="print">[印刷]</a></li>
+        </ul>
+      </div>
+    </div>
     <section class="content-box">
       <div class="sensor-select-wrap">
         <div class="sensor-left">
-          <select
-            v-model="graphKind"
-            :disabled="!connected"
-          >
+          <select v-model="graphKind" :disabled="!connected">
             <option :value="null" />
-            <option
-              v-for="s in Sensors"
-              :key="s.id"
-              :value="s.id"
-            >
+            <option v-for=" s in Sensors " :key="s.id" :value="s.id">
               {{ s.kind }}
             </option>
           </select>
-          <input
-            class="last-main-value"
-            type="text"
-            :value="lastMainValue"
-            readonly
-          >
+          <input class="last-main-value" type="text" :value="lastMainValue" readonly>
         </div>
         <div class="interval-selector">
-          <select
-            v-model="interval"
-            :disabled="!connected"
-          >
-            <option
-              v-for="ms in intervals"
-              :key="ms"
-              :value="ms"
-            >
-              {{ ms < 60000 ? ms / 1000 + '秒' : ms / 60000 + '分' }}
-            </option>
+          <select v-model="interval" :disabled="!connected">
+            <option v-for=" ms in intervals " :key="ms" :value="ms">
+              {{ ms < 60000 ? ms / 1000 + '秒' : ms / 60000 + '分' }} </option>
           </select>
-          <ProgressTimer
-            ref="progressTimer"
-            class="progress-timer"
-            :duration="milliSeconds"
-            :paused="!inProgress"
-            :start-time="renderTimerStartTime"
-          />
+          <ProgressTimer ref="progressTimer" class="progress-timer" :duration="milliSeconds" :paused="!inProgress"
+            :start-time="renderTimerStartTime" />
         </div>
         <div class="sensor-right">
-          <input
-            class="last-sub-value"
-            type="text"
-            :value="lastSubValue"
-            readonly
-          >
-          <select
-            v-model="graphKindSub"
-            :disabled="!connected"
-          >
+          <input class="last-sub-value" type="text" :value="lastSubValue" readonly>
+          <select v-model="graphKindSub" :disabled="!connected">
             <option :value="null" />
-            <option
-              v-for="s in Sensors"
-              :key="s.id"
-              :value="s.id"
-            >
+            <option v-for=" s in Sensors " :key="s.id" :value="s.id">
               {{ s.kind }}
             </option>
           </select>
         </div>
       </div>
 
-      <Graph
-        ref="renderGraphRelative"
-        style="background-color: #EEEEEE; padding: 8px;"
-        :source="source"
-        :source-type="{
-          main: source.main.length,
-          sub: source.sub.length
-        }"
-      />
+      <Graph ref="renderGraphRelative" style="background-color: #EEEEEE; padding: 8px;" :source="source" :source-type="{
+                main: source.main.length,
+                sub: source.sub.length
+              }
+                " />
     </section>
-    <div class="btn-bar">
-      <div class="control-btn">
-        <a
-          v-if="shouldPause"
-          id="play-btn"
-          :class="connected ? '' : 'disable'"
-          @click="reverseShouldPause"
-        >
-          <img
-            src="../../../../public/img/icon-play.svg"
-            alt="取得開始"
-          >
-        </a>
-        <a
-          v-else
-          id="pause-btn"
-          :class="connected ? '' : 'disable'"
-          @click="reverseShouldPause"
-        >
-          <img
-            src="../../../../public/img/icon-pause.svg"
-            alt="取得停止"
-          >
-        </a>
-      </div>
-      <ul class="right-btn-list">
-        <li>
-          <a
-            id="delete-btn"
-            :class="existValue ? '' : 'disable'"
-            @click="deleteModalOpen('reset')"
-          >
-            <img
-              src="../../../../public/img/icon-reset.svg"
-              alt="リセット"
-            >
-          </a>
-        </li>
-        <li>
-          <a
-            id="dl-csv"
-            :class="existValue ? '' : 'disable'"
-            @click="DLModalOpen"
-          >
-            <img
-              src="../../../../public/img/icon-download.svg"
-              alt="ダウンロード"
-            >
-          </a>
-        </li>
-      </ul>
-    </div>
     <modal name="delete-confirm">
       <div class="modal-header">
         <h2>確認</h2>
       </div>
       <div class="modal-body">
         <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
-        <a
-          id="delete-btn"
-          class="btn-square-little-rich"
-          @click="deleteModalOK"
-        >
-          <img
-            src="../../../../public/img/icon-exe.svg"
-            alt="実行"
-            class="btn-icon"
-          >
+        <a id="delete-btn" class="btn-square-little-rich" @click="deleteModalOK">
+          <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
           <span class="btn-text">実行</span>
         </a>
-        <a
-          id="delete-btn"
-          class="btn-square-little-rich cancel"
-          @click="deleteModalNG"
-        >
-          <img
-            src="../../../../public/img/icon-cancel.svg"
-            alt="キャンセル"
-            class="btn-icon"
-          >
+        <a id="delete-btn" class="btn-square-little-rich cancel" @click="deleteModalNG">
+          <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
           <span class="btn-text">キャンセル</span>
         </a>
       </div>
@@ -166,55 +102,25 @@
         <h2>ダウンロード</h2>
       </div>
       <div>
-        <div
-          v-if="source.main.length || source.sub.length"
-          class="modal-body"
-        >
-          <button
-            class="btn-square-little-rich"
-            @click="exportData(true, false)"
-          >
-            <img
-              src="../../../../public/img/icon-csv.svg"
-              alt="csvファイル"
-              class="btn-icon"
-            >
+        <div v-if="source.main.length || source.sub.length" class="modal-body">
+          <button class="btn-square-little-rich" @click="exportData(true, false)">
+            <img src="../../../../public/img/icon-csv.svg" alt="csvファイル" class="btn-icon">
             <span class="btn-text">csv形式(UTF-8)</span>
           </button>
-          <button
-            class="btn-square-little-rich"
-            @click="exportData(true, true)"
-          >
-            <img
-              src="../../../../public/img/icon-csv.svg"
-              alt="csvファイル"
-              class="btn-icon"
-            >
+          <button class="btn-square-little-rich" @click="exportData(true, true)">
+            <img src="../../../../public/img/icon-csv.svg" alt="csvファイル" class="btn-icon">
             <span class="btn-text">csv形式(SJIS)</span>
           </button>
-          <button
-            class="btn-square-little-rich"
-            @click="exportData(false, false)"
-          >
-            <img
-              src="../../../../public/img/icon-xlsx.svg"
-              alt="xlsxファイル"
-              class="btn-icon"
-            >
+          <button class="btn-square-little-rich" @click="exportData(false, false)">
+            <img src="../../../../public/img/icon-xlsx.svg" alt="xlsxファイル" class="btn-icon">
             <span class="btn-text">xlsx形式</span>
           </button>
         </div>
-        <div
-          v-else
-          class="modal-body"
-        >
+        <div v-else class="modal-body">
           <span class="btn-text">データが存在しません</span>
         </div>
         <div class="modal-body">
-          <button
-            class="modal-close-btn"
-            @click="DLModalClose"
-          >
+          <button class="modal-close-btn" @click="DLModalClose">
             <i class="far fa-times-circle fa-lg" />閉じる
           </button>
         </div>
@@ -240,6 +146,9 @@ export default {
   },
   data() {
     return {
+      shareEnabled: false,
+      shareKey: '',
+      shareMyName: '',
       interval: 1000,
       shouldReDo: {
         main: true,
@@ -275,6 +184,17 @@ export default {
       renderTimerStartTime: 'firmata/renderTimerStartTime',
       milliSeconds: 'firmata/milliSeconds',
     }),
+    shareUrl: {
+      get() {
+        return `/share/?key=${encodeURIComponent(this.shareKey)}`
+      },
+    },
+    canOpenShareboard: {
+      get() { return this.shareKey !== '' }
+    },
+    canStartShare: {
+      get() { return this.shareKey !== '' && this.shareMyName !== '' }
+    },
     graphKind: {
       get() {
         return this.$store.state.firmata.axisInfo.main.kind
@@ -451,11 +371,11 @@ export default {
       const uint8Array = isCsv
         ? isSJIS
           ? new Uint8Array(
-              encoding.convert(await workbook.csv.writeBuffer(), {
-                from: 'UTF8',
-                to: 'SJIS',
-              }),
-            )
+            encoding.convert(await workbook.csv.writeBuffer(), {
+              from: 'UTF8',
+              to: 'SJIS',
+            }),
+          )
           : await workbook.csv.writeBuffer()
         : await workbook.xlsx.writeBuffer()
 
@@ -518,6 +438,44 @@ export default {
     DLModalClose() {
       this.$modal.hide('download')
     },
+
+    print() {
+      window.print()
+    },
+    saveChartImage() {
+      // 画像Blob作成
+      const canvas = document.body.querySelector('canvas')
+      const dataUrl = canvas.toDataURL('image/webp', 0.01)
+      const b64 = dataUrl.split(/,/, 2)[1]
+      const u8 = new Uint8Array([].map.call(atob(b64), c => c.charCodeAt(0)))
+      console.log({ dataUrl, b64, u8 })
+      const blob = new Blob([u8], { type: 'application/octet-binary' })
+      // 日時文字列作成
+      const now = new Date()
+      const tz = `${now.getTimezoneOffset() < 0 ? '+' : '-'}${new Date(Math.abs(now.getTimezoneOffset())).toTimeString().substr(0, 5)}`
+      const o = { year: 'numeric' }; o.month = o.day = o.hour = o.minute = o.second = '2-digit'
+      const dt = now.toLocaleString('ja', o).replace(/ /, 'T').replace(/[/:-]/g, '') + tz.replace(/:/, '')
+      // ダウンロードさせる
+      const link = document.createElement('a')
+      link.href = (window.URL || window.webkitURL).createObjectURL(blob)
+      link.download = `AkadakoGraph-${dt}.webp`
+      link.click()
+      link.remove()
+    },
+    openShareboard(e) {
+      if (!this.canOpenShareboard) {
+        e.preventDefault()
+      }
+    },
+    toggleShare() {
+      if (this.shareEnabled) {
+        this.shareEnabled = false
+      } else {
+        if (this.canShare) {
+          this.shareEnabled = true
+        }
+      }
+    },
   },
 }
 </script>
@@ -552,6 +510,7 @@ select {
   width: 100%;
 }
 
+.left-btn-list,
 .right-btn-list {
   position: absolute;
   right: 0;
@@ -562,27 +521,36 @@ select {
   padding: 5px 0;
 }
 
+.left-btn-list {
+  left: 0;
+  right: auto;
+}
+
 .right-btn-list li {
   width: 65px;
   border-right: 2px solid #ccc;
 }
 
+.left-btn-list li:last-of-type,
 .right-btn-list li:last-of-type {
   border-right: none;
 }
 
+.left-btn-list li a,
 .right-btn-list li a {
   display: block;
   padding: 8px;
   height: 100%;
 }
 
+.left-btn-list a.disable,
 .right-btn-list a.disable {
   pointer-events: none;
   opacity: .3;
   filter: grayscale(100%);
 }
 
+.left-btn-list li a img,
 .right-btn-list li a img {
   display: block;
   width: 26px;
@@ -735,6 +703,7 @@ select {
 .sensor-select-wrap .sensor-left input {
   color: #333;
 }
+
 .sensor-select-wrap .sensor-right select,
 .sensor-select-wrap .sensor-right input {
   color: #060;
