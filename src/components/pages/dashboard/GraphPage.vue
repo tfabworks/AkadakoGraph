@@ -2,25 +2,25 @@
   <div class="content-area">
     <div>
       <div class="btn-bar">
-        <details>
-          <summary>[共有]</summary>
-          <ul class="left-btn-list">
-            <li>
-              合言葉<input v-model="shareKey">
-            </li>
-            <li>
-              班名<input v-model="shareMyName">
-            </li>
-            <li>
-              <a :href="shareUrl" target="shareboard" :class="canOpenShareboard ? '' : 'disable'"
-                @click="openShareboard">[共有ボードを開く]</a>
-            </li>
-            <li>
-              <a v-if="!shareEnabled" :class="canStartShare ? '' : 'disable'" @click="toggleShare">[共有開始]</a>
-              <a v-if="shareEnabled" @click="toggleShare">[共有停止]</a>
-            </li>
-          </ul>
-        </details>
+        <ul class="left-btn-list">
+          <li>
+            <a @click="toggleShareOptions">[共有]</a>
+          </li>
+          <li v-if="showShareOptions">
+            合言葉<input v-model="shareKey">
+          </li>
+          <li v-if="showShareOptions">
+            班名<input v-model="shareMyName">
+          </li>
+          <li v-if="showShareOptions">
+            <a :href="shareUrl" target="shareboard" :class="canOpenShareboard ? '' : 'disable'"
+              @click="openShareboard">[共有ボードを開く]</a>
+          </li>
+          <li v-if="showShareOptions">
+            <a v-if="!shareEnabled" :class="canStartShare ? '' : 'disable'" @click="toggleShare">[共有開始]</a>
+            <a v-if="shareEnabled" @click="toggleShare">[共有停止]</a>
+          </li>
+        </ul>
         <div class=" control-btn">
           <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
             <img src="../../../../public/img/icon-play.svg" alt="取得開始">
@@ -76,10 +76,10 @@
       </div>
 
       <Graph ref="renderGraphRelative" style="background-color: #EEEEEE; padding: 8px;" :source="source" :source-type="{
-                main: source.main.length,
-                sub: source.sub.length
-              }
-                " />
+              main: source.main.length,
+              sub: source.sub.length
+            }
+              " />
     </section>
     <modal name="delete-confirm">
       <div class="modal-header">
@@ -146,6 +146,7 @@ export default {
   },
   data() {
     return {
+      showShareOptionsUserToggled: false,
       shareEnabled: false,
       shareKey: '',
       shareMyName: '',
@@ -184,6 +185,11 @@ export default {
       renderTimerStartTime: 'firmata/renderTimerStartTime',
       milliSeconds: 'firmata/milliSeconds',
     }),
+    showShareOptions: {
+      get() {
+        return this.showShareOptionsUserToggled || this.shareKey !== '' || this.shareMyName !== ''
+      }
+    },
     shareUrl: {
       get() {
         return `/share/?key=${encodeURIComponent(this.shareKey)}`
@@ -375,11 +381,11 @@ export default {
       const uint8Array = isCsv
         ? isSJIS
           ? new Uint8Array(
-              encoding.convert(await workbook.csv.writeBuffer(), {
-                from: 'UTF8',
-                to: 'SJIS',
-              }),
-            )
+            encoding.convert(await workbook.csv.writeBuffer(), {
+              from: 'UTF8',
+              to: 'SJIS',
+            }),
+          )
           : await workbook.csv.writeBuffer()
         : await workbook.xlsx.writeBuffer()
 
@@ -471,6 +477,9 @@ export default {
       if (!this.canOpenShareboard) {
         e.preventDefault()
       }
+    },
+    toggleShareOptions() {
+      this.showShareOptionsUserToggled = !this.showShareOptionsUserToggled
     },
     toggleShare() {
       if (this.shareEnabled) {
