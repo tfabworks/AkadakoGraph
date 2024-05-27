@@ -1,17 +1,21 @@
 <template>
   <div class="content-wrap">
     <div class="content-area">
-      {{ shareKey }}
+      <div class="sharekey">合言葉：{{ shareKey }}</div>
       <div v-for="chart in sortedCharts" :key="chart.id">
-        <div v-if="!chart.hidden">
-          {{ chart.labelLeft }}
-          {{ chart.name }}
-          {{ chart.labelRight }}
-          {{ chart.updated }}
-          <a @click="hideChart(chart.id)">[隠す]</a>
-          <div v-if="!chart.hidden">
+        <div v-if="!chart.hidden" class="content-box">
+          <div class="content-box-header">
+            <div class="chart-name">{{ chart.name }}</div>
+            <div class="label-wrap">
+              <span class="label-left">{{ chart.labelLeft }}</span>
+              <span class="label-right">{{ chart.labelRight }}</span>
+            </div>
+            <a @click="hideChart(chart.id)" class="chart-hidden-btn">[隠す]</a>
+          </div>
+          <div v-if="!chart.hidden" class="chart-img">
             <img :src="chart.imageUrl">
           </div>
+          <div class="chart-updated">{{ chart.updated }}</div>
         </div>
       </div>
       <div>
@@ -86,14 +90,93 @@ export default {
 }
 </script>
 <style scoped>
-.content-wrap {
-  display: flex;
-  justify-content: space-between;
+
+.sharekey{
+  margin-bottom:10px;
+  font-size:18px;
+  font-weight:bold;
 }
 
 .content-area {
   padding: 15px 5%;
-  width: calc(100% - 220px);
+  width: 100%;
   background: #f5f5f5;
+}
+
+.content-box{
+  text-align: center;
+  width: 100%;
+  background: #fff;
+  margin: 0 0 40px 0;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.content-box-header{
+  position:relative;
+  display:flex;
+  justify-content:space-between;
+  padding-right:60px;
+  margin-bottom:10px;
+}
+
+.chart-name{
+  width:50%;
+  margin-right:15px;
+  text-align:start;
+  font-weight:bold;
+  font-size:18px;
+}
+
+.chart-hidden-btn{
+  position:absolute;
+  right:0;
+}
+
+.label-wrap{
+  text-align:start;
+}
+
+.label-left,.label-right{
+  display:inline-block;
+  margin-bottom:5px;
+  position:relative;
+  padding-left:18px;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+.label-left{
+  margin-right:15px;
+}
+
+.label-left:before,.label-right:before{
+  display:block;
+  position:absolute;
+  width:15px;
+  height:15px;
+  content:"";
+  top:0;
+  bottom:0;
+  left:0;
+  margin:auto;
+}
+
+.label-left:before{
+  background:#333;
+}
+
+.label-right:before{
+  background:#1EAF5A;
+}
+
+.chart-img{
+  margin-bottom:10px;
+}
+
+.chart-updated{
+  text-align:right;
+  font-size:12px;
 }
 </style>

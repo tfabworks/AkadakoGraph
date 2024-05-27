@@ -1,12 +1,7 @@
 <template>
   <section>
-    <img
-      src="../../public/img/blank.png"
-      alt="akadako"
-      :class="{ active: connected, inactive: !connected, 'akadako-icon': true }"
-    >
-    <div class="group-select-box">
-      <button @click="toggleConnection">
+    <div :class="{ active: connected, inactive: !connected, 'connect-btn': true }">
+      <button @click="toggleConnection" >
         {{ connectButtonString }}
       </button>
     </div>
@@ -21,7 +16,7 @@ export default {
       connected: 'firmata/connected',
     }),
     connectButtonString: function () {
-      return this.connected ? 'AkaDakoを切断する' : 'AkaDakoを接続する'
+      return this.connected ? '接続中' : '接続する'
     },
   },
   watch: {
@@ -56,63 +51,32 @@ export default {
 }
 </script>
 <style scoped>
-.akadako-icon {
-  display: block;
-  width: 15px;
-  height: 18px;
-  margin: 0 auto 15px auto;
-  background: url("../../public/img/status-akadako.svg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+
+.connect-btn {
+  margin-top:-6px;
+}
+.connect-btn button{
+  width:120px;
+  padding:0 5px 0 60px;
+  height:26px;
+  line-height:26px;
+  text-align:start;
+  box-shadow: 0 6px #999;
+  border-radius:4px;
+  font-weight:bold;
+  background:url(/public/img/connect-inactive.svg) #efefef no-repeat left center/contain;
 }
 
-.akadako-icon.inactive {
-  filter: grayscale(1) brightness(85%);
+.connect-btn.active button{
+  background:url(/public/img/connect-active.svg) #efefef no-repeat left center/contain;
+  transform: translateY(4px);
+  box-shadow: 0 3px #999;
 }
 
-.group-select-box {
-  height: 30px;
-  margin-bottom: 40px;
-  text-align: center;
+.connect-btn button:hover{
+  opacity:.7;
 }
 
-.group-select-box select {
-  width: calc(100% - 35px);
-  padding: 0 10px;
-  height: 100%;
-  border-radius: 4px;
-  font-size: 0.9375rem;
-  cursor: pointer;
-  background: #fff;
-}
 
-.group-select-box .fa-caret-down {
-  position: absolute;
-  top: 50%;
-  right: 45px;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
 
-.group-select-box button {
-  padding: 0 10px 0 40px;
-  height: 100%;
-  cursor: pointer;
-  border-radius: 4px;
-  background: url("../../public/img/icon-webusb.png") #F3F3F3 no-repeat center left 5px;
-  text-align: center;
-}
-
-.group-select-box button:hover {
-  opacity: .8;
-}
-
-.group-select-box button .fa-plug {
-  font-size: 1rem;
-}
-
-.group-select-box button.active {
-  background: #ffeb3b;
-}
 </style>
