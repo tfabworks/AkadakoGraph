@@ -28,7 +28,7 @@ yarn lint
 <summary>bun の場合</summary>
 
 ```
-# bun自体のインストール
+# bun自体のインストール（これを実行後に一度ターミナルの開き直しが必要かもしれません）
 curl -fsSL https://bun.sh/install | bash
 
 # 依存パッケージのインストール（package.jsonが更新された場合にも再実行が必要です）
