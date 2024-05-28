@@ -1,13 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- Generator: Adobe Illustrator 26.3.1, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
 <svg version="1.1" id="レイヤー_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px"
-	 y="0px" viewBox="0 0 28 38" style="enable-background:new 0 0 28 38;" xml:space="preserve">
+	 y="0px" viewBox="0 0 30 30" style="enable-background:new 0 0 30 30;" xml:space="preserve">
 <style type="text/css">
-	.st0{fill:#28AE60;}
+	.st0{fill:#CCCCCC;}
+	.st1{fill:#424242;}
 </style>
 <g>
-	<path class="st0" d="M9.1,5.7c0.3-0.6,0.9-1,1.6-1h6.7c0.7,0,1.3,0.4,1.6,1l0.4,0.8h5.3c1,0,1.8,0.8,1.8,1.8s-0.8,1.8-1.8,1.8H3.3
-		c-1,0-1.8-0.8-1.8-1.8s0.8-1.8,1.8-1.8h5.3L9.1,5.7z"/>
-	<path class="st0" d="M23.5,30.7c-0.1,1.5-1.3,2.6-2.7,2.6H7.2c-1.4,0-2.6-1.1-2.7-2.6L3.3,11.9h21.4L23.5,30.7z"/>
+	<g>
+		<path class="st0" d="M25.66,8.16v18.45c0,1.22-1.14,2.21-2.54,2.21H6.88c-1.4,0-2.54-0.99-2.54-2.21V8.16"/>
+		<path class="st1" d="M23.12,29.59H6.88c-1.81,0-3.29-1.33-3.29-2.97V8.16H5.1v18.45c0,0.8,0.8,1.46,1.78,1.46h16.24
+			c0.98,0,1.78-0.65,1.78-1.46V8.16h1.51v18.45C26.41,28.25,24.94,29.59,23.12,29.59z"/>
+	</g>
+	<path class="st1" d="M27.43,7.13V5.99c0-0.51-0.47-0.92-1.06-0.92H22.1V4.3c0-2.14-2-3.89-4.45-3.89h-5.3
+		C9.89,0.41,7.9,2.16,7.9,4.3v0.76H3.63c-0.59,0-1.06,0.41-1.06,0.92v1.14H0.79v3.1h28.42v-3.1H27.43z M10.26,4.3
+		c0-1,0.93-1.82,2.08-1.82h5.3c1.15,0,2.08,0.82,2.08,1.82v0.76h-9.47V4.3z"/>
+	<g>
+		<rect x="8.92" y="12.3" class="st1" width="1.51" height="13.43"/>
+		<rect x="14.25" y="12.3" class="st1" width="1.51" height="13.43"/>
+		<rect x="19.57" y="12.3" class="st1" width="1.51" height="13.43"/>
+	</g>
 </g>
 </svg>

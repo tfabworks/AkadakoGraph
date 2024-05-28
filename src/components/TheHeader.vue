@@ -1,7 +1,7 @@
 <template>
   <header class="main-header">
     <h1 class="header-logo">
-      <a><img src="../../public/img/header-tfc-logo.png" alt="TFabGraph[AkaDako版]"></a>
+      <a><img src="../../public/img/header-logo.svg" alt="AkaDakoグラフ"></a>
     </h1>
     <ConnnectStatus />
   </header>
@@ -21,29 +21,21 @@ export default {
 .main-header {
   position: relative;
   width: 100%;
-  height: 50px;
+  height: 60px;
+  padding:0 5%;
   background: #333;
   display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
+  align-items:center;
 }
 
 .header-logo {
-  position: absolute;
-  top: 50%;
-  left: 5px;
-  transform: translateY(-50%);
-  width: 380px;
-}
-
-@media (max-width: 485px) {
-  .header-logo {
-    max-width: calc(100% - 210px);
-  }
+  margin-right:auto;
 }
 
 .header-logo img {
   display: block;
+  width:auto;
+  height:44px;
 }
 
 .header-info-area {

@@ -2,7 +2,7 @@
   <div class="content-area">
     <div>
       <div class="btn-bar">
-        <ul class="left-btn-list">
+        <ul>
           <li>
             <a @click="toggleShareOptions">[共有]</a>
           </li>
@@ -21,15 +21,15 @@
             <a v-if="shareEnabled" @click="toggleShare">[共有停止]</a>
           </li>
         </ul>
-        <div class=" control-btn">
-          <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
-            <img src="../../../../public/img/icon-play.svg" alt="取得開始">
-          </a>
-          <a v-else id="pause-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
-            <img src="../../../../public/img/icon-pause.svg" alt="取得停止">
-          </a>
-        </div>
-        <ul class="right-btn-list">
+        <ul class="btn-list">
+          <li>
+              <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
+                <img src="../../../../public/img/icon-play.svg" alt="取得開始">
+              </a>
+              <a v-else id="pause-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
+                <img src="../../../../public/img/icon-pause.svg" alt="取得停止">
+              </a>
+          </li>
           <li>
             <a id="delete-btn" :class="existValue ? '' : 'disable'" @click="deleteModalOpen('reset')">
               <img src="../../../../public/img/icon-reset.svg" alt="リセット">
@@ -40,8 +40,9 @@
               <img src="../../../../public/img/icon-download.svg" alt="ダウンロード">
             </a>
           </li>
-          <li><a @click="saveChartImage">[画像保存]</a></li>
-          <li><a @click="print">[印刷]</a></li>
+          <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li>
+          <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
+          <li><a href="#"><img src="../../../../public/img/icon-share.svg" alt="共有"></a></li>
         </ul>
       </div>
     </div>
@@ -504,35 +505,14 @@ select {
 }
 
 .btn-bar {
+  width:100vw;
+  height:60px;
+  margin:0 calc(50% - 50vw) 30px calc(50% - 50vw);
+  background:#fff;
   position: relative;
   display: flex;
-}
-
-.control-btn {
-  width: 64px;
-  height: 64px;
-  margin: auto;
-}
-
-.control-btn a.disable {
-  pointer-events: none;
-  opacity: .3;
-  filter: grayscale(100%);
-}
-
-.control-btn img {
-  width: 100%;
-}
-
-.left-btn-list,
-.right-btn-list {
-  position: absolute;
-  right: 0;
-  display: flex;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  background: #fff;
-  padding: 5px 0;
+  justify-content:space-between;
+  filter: drop-shadow(0 8px 5px #ccc);
 }
 
 .left-btn-list {
@@ -540,36 +520,71 @@ select {
   right: auto;
 }
 
-.right-btn-list li {
-  width: 65px;
-  border-right: 2px solid #ccc;
-}
 
 .left-btn-list li:last-of-type,
 .right-btn-list li:last-of-type {
   border-right: none;
 }
 
-.left-btn-list li a,
-.right-btn-list li a {
+.left-btn-list li a{
   display: block;
   padding: 8px;
   height: 100%;
 }
 
-.left-btn-list a.disable,
-.right-btn-list a.disable {
+.left-btn-list a.disable {
   pointer-events: none;
   opacity: .3;
   filter: grayscale(100%);
 }
 
-.left-btn-list li a img,
-.right-btn-list li a img {
+.left-btn-list li a img{
   display: block;
   width: 26px;
   margin: auto;
 }
+
+
+
+
+.control-btn img {
+  width: 100%;
+}
+
+
+.btn-list {
+  display:flex;
+  padding:10px 0;
+  margin-right:5%;
+}
+
+.btn-list li {
+  border-right: 1px dotted #ccc;
+}
+
+.btn-list li:last-of-type{
+  border-right:none;
+}
+
+.btn-list li a {
+  display: flex;
+  justify-content:center;
+  padding: 0 8px;
+  height: 100%;
+}
+
+.btn-list li a img{
+  display: block;
+  width: 30px;
+  margin: auto;
+}
+
+.btn-list a.disable{
+  pointer-events: none;
+  opacity: .3;
+  filter: grayscale(100%);
+}
+
 
 .btn-square-little-rich {
   position: relative;
@@ -703,14 +718,51 @@ select {
   margin-bottom: 15px;
 }
 
+.sensor-select-wrap .interval-selector{
+  position:relative;
+  margin:0 10px;
+}
+
+.sensor-select-wrap .interval-selector select{
+  width:75px;
+}
+
+.progress-timer {
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.timer__meter{
+  width:100%;
+}
+
 .sensor-select-wrap select {
   position: relative;
-  min-width: 100px;
   padding: 8px;
   border: 2px solid #333;
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
+}
+
+.sensor-select-wrap .sensor-left,
+.sensor-select-wrap .sensor-right{
+  display:flex;
+  align-items: flex-start;
+  flex-wrap:wrap;
+}
+
+.sensor-select-wrap .sensor-left select,
+.sensor-select-wrap .sensor-right select{
+  width:200px;
+}
+
+.sensor-select-wrap .sensor-left input,
+.sensor-select-wrap .sensor-right input{
+  width:60px;
+  margin:0 10px;
 }
 
 .sensor-select-wrap .sensor-left select,
@@ -728,22 +780,32 @@ select:disabled {
   cursor: auto;
 }
 
-.progress-timer {
-  padding: 0;
-  margin: 0;
-  position: absolute;
-  width: 100px;
-}
-
 input.last-main-value {
   border: none;
   text-align: left;
-  padding-left: 1em;
 }
 
 input.last-sub-value {
   border: none;
   text-align: right;
-  padding-right: 1em;
+}
+
+@media screen and (max-width:770px){
+  .sensor-right select{
+    order:-1;
+  }
+  .sensor-left,.sensor-right{
+    justify-content:center;
+  }
+  .sensor-select-wrap .sensor-left select,
+  .sensor-select-wrap .sensor-right select{
+    width:100%;
+    margin-bottom:5px;
+  }
+  .sensor-select-wrap .sensor-left input,
+  .sensor-select-wrap .sensor-right input{
+    width:100%;
+  }
+
 }
 </style>

@@ -5478,6 +5478,10 @@ find-up@^5.0.0:
   version "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s"
   resolved "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s"
 
+:
+  version "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s"
+  resolved "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s"
+
 flat@^5.0.2:
   version "5.0.2"
   resolved "https://registry.npmjs.org/flat/-/flat-5.0.2.tgz"
@@ -11024,6 +11028,12 @@ wcwidth@^1.0.1:
     defaults "^1.0.3"
 
 "web-serial-binding@github:jaz303/web-serial-binding":
+  version "github:jaz303/web-serial-binding#667d64a"
+  resolved "github:jaz303/web-serial-binding#667d64a"
+  dependencies:
+    "@serialport/binding-abstract" "^9.0.7"
+
+:
   version "github:jaz303/web-serial-binding#667d64a"
   resolved "github:jaz303/web-serial-binding#667d64a"
   dependencies:

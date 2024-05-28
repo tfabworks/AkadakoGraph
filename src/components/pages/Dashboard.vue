@@ -22,8 +22,8 @@ export default {
 }
 
 .content-area {
-  padding: 15px 5%;
-  width: calc(100% - 220px);
+  padding: 0 5% 15px 5%;
+  width: 100%;
   background: #f5f5f5;
 }
 </style>

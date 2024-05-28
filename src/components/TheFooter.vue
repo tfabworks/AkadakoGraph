@@ -1,36 +1,27 @@
 <template>
-  <div id="wrapper">
-    <nav class="menu-area">
-      <ul class="menu-area-btn-list">
-        <!-- <li
-          class="help-icon"
-        >
-          <a
-            href="https://tfabworks.com/news/7477/"
-            target="_blank"
-          >
-            使い方
-          </a>
-        </li> -->
-        <li class="fa-solid fa-temperature-list">
+  <footer class="main-footer">
+    <nav class="footer-menu">
+      <ul class="footer-menu-list">
+        <li>
           <a href="https://399.jp/AkaDakoGraphSupportSensor" target="_blank">
             対応センサー
           </a>
         </li>
 
-        <li class="privacy-icon">
+        <li>
           <a href="https://tfabworks.com/service_privacy/" target="_blank">
             プライバシーポリシー
           </a>
         </li>
-        <li class="brand-icon">
+        <li>
           <a href="https://akadako.com/" target="_blank">
-            AkaDako.com
+            akadako.com
           </a>
         </li>
       </ul>
     </nav>
-  </div>
+    <div class="footer-logo"><a href="https://tfabworks.com/" target="_blank"><img src="../../public/img/footer-logo.svg" alt="TFabWorks"></a></div>
+  </footer>
 </template>
 
 <script>
@@ -50,93 +41,41 @@ export default {
 }
 </script>
 <style scoped>
-#wrapper {
+.main-footer {
   background: #27ae60;
+  padding:20px;
 }
 
-.menu-area {
-  width: 220px;
-  padding: 20px 15px;
-  min-height: calc(100vh - 50px);
+.footer-menu-list{
+  display:flex;
+  justify-content:center;
+  margin-bottom:20px;
 }
 
-.menu-area-title {
-  color: #fff;
-  font-size: 1.25rem;
-  font-weight: bold;
-  margin: 0 0 15px 0;
+.footer-menu-list li{
+  height:26px;
+  line-height:26px;
+  border-right:1px solid #fff;
 }
 
-.menu-area-title:nth-of-type(2) {
-  margin: 40px 0 15px 0;
+.footer-menu-list li:last-of-type{
+  border-right:none;
 }
 
-.menu-area-title .icon-btn {
-  position: relative;
-  display: inline-block;
-  width: 25px;
-  height: 25px;
-  line-height: 25px;
-  vertical-align: middle;
-  text-align: center;
-  border-radius: 4px;
-  font-size: 0.875rem;
-  background: #f3f3f3;
-  color: #333;
+.footer-menu-list li a{
+  padding:0 15px;
+  font-size:14px;
+  font-weight:bold;
+  color:#fff;
 }
 
-.menu-area-title .icon-btn:first-of-type {
-  margin: 0 8px 0 20px;
+.footer-logo{
+  width:200px;
+  margin:auto;
 }
 
-.menu-area-btn-list>li {
-  margin: 15px 0;
-  padding-left: 25px;
-  position: relative;
+.footer-logo img{
+  width:100%;
 }
 
-.menu-area-btn-list>li:before {
-  display: block;
-  left: 0;
-  width: 25px;
-  height: 15px;
-  content: "";
-  position: absolute;
-  background-image: url("../../public/img/icon-sprite.png");
-  background-repeat: no-repeat;
-}
-
-.menu-area-btn-list>li.help-icon:before {
-  background-position: 0 -15px;
-}
-
-.menu-area-btn-list>li.opinion-icon:before {
-  background-position: 0 -30px;
-}
-
-.menu-area-btn-list>li.brand-icon:before {
-  background-position: 0 -45px;
-}
-
-.menu-area-btn-list>li.tfabconnect-icon:before {
-  background-position: 0 -60px;
-}
-
-.menu-area-btn-list>li.privacy-icon:before {
-  background-position: 0 -75px;
-}
-
-.menu-area-btn-list>li a {
-  display: block;
-  color: #fff;
-  text-decoration: none;
-}
-
-.menu-area-btn-list>li>ul {
-  margin: 5px 0 0 10px;
-}
-
-.menu-area-btn-list>li>ul>li {
-  margin-bottom: 6px;
-}
 </style>
