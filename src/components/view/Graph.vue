@@ -179,6 +179,7 @@ export default {
         },
         this.graphOptions,
       )
+      this.$store.dispatch('share/onChartRendered', { dataset: this.dataset })
     },
   },
 }
