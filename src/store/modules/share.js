@@ -193,7 +193,7 @@ const actions = {
       })
     }
 
-    const response = await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.json`, {
+    const chartRes = await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.json`, {
       method: 'PUT',
       mode: 'cors',
       headers: {
@@ -201,11 +201,12 @@ const actions = {
       },
       body: JSON.stringify(chart),
     })
-    if (response.ok) {
-      return true
-    } else {
-      return false
-    }
+      .then((r) => (r.ok ? r.json() : null))
+      .catch((e) => {
+        console.error('updateChartJson', e)
+        return null
+      })
+    return chartRes
   },
   // チャート画像をアップロードする（JSONアップロードも同時に行われる）
   async updateChartImage({ dispatch, commit, state }) {
@@ -283,11 +284,14 @@ const fetchRoom = async ({ roomID, roomName }) => {
   if (roomID != null && roomID !== '') {
     const room = await fetch(`${apiEndpoint}/${roomID}/room.json`, {
       mode: 'cors',
-    }).then((r) => r.json())
-    return room.type == 'room' ? room : null
+    })
+      .then((r) => r.json())
+      .catch((e) => {
+        console.error('fetchRoom', { roomID }, e)
+      })
+    return room != null && room.type == 'room' ? room : null
   }
   if (roomName != null && roomName !== '') {
-    console.log('hoge')
     const room = await fetch(`${apiEndpoint}/`, {
       method: 'POST',
       mode: 'cors',
@@ -298,8 +302,12 @@ const fetchRoom = async ({ roomID, roomName }) => {
         type: 'room',
         roomName,
       }),
-    }).then((r) => r.json())
-    return room.type == 'room' ? room : null
+    })
+      .then((r) => r.json())
+      .catch((e) => {
+        console.error('fetchRoom', { roomName }, e)
+      })
+    return room != null && room.type == 'room' ? room : null
   }
   return null
 }
