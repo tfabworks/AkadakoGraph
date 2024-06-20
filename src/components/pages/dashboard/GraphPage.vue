@@ -497,7 +497,6 @@ export default {
       this.$modal.hide('download')
     },
     shareModalOpen(target) {
-      const shareModalFromButton = target == null || target === ''
       if (this.shareRoomName == '' || this.shareRoomID == '') {
         target = 'roomName'
       } else {
@@ -505,16 +504,14 @@ export default {
           target = 'userName'
         }
       }
-      if (shareModalFromButton) {
-        if (target == null) {
+      this.shareModalFromButton = (target == null || target === '')
+      this.shareModalTarget = target
+      if (this.shareModalFromButton) {
+        if (target == null || target === '') {
           this.shareModalOpenTab()
-        } else {
-          console.warn('shareModalOpen', { shareModalFromButton, target })
         }
         return
       }
-      this.shareModalFromButton = shareModalFromButton
-      this.shareModalTarget = target
       this.shareRoomNameInputValue = this.shareRoomName
       this.shareUserNameInputValue = this.shareUserName
       this.$modal.show(`share-modal-${this.shareModalTarget}`)
