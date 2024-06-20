@@ -201,7 +201,7 @@ export default {
         ...[1, 3, 5, 10].map((s) => 60 * s), // minutes
       ].map((s) => s * 1000),
       // shareModalの表示モード切り替えよう
-      shareModalMode: '',
+      shareModalTarget: '',
       // 入力中の値、POST /api/share が失敗したらクリアされる
       shareRoomNameInputValue: '',
       // 入力中の値、PUT chart.json に失敗したら空になる
@@ -496,35 +496,41 @@ export default {
     DLModalClose() {
       this.$modal.hide('download')
     },
-    shareModalOpen(mode) {
+    shareModalOpen(target) {
+      const shareModalFromButton = target == null || target === ''
       if (this.shareRoomName == '' || this.shareRoomID == '') {
-        mode = 'roomName'
+        target = 'roomName'
       } else {
         if (this.shareUserName == '' || this.shareUserID == '') {
-          mode = 'userName'
+          target = 'userName'
         }
       }
-      console.log({ mode })
-      if (mode == null || mode == '') {
-        this.shareModalOpenTab()
+      if (shareModalFromButton) {
+        if (target == null) {
+          this.shareModalOpenTab()
+        } else {
+          console.warn('shareModalOpen', { shareModalFromButton, target })
+        }
         return
       }
-      this.shareModalMode = mode
+      this.shareModalFromButton = shareModalFromButton
+      this.shareModalTarget = target
       this.shareRoomNameInputValue = this.shareRoomName
       this.shareUserNameInputValue = this.shareUserName
-      this.$modal.show(`share-modal-${this.shareModalMode}`)
+      this.$modal.show(`share-modal-${this.shareModalTarget}`)
     },
     async shareModalSaveRoomName(e) {
       if (e && typeof e.preventDefault !== 'undefined') {
         e.preventDefault()
       }
-      console.log({ roomName: this.shareRoomNameInputValue })
       const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
       if (room != null) {
         this.shareModalClose()
-        // ユーザー名が空なら更に入力ダイアログを開く
-        if (this.shareUserName == '' || this.shareUserID == '') {
-          this.shareModalOpen('userName')
+        // 共有ボタンからスタートしている場合、ユーザー名が空なら更に入力ダイアログを開く
+        if (this.shareModalFromButton) {
+          if (this.shareUserName == '' || this.shareUserID == '') {
+            this.shareModalOpen('userName')
+          }
         }
       } else {
         // ルームの取得に失敗した場合はエラーを表示する
@@ -533,7 +539,6 @@ export default {
       }
     },
     async shareModalSaveUserName(e) {
-      console.log('shareModalSaveUserName', { e })
       if (e && typeof e.preventDefault !== 'undefined') {
         e.preventDefault()
       }
@@ -542,7 +547,9 @@ export default {
         console.error('shareModalSaveUserName NG', { result })
       }
       this.shareModalClose()
-      this.shareModalOpenTab()
+      if (this.shareModalFromButton) {
+        this.shareModalOpenTab()
+      }
     },
     async shareModalCopyLink() {
       await navigator.clipboard.writeText(this.shareUrl)
@@ -551,8 +558,7 @@ export default {
       window.open(this.shareUrl, `akadako_share_viewer_${this.shareRoomID}`)
     },
     shareModalClose() {
-      console.log('shareModalClose', this.$modal)
-      this.$modal.hide(`share-modal-${this.shareModalMode}`)
+      this.$modal.hide(`share-modal-${this.shareModalTarget}`)
     },
     print() {
       window.print()

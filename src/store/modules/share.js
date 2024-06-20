@@ -4,6 +4,7 @@ import { SensorMap, Sensors } from '../../lib/constants'
 
 // チャートの共有ステータス管理
 const state = {
+  roomSnapshot: {}, // 全部入り room オブジェクト
   roomID: '',
   roomName: '',
   userID: '',
@@ -15,13 +16,24 @@ const state = {
   chartTimeStart: 0,
   chartTimeEnd: 0,
   chartData: {},
-  //UI関連
+  //UI関連(計測画面)
   roomNameTmp: '',
   updateChartImageLatest: 0,
   updateChartImageIntervalMin: 5000,
+  //UI関連(グラフ一覧)
+  hideChartIDs: {},
+  reloadTrigger: 0,
+  reloadInterval: 10000,
+  reloadIntervalID: 0,
+  reloadIntervalHint: {
+    force: true,
+    visible: true,
+    online: true,
+  },
 }
 
 const getters = {
+  roomSnapshot: (state) => state.roomSnapshot, // 全部入り room オブジェクト
   roomID: (state) => state.roomID,
   roomName: (state) => state.roomName,
   userID: (state) => state.userID,
@@ -32,13 +44,21 @@ const getters = {
   chartTimeEnd: (state) => state.chartTimeEnd,
   chartImageUrl: (state) => (state.roomID !== '' ? `${apiEndpoint}/${state.roomID}/${state.chartID}/chart.webp` : ''),
   chartJsonUrl: (state) => (state.roomID !== '' ? `${apiEndpoint}/${state.roomID}/${state.chartID}/chart.json` : ''),
-  shareUrl: (state) => (state.roomID !== '' ? `${window.location.origin}/share?shareID=${state.roomID}` : ''),
+  shareUrl: (state) => (state.roomID !== '' ? `${window.location.origin}/share?roomID=${state.roomID}` : ''),
+  hideChartIDs: (state) => state.hideChartIDs,
+  reloadTrigger: (state) => state.reloadTrigger,
+  reloadInterval: (state) => state.reloadInterval,
+  reloadIntervalID: (state) => state.reloadIntervalID,
+  reloadIntervalHint: (state) => state.reloadIntervalHint,
 }
 
 const STORAGE_PREFIX = 'akadako_share_'
 const apiEndpoint = /(localhost|127.0.0.1|::|:\d+)/.test(window.location.origin) ? 'https://test-graph.akadako.com/api/share' : '/api/share'
 
 const mutations = {
+  setRoomSnapshot(state, roomSnapshot) {
+    state.roomSnapshot = roomSnapshot
+  },
   setRoomID(state, roomID) {
     state.roomID = roomID
     // roomID をURLに反映。本当は action で行った方が良い
@@ -90,6 +110,22 @@ const mutations = {
   setUpdateChartImageIntervalMin(state, updateChartImageIntervalMin) {
     state.updateChartImageIntervalMin = updateChartImageIntervalMin
   },
+  setHideChartIDs(state, hideChartIDs) {
+    state.hideChartIDs = hideChartIDs
+    console.log('setHideChartIDs', hideChartIDs, state.hideChartIDs)
+  },
+  setReloadTrigger(state, reloadTrigger) {
+    state.reloadTrigger = reloadTrigger
+  },
+  setReloadInterval(state, reloadInterval) {
+    state.reloadInterval = reloadInterval
+  },
+  setReloadIntervalID(state, reloadIntervalID) {
+    state.reloadIntervalID = reloadIntervalID
+  },
+  setReloadIntervalHint(state, reloadIntervalHint) {
+    state.reloadIntervalHint = Object.assign(state.reloadIntervalHint, reloadIntervalHint)
+  },
 }
 
 const actions = {
@@ -98,6 +134,7 @@ const actions = {
     const urlParams = new URLSearchParams(location.search)
     if (/^[\w_-]+/.test(urlParams.get('roomID'))) {
       const room = await fetchRoom({ roomID: urlParams.get('roomID') })
+      console.log(room, urlParams.get('roomID'), urlParams.roomID)
       if (room != null && room.type == 'room') {
         commit('setRoomID', room.roomID)
         commit('setRoomName', room.roomName)
@@ -171,8 +208,8 @@ const actions = {
     } else {
       const axisInfo = rootGetters['firmata/axisInfo']
       const sensorToJson = (sensorId) => {
-        const { id = 0, name = '', unit = '' } = SensorMap.get(sensorId) ?? {}
-        return { id, name, unit }
+        const { id = 0, name = '', unit = '', kind = '' } = SensorMap.get(sensorId) ?? {}
+        return { id, name, unit, kind }
       }
       const chartSensorMain = sensorToJson(axisInfo.main.kind)
       const chartSensorSub = sensorToJson(axisInfo.sub.kind)
@@ -193,7 +230,7 @@ const actions = {
       })
     }
 
-    const response = await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.json`, {
+    const chartRes = await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.json`, {
       method: 'PUT',
       mode: 'cors',
       headers: {
@@ -201,11 +238,12 @@ const actions = {
       },
       body: JSON.stringify(chart),
     })
-    if (response.ok) {
-      return true
-    } else {
-      return false
-    }
+      .then((r) => (r.ok ? r.json() : null))
+      .catch((e) => {
+        console.error('updateChartJson', e)
+        return null
+      })
+    return chartRes
   },
   // チャート画像をアップロードする（JSONアップロードも同時に行われる）
   async updateChartImage({ dispatch, commit, state }) {
@@ -269,25 +307,53 @@ const actions = {
     }
     return true
   },
-  async getRoom({ commit }, { roomID, roomName }) {
-    const room = await fetchRoom({ roomID, roomName })
+  async getRoom({ commit }, { roomID, roomName, all = false }) {
+    const room = await fetchRoom({ roomID, roomName, all })
     if (room != null) {
       commit('setRoomID', room.roomID)
       commit('setRoomName', room.roomName)
+      if (all) {
+        commit('setRoomSnapshot', room)
+      }
     }
     return room
   },
+  async reloadRoomSnapshot({ commit, dispatch, state }) {
+    if (state.reloadIntervalID > 0) {
+      clearTimeout(state.reloadIntervalID)
+    }
+    dispatch('getRoom', { roomID: state.roomID, all: true })
+    state.reloadIntervalID = setTimeout(() => {
+      commit('setReloadTrigger', state.reloadTrigger + 1)
+      dispatch('reloadRoomSnapshot')
+    }, state.reloadInterval)
+  },
+  hideChart({ commit, state }, chartID) {
+    commit('setHideChartIDs', Object.assign(state.hideChartIDs, { [chartID]: true }))
+  },
+  showChart({ commit, state }, chartID) {
+    commit('setHideChartIDs', Object.assign(state.hideChartIDs, { [chartID]: false }))
+  },
+  hideAllChart({ commit, state }) {
+    Object.keys(state.roomSnapshot).forEach((chartID) => commit('hideChart', chartID))
+  },
+  showAllChart(state) {
+    state.hideChartIDs = {}
+  },
 }
 
-const fetchRoom = async ({ roomID, roomName }) => {
+const fetchRoom = async ({ roomID, roomName, all = false }) => {
   if (roomID != null && roomID !== '') {
-    const room = await fetch(`${apiEndpoint}/${roomID}/room.json`, {
+    const room = await fetch(`${apiEndpoint}/${roomID}/${all ? '' : 'room.json'}`, {
       mode: 'cors',
-    }).then((r) => r.json())
-    return room.type == 'room' ? room : null
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .catch((e) => {
+        console.error('fetchRoom', { roomID }, e)
+      })
+    return room != null && room.type == 'room' ? room : null
   }
   if (roomName != null && roomName !== '') {
-    console.log('hoge')
     const room = await fetch(`${apiEndpoint}/`, {
       method: 'POST',
       mode: 'cors',
@@ -298,8 +364,12 @@ const fetchRoom = async ({ roomID, roomName }) => {
         type: 'room',
         roomName,
       }),
-    }).then((r) => r.json())
-    return room.type == 'room' ? room : null
+    })
+      .then((r) => r.json())
+      .catch((e) => {
+        console.error('fetchRoom', { roomName }, e)
+      })
+    return room != null && room.type == 'room' ? room : null
   }
   return null
 }
