@@ -6,7 +6,7 @@
           <li v-if="shareRoomID">
             <span>合言葉</span><button @click="shareModalOpen('roomName')">{{ shareRoomName }}</button>
           </li>
-          <li v-if="shareUserName">
+          <li v-if="shareRoomID && shareUserName">
             <span>班名</span><button @click="shareModalOpen('userName')">{{ shareUserName }}</button>
           </li>
         </ul>
@@ -497,7 +497,6 @@ export default {
       this.$modal.hide('download')
     },
     shareModalOpen(target) {
-      const shareModalFromButton = target == null || target === ''
       if (this.shareRoomName == '' || this.shareRoomID == '') {
         target = 'roomName'
       } else {
@@ -505,16 +504,14 @@ export default {
           target = 'userName'
         }
       }
-      if (shareModalFromButton) {
-        if (target == null) {
+      this.shareModalFromButton = (target == null || target === '')
+      this.shareModalTarget = target
+      if (this.shareModalFromButton) {
+        if (target == null || target === '') {
           this.shareModalOpenTab()
-        } else {
-          console.warn('shareModalOpen', { shareModalFromButton, target })
         }
         return
       }
-      this.shareModalFromButton = shareModalFromButton
-      this.shareModalTarget = target
       this.shareRoomNameInputValue = this.shareRoomName
       this.shareUserNameInputValue = this.shareUserName
       this.$modal.show(`share-modal-${this.shareModalTarget}`)
@@ -618,7 +615,7 @@ select {
   width: 100vw;
   height: 60px;
   margin: 0 calc(50% - 50vw) 30px calc(50% - 50vw);
-  padding:0 5%;
+  padding: 0 5%;
   background: #fff;
   position: relative;
   display: flex;
@@ -660,50 +657,50 @@ select {
 }
 
 
-.share-info-list{
-  display:flex;
-  align-items:center;
-  width:calc(100% - 290px);
+.share-info-list {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 290px);
 }
 
-.share-info-list li{
-  display:flex;
-  align-items:center;
+.share-info-list li {
+  display: flex;
+  align-items: center;
 }
 
-.share-info-list li:first-of-type{
-  margin-right:20px;
-  max-width:calc(60% - 20px);
+.share-info-list li:first-of-type {
+  margin-right: 20px;
+  max-width: calc(60% - 20px);
 }
 
-.share-info-list li:last-of-type{
-  max-width:40%;
+.share-info-list li:last-of-type {
+  max-width: 40%;
 }
 
-.share-info-list li span{
-  padding:5px 10px;
-  display:inline-block;
-  color:#fff;
-  font-size:15px;
-  font-weight:bold;
-  background:#2FAD65;
-  border-radius:5px;
-  white-space:nowrap;
+.share-info-list li span {
+  padding: 5px 10px;
+  display: inline-block;
+  color: #fff;
+  font-size: 15px;
+  font-weight: bold;
+  background: #2FAD65;
+  border-radius: 5px;
+  white-space: nowrap;
 }
 
-.share-info-list li button{
-  padding-right:20px;
-  font-size:16px;
-  font-weight:bold;
+.share-info-list li button {
+  padding-right: 20px;
+  font-size: 16px;
+  font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  background:url(../../../../public/img/icon-edit.svg) no-repeat right center/16px;
+  background: url(../../../../public/img/icon-edit.svg) no-repeat right center/16px;
 }
 
-.share-info-list li button:hover{
-  cursor:pointer;
-  opacity:.7;
+.share-info-list li button:hover {
+  cursor: pointer;
+  opacity: .7;
 }
 
 .btn-list {
@@ -738,27 +735,27 @@ select {
   filter: grayscale(100%);
 }
 
-.modal-form{
-  width:100%;
-  text-align:center;
+.modal-form {
+  width: 100%;
+  text-align: center;
 }
 
-.modal-form label{
-  font-size:16px;
+.modal-form label {
+  font-size: 16px;
 }
 
-.modal-form input{
-  margin-top:10px;
-  width:80%;
-  height:50px;
-  padding:0 15px;
-  border-radius:8px;
-  border:2px solid #ccc;
-  font-size:16px;
+.modal-form input {
+  margin-top: 10px;
+  width: 80%;
+  height: 50px;
+  padding: 0 15px;
+  border-radius: 8px;
+  border: 2px solid #ccc;
+  font-size: 16px;
 }
 
-.btn-square-wrap{
-  display:flex;
+.btn-square-wrap {
+  display: flex;
 }
 
 .btn-square-little-rich {
