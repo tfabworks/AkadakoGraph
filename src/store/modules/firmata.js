@@ -78,6 +78,12 @@ const getters = {
   renderTimerStartTime() {
     return state.renderTimerStartTime
   },
+  shouldPause() {
+    return state.shouldPause
+  },
+  axisInfo() {
+    return state.axisInfo
+  },
 }
 
 const mutations = {
@@ -89,7 +95,7 @@ const mutations = {
     if (typeof targetGraphValue.length !== 'undefined' && targetGraphValue.length) {
       const lastTime = targetGraphValue[targetGraphValue.length - 1].x
       if (newTime < lastTime) {
-        console.log('addValue: reject old value')
+        console.log('firmate/addValue: reject old value')
         return
       }
     }
@@ -104,7 +110,7 @@ const mutations = {
         }
       }
       const correctedValueY = newValue.y * state.axisInfo.main.correctionRate
-      console.log({
+      console.debug('firmate/addValue: main', {
         target: 'main',
         dataCountSinceStart: state.axisInfo.main.dataCountSinceStart,
         newValueY,
@@ -127,7 +133,7 @@ const mutations = {
       }
       const correctedValueY = newValue.y * state.axisInfo.sub.correctionRate
       if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
-        console.log({
+        console.log('firmate/addValue: sub', {
           target: 'sub',
           dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
           newValueY,

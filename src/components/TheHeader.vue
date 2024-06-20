@@ -3,7 +3,7 @@
     <h1 class="header-logo">
       <a><img src="../../public/img/header-logo.svg" alt="AkaDakoグラフ"></a>
     </h1>
-    <ConnnectStatus />
+    <ConnnectStatus v-if="showConnectStatusOnHeader" />
   </header>
 </template>
 
@@ -11,6 +11,11 @@
 import ConnnectStatus from './TheHeaderConnectStatus'
 
 export default {
+  computed: {
+    showConnectStatusOnHeader() {
+      return this.$store.state.showConnectStatusOnHeader
+    },
+  },
   components: {
     ConnnectStatus,
   },
@@ -22,20 +27,20 @@ export default {
   position: relative;
   width: 100%;
   height: 60px;
-  padding:0 5%;
+  padding: 0 5%;
   background: #333;
   display: flex;
-  align-items:center;
+  align-items: center;
 }
 
 .header-logo {
-  margin-right:auto;
+  margin-right: auto;
 }
 
 .header-logo img {
   display: block;
-  width:auto;
-  height:44px;
+  width: auto;
+  height: 44px;
 }
 
 .header-info-area {

@@ -2,33 +2,22 @@
   <div class="content-area">
     <div>
       <div class="btn-bar">
-        <ul>
-          <li>
-            <a @click="toggleShareOptions">[共有]</a>
+        <ul class="btn-list">
+          <li v-if="shareRoomID">
+            合言葉: <button @click="shareModalOpen('roomName')">{{ shareRoomName }}</button>
           </li>
-          <li v-if="showShareOptions">
-            合言葉<input v-model="shareKey">
-          </li>
-          <li v-if="showShareOptions">
-            班名<input v-model="shareMyName">
-          </li>
-          <li v-if="showShareOptions">
-            <a :href="shareUrl" target="shareboard" :class="canOpenShareboard ? '' : 'disable'"
-              @click="openShareboard">[共有ボードを開く]</a>
-          </li>
-          <li v-if="showShareOptions">
-            <a v-if="!shareEnabled" :class="canStartShare ? '' : 'disable'" @click="toggleShare">[共有開始]</a>
-            <a v-if="shareEnabled" @click="toggleShare">[共有停止]</a>
+          <li v-if="shareUserName">
+            班名: <button @click="shareModalOpen('userName')">{{ shareUserName }}</button>
           </li>
         </ul>
         <ul class="btn-list">
           <li>
-              <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
-                <img src="../../../../public/img/icon-play.svg" alt="取得開始">
-              </a>
-              <a v-else id="pause-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
-                <img src="../../../../public/img/icon-pause.svg" alt="取得停止">
-              </a>
+            <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
+              <img src="../../../../public/img/icon-play.svg" alt="取得開始">
+            </a>
+            <a v-else id="pause-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
+              <img src="../../../../public/img/icon-pause.svg" alt="取得停止">
+            </a>
           </li>
           <li>
             <a id="delete-btn" :class="existValue ? '' : 'disable'" @click="deleteModalOpen('reset')">
@@ -42,7 +31,7 @@
           </li>
           <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li>
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
-          <li><a href="#"><img src="../../../../public/img/icon-share.svg" alt="共有"></a></li>
+          <li><a @click="shareModalOpen()"><img src="../../../../public/img/icon-share.svg" alt="共有"></a></li>
         </ul>
       </div>
     </div>
@@ -77,10 +66,10 @@
       </div>
 
       <Graph ref="renderGraphRelative" style="background-color: #EEEEEE; padding: 8px;" :source="source" :source-type="{
-              main: source.main.length,
-              sub: source.sub.length
-            }
-              " />
+        main: source.main.length,
+        sub: source.sub.length
+      }
+        " />
     </section>
     <modal name="delete-confirm">
       <div class="modal-header">
@@ -96,6 +85,50 @@
           <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
           <span class="btn-text">キャンセル</span>
         </a>
+      </div>
+    </modal>
+    <modal name="share-modal-roomName">
+      <div class="modal-header">
+        <h2>共有</h2>
+      </div>
+      <div class="modal-body">
+        <div>
+          <form @submit.prevent="shareModalSaveRoomName">
+            <label for="shareRoomNameInput">合言葉を入力してください<br />
+              <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue">
+            </label>
+          </form>
+          <a id="delete-btn" class="btn-square-little-rich" @click="shareModalSaveRoomName">
+            <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
+            <span class="btn-text">保存</span>
+          </a>
+          <a id="delete-btn" class="btn-square-little-rich cancel" @click="shareModalClose">
+            <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
+            <span class="btn-text">閉じる</span>
+          </a>
+        </div>
+      </div>
+    </modal>
+    <modal name="share-modal-userName">
+      <div class="modal-header">
+        <h2>共有</h2>
+      </div>
+      <div class="modal-body">
+        <div>
+          <form @submit.prevent="shareModalSaveUserName">
+            <label for="shareUserNameInput">班名を入力してください（省略可能）<br />
+              <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue">
+            </label>
+          </form>
+          <a id="delete-btn" class="btn-square-little-rich" @click="shareModalSaveUserName">
+            <img src="../../../../public/img/icon-exe.svg" alt="保存" class="btn-icon">
+            <span class="btn-text">保存</span>
+          </a>
+          <a id="delete-btn" class="btn-square-little-rich cancel" @click="shareModalClose">
+            <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
+            <span class="btn-text">閉じる</span>
+          </a>
+        </div>
       </div>
     </modal>
     <modal name="download">
@@ -147,10 +180,6 @@ export default {
   },
   data() {
     return {
-      showShareOptionsUserToggled: false,
-      shareEnabled: false,
-      shareKey: '',
-      shareMyName: '',
       interval: 1000,
       shouldReDo: {
         main: true,
@@ -171,6 +200,13 @@ export default {
         ...[1, 3, 5, 10, 30], // seconds
         ...[1, 3, 5, 10].map((s) => 60 * s), // minutes
       ].map((s) => s * 1000),
+      // shareModalの表示モード切り替えよう
+      shareModalMode: '',
+      // 入力中の値、POST /api/share が失敗したらクリアされる
+      shareRoomNameInputValue: '',
+      // 入力中の値、PUT chart.json に失敗したら空になる
+      shareUserNameInputValue: '',
+      showShareOptionsUserToggled: false,
     }
   },
   computed: {
@@ -188,22 +224,17 @@ export default {
     }),
     showShareOptions: {
       get() {
-        return this.showShareOptionsUserToggled || this.shareKey !== '' || this.shareMyName !== ''
+        return this.showShareOptionsUserToggled || this.shareRoomID !== '' || this.shareUserName !== ''
       }
-    },
-    shareUrl: {
-      get() {
-        return `/share/?key=${encodeURIComponent(this.shareKey)}`
-      },
     },
     canOpenShareboard: {
       get() {
-        return this.shareKey !== ''
+        return this.shareRoomID !== ''
       },
     },
     canStartShare: {
       get() {
-        return this.shareKey !== '' && this.shareMyName !== ''
+        return this.shareRoomID !== '' && this.shareUserName !== ''
       },
     },
     graphKind: {
@@ -248,6 +279,18 @@ export default {
         }
       }
       return null
+    },
+    shareRoomID() {
+      return this.$store.getters['share/roomID']
+    },
+    shareRoomName() {
+      return this.$store.getters['share/roomName']
+    },
+    shareUserName() {
+      return this.$store.getters['share/userName']
+    },
+    shareUrl() {
+      return this.$store.getters['share/shareUrl']
     },
   },
   watch: {
@@ -294,6 +337,10 @@ export default {
   mounted() {
     this.oldKindValue.main = this.graphKind
     this.oldKindValue.sub = this.graphKindSub
+    this.$store.dispatch('share/setupStore')
+    this.$store.commit('showConnectStatusOnHeader', true)
+    this.shareRoomNameInputValue = this.shareRoomName
+    this.shareUserNameInputValue = this.shareUserName
   },
   methods: {
     reset() {
@@ -449,7 +496,64 @@ export default {
     DLModalClose() {
       this.$modal.hide('download')
     },
-
+    shareModalOpen(mode) {
+      if (this.shareRoomName == '' || this.shareRoomID == '') {
+        mode = 'roomName'
+      } else {
+        if (this.shareUserName == '' || this.shareUserID == '') {
+          mode = 'userName'
+        }
+      }
+      console.log({ mode })
+      if (mode == null || mode == '') {
+        this.shareModalOpenTab()
+        return
+      }
+      this.shareModalMode = mode
+      this.shareRoomNameInputValue = this.shareRoomName
+      this.shareUserNameInputValue = this.shareUserName
+      this.$modal.show(`share-modal-${this.shareModalMode}`)
+    },
+    async shareModalSaveRoomName(e) {
+      if (e && typeof e.preventDefault !== 'undefined') {
+        e.preventDefault()
+      }
+      console.log({ roomName: this.shareRoomNameInputValue })
+      const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
+      if (room != null) {
+        this.shareModalClose()
+        // ユーザー名が空なら更に入力ダイアログを開く
+        if (this.shareUserName == '' || this.shareUserID == '') {
+          this.shareModalOpen('userName')
+        }
+      } else {
+        // ルームの取得に失敗した場合はエラーを表示する
+        console.error('shareModalSaveRoomName NG', room)
+        this.shareModalClose()
+      }
+    },
+    async shareModalSaveUserName(e) {
+      console.log('shareModalSaveUserName', { e })
+      if (e && typeof e.preventDefault !== 'undefined') {
+        e.preventDefault()
+      }
+      const result = await this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
+      if (!result) {
+        console.error('shareModalSaveUserName NG', { result })
+      }
+      this.shareModalClose()
+      this.shareModalOpenTab()
+    },
+    async shareModalCopyLink() {
+      await navigator.clipboard.writeText(this.shareUrl)
+    },
+    shareModalOpenTab() {
+      window.open(this.shareUrl, `akadako_share_viewer_${this.shareRoomID}`)
+    },
+    shareModalClose() {
+      console.log('shareModalClose', this.$modal)
+      this.$modal.hide(`share-modal-${this.shareModalMode}`)
+    },
     print() {
       window.print()
     },
@@ -505,13 +609,13 @@ select {
 }
 
 .btn-bar {
-  width:100vw;
-  height:60px;
-  margin:0 calc(50% - 50vw) 30px calc(50% - 50vw);
-  background:#fff;
+  width: 100vw;
+  height: 60px;
+  margin: 0 calc(50% - 50vw) 30px calc(50% - 50vw);
+  background: #fff;
   position: relative;
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
   filter: drop-shadow(0 8px 5px #ccc);
 }
 
@@ -526,7 +630,7 @@ select {
   border-right: none;
 }
 
-.left-btn-list li a{
+.left-btn-list li a {
   display: block;
   padding: 8px;
   height: 100%;
@@ -538,7 +642,7 @@ select {
   filter: grayscale(100%);
 }
 
-.left-btn-list li a img{
+.left-btn-list li a img {
   display: block;
   width: 26px;
   margin: auto;
@@ -553,33 +657,33 @@ select {
 
 
 .btn-list {
-  display:flex;
-  padding:10px 0;
-  margin-right:5%;
+  display: flex;
+  padding: 10px 0;
+  margin-right: 5%;
 }
 
 .btn-list li {
   border-right: 1px dotted #ccc;
 }
 
-.btn-list li:last-of-type{
-  border-right:none;
+.btn-list li:last-of-type {
+  border-right: none;
 }
 
 .btn-list li a {
   display: flex;
-  justify-content:center;
+  justify-content: center;
   padding: 0 8px;
   height: 100%;
 }
 
-.btn-list li a img{
+.btn-list li a img {
   display: block;
   width: 30px;
   margin: auto;
 }
 
-.btn-list a.disable{
+.btn-list a.disable {
   pointer-events: none;
   opacity: .3;
   filter: grayscale(100%);
@@ -718,13 +822,13 @@ select {
   margin-bottom: 15px;
 }
 
-.sensor-select-wrap .interval-selector{
-  position:relative;
-  margin:0 10px;
+.sensor-select-wrap .interval-selector {
+  position: relative;
+  margin: 0 10px;
 }
 
-.sensor-select-wrap .interval-selector select{
-  width:75px;
+.sensor-select-wrap .interval-selector select {
+  width: 75px;
 }
 
 .progress-timer {
@@ -734,8 +838,8 @@ select {
   width: 100%;
 }
 
-.timer__meter{
-  width:100%;
+.timer__meter {
+  width: 100%;
 }
 
 .sensor-select-wrap select {
@@ -748,21 +852,21 @@ select {
 }
 
 .sensor-select-wrap .sensor-left,
-.sensor-select-wrap .sensor-right{
-  display:flex;
+.sensor-select-wrap .sensor-right {
+  display: flex;
   align-items: flex-start;
-  flex-wrap:wrap;
+  flex-wrap: wrap;
 }
 
 .sensor-select-wrap .sensor-left select,
-.sensor-select-wrap .sensor-right select{
-  width:200px;
+.sensor-select-wrap .sensor-right select {
+  width: 200px;
 }
 
 .sensor-select-wrap .sensor-left input,
-.sensor-select-wrap .sensor-right input{
-  width:60px;
-  margin:0 10px;
+.sensor-select-wrap .sensor-right input {
+  width: 60px;
+  margin: 0 10px;
 }
 
 .sensor-select-wrap .sensor-left select,
@@ -790,21 +894,25 @@ input.last-sub-value {
   text-align: right;
 }
 
-@media screen and (max-width:770px){
-  .sensor-right select{
-    order:-1;
+@media screen and (max-width:770px) {
+  .sensor-right select {
+    order: -1;
   }
-  .sensor-left,.sensor-right{
-    justify-content:center;
+
+  .sensor-left,
+  .sensor-right {
+    justify-content: center;
   }
+
   .sensor-select-wrap .sensor-left select,
-  .sensor-select-wrap .sensor-right select{
-    width:100%;
-    margin-bottom:5px;
+  .sensor-select-wrap .sensor-right select {
+    width: 100%;
+    margin-bottom: 5px;
   }
+
   .sensor-select-wrap .sensor-left input,
-  .sensor-select-wrap .sensor-right input{
-    width:100%;
+  .sensor-select-wrap .sensor-right input {
+    width: 100%;
   }
 
 }
