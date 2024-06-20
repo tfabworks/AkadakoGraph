@@ -4,7 +4,7 @@
     <div v-if="currentRoute === '/'">
       <Dashboard />
     </div>
-    <div v-if="/^\/share(\/.*)/.test(currentRoute)">
+    <div v-if="currentRoute === '/share'">
       <Shareboard />
     </div>
     <Footer />

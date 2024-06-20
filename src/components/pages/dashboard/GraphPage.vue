@@ -505,7 +505,7 @@ export default {
           target = 'userName'
         }
       }
-      if (shareModalFromButton == 'new') {
+      if (shareModalFromButton) {
         if (target == null) {
           this.shareModalOpenTab()
         } else {
