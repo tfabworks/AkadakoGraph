@@ -2,12 +2,12 @@
   <div class="content-area">
     <div>
       <div class="btn-bar">
-        <ul class="btn-list">
+        <ul class="share-info-list">
           <li v-if="shareRoomID">
-            合言葉: <button @click="shareModalOpen('roomName')">{{ shareRoomName }}</button>
+            <span>合言葉</span><button @click="shareModalOpen('roomName')">{{ shareRoomName }}</button>
           </li>
           <li v-if="shareUserName">
-            班名: <button @click="shareModalOpen('userName')">{{ shareUserName }}</button>
+            <span>班名</span><button @click="shareModalOpen('userName')">{{ shareUserName }}</button>
           </li>
         </ul>
         <ul class="btn-list">
@@ -92,12 +92,12 @@
         <h2>共有</h2>
       </div>
       <div class="modal-body">
-        <div>
-          <form @submit.prevent="shareModalSaveRoomName">
-            <label for="shareRoomNameInput">合言葉を入力してください<br />
-              <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue">
-            </label>
-          </form>
+        <form @submit.prevent="shareModalSaveRoomName" class="modal-form">
+          <label for="shareRoomNameInput">合言葉を入力してください
+            <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue">
+          </label>
+        </form>
+        <div class="btn-square-wrap">
           <a id="delete-btn" class="btn-square-little-rich" @click="shareModalSaveRoomName">
             <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
             <span class="btn-text">保存</span>
@@ -114,12 +114,12 @@
         <h2>共有</h2>
       </div>
       <div class="modal-body">
-        <div>
-          <form @submit.prevent="shareModalSaveUserName">
-            <label for="shareUserNameInput">班名を入力してください（省略可能）<br />
-              <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue">
-            </label>
-          </form>
+        <form @submit.prevent="shareModalSaveUserName" class="modal-form">
+          <label for="shareUserNameInput">班名を入力してください（省略可能）<br />
+            <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue">
+          </label>
+        </form>
+        <div class="btn-square-wrap">
           <a id="delete-btn" class="btn-square-little-rich" @click="shareModalSaveUserName">
             <img src="../../../../public/img/icon-exe.svg" alt="保存" class="btn-icon">
             <span class="btn-text">保存</span>
@@ -612,6 +612,7 @@ select {
   width: 100vw;
   height: 60px;
   margin: 0 calc(50% - 50vw) 30px calc(50% - 50vw);
+  padding:0 5%;
   background: #fff;
   position: relative;
   display: flex;
@@ -648,18 +649,60 @@ select {
   margin: auto;
 }
 
-
-
-
 .control-btn img {
   width: 100%;
 }
 
 
+.share-info-list{
+  display:flex;
+  align-items:center;
+  width:calc(100% - 290px);
+}
+
+.share-info-list li{
+  display:flex;
+  align-items:center;
+}
+
+.share-info-list li:first-of-type{
+  margin-right:20px;
+  max-width:calc(60% - 20px);
+}
+
+.share-info-list li:last-of-type{
+  max-width:40%;
+}
+
+.share-info-list li span{
+  padding:5px 10px;
+  display:inline-block;
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  background:#2FAD65;
+  border-radius:5px;
+  white-space:nowrap;
+}
+
+.share-info-list li button{
+  padding-right:20px;
+  font-size:16px;
+  font-weight:bold;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background:url(../../../../public/img/icon-edit.svg) no-repeat right center/16px;
+}
+
+.share-info-list li button:hover{
+  cursor:pointer;
+  opacity:.7;
+}
+
 .btn-list {
   display: flex;
   padding: 10px 0;
-  margin-right: 5%;
 }
 
 .btn-list li {
@@ -689,6 +732,28 @@ select {
   filter: grayscale(100%);
 }
 
+.modal-form{
+  width:100%;
+  text-align:center;
+}
+
+.modal-form label{
+  font-size:16px;
+}
+
+.modal-form input{
+  margin-top:10px;
+  width:80%;
+  height:50px;
+  padding:0 15px;
+  border-radius:8px;
+  border:2px solid #ccc;
+  font-size:16px;
+}
+
+.btn-square-wrap{
+  display:flex;
+}
 
 .btn-square-little-rich {
   position: relative;
