@@ -518,6 +518,7 @@ export default {
       if (e && typeof e.preventDefault !== 'undefined') {
         e.preventDefault()
       }
+      console.log({ roomName: this.shareRoomNameInputValue })
       const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
       if (room != null) {
         this.shareModalClose()

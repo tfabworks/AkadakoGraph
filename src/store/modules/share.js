@@ -41,11 +41,20 @@ const apiEndpoint = /(localhost|127.0.0.1|::|:\d+)/.test(window.location.origin)
 const mutations = {
   setRoomID(state, roomID) {
     state.roomID = roomID
-    localStorage.setItem(`${STORAGE_PREFIX}roomID`, roomID)
+    // roomID をURLに反映。本当は action で行った方が良い
+    const urlParams = new URLSearchParams(window.location.search)
+    if (roomID == null || roomID == '') {
+      if (urlParams.has('roomID')) {
+        urlParams.delete('roomID')
+      }
+    } else {
+      urlParams.set('roomID', roomID)
+    }
+    const search = urlParams.size > 0 ? `?${urlParams.toString()}` : ''
+    window.history.replaceState(null, '', `${window.location.pathname}${search}`)
   },
   setRoomName(state, roomName) {
     state.roomName = roomName
-    localStorage.setItem(`${STORAGE_PREFIX}roomName`, roomName)
   },
   setUserID(state, userID) {
     state.userID = userID
@@ -86,28 +95,32 @@ const mutations = {
 const actions = {
   async setupStore({ commit }) {
     // ルームIDをクエリから取得する
-    const urlParams = new URLSearchParams(window.location.search)
-    if (!/^\w+/.test(urlParams.get('roomID'))) {
+    const urlParams = new URLSearchParams(location.search)
+    if (/^[\w_-]+/.test(urlParams.get('roomID'))) {
       const room = await fetchRoom({ roomID: urlParams.get('roomID') })
       if (room != null && room.type == 'room') {
-        localStorage.setItem(`${STORAGE_PREFIX}roomID`, room.id)
-        localStorage.setItem(`${STORAGE_PREFIX}roomName`, room.name)
+        commit('setRoomID', room.roomID)
+        commit('setRoomName', room.roomName)
+      } else {
+        console.error('room not found', urlParams.get('roomID'))
+        commit('setRoomID', '')
+        commit('setRoomName', '')
       }
-      // URLからroomIDクエリを削除
-      urlParams.delete('roomID')
-      const search = urlParams.size > 0 ? `?${urlParams.toString()}` : ''
-      window.history.replaceState(null, '', `${window.location.pathname}${search}`)
+    } else {
+      commit('setRoomID', '')
+      commit('setRoomName', '')
     }
+
+    // ユーザIDをlocalStorageからリストアor作成
     if (!/^[0-9a-f-]{32,36}/.test(localStorage.getItem(`${STORAGE_PREFIX}userID`))) {
       localStorage.setItem(`${STORAGE_PREFIX}userID`, crypto.randomUUID())
     }
+    commit('setUserID', localStorage.getItem(`${STORAGE_PREFIX}userID`))
+    commit('setUserName', localStorage.getItem(`${STORAGE_PREFIX}userName`) ?? '')
+    // チャートIDをlocalStorageからリストアor作成
     if (!/^[0-9a-f-]{32,36}/.test(localStorage.getItem(`${STORAGE_PREFIX}chartID`))) {
       localStorage.setItem(`${STORAGE_PREFIX}chartID`, crypto.randomUUID())
     }
-    commit('setRoomID', localStorage.getItem(`${STORAGE_PREFIX}roomID`) ?? '')
-    commit('setRoomName', localStorage.getItem(`${STORAGE_PREFIX}roomName`) ?? '')
-    commit('setUserID', localStorage.getItem(`${STORAGE_PREFIX}userID`))
-    commit('setUserName', localStorage.getItem(`${STORAGE_PREFIX}userName`) ?? '')
     commit('setChartID', localStorage.getItem(`${STORAGE_PREFIX}chartID`))
     commit('setChartName', localStorage.getItem(`${STORAGE_PREFIX}chartName`) ?? '')
   },
@@ -206,7 +219,7 @@ const actions = {
       canvasElement.toBlob(
         async (blob) => {
           const imageBlob = blob
-          const res = await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.webp`, {
+          await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.webp`, {
             mode: 'cors',
             method: 'PUT',
             headers: {
@@ -214,10 +227,14 @@ const actions = {
             },
             body: imageBlob,
           })
-          if (res.ok) {
-            // 画像アップロード後はチャートJSONも更新する
-            dispatch('updateChartJson', { force: true })
-          }
+            .then((res) => {
+              if (res.ok) {
+                dispatch('updateChartJson', { force: true })
+              }
+            })
+            .catch((e) => {
+              console.error('updateChartImage', e)
+            })
         },
         'image/webp',
         0.01, // クオリティ （参考: 0.01で15KB, 1で50KB)
@@ -270,6 +287,7 @@ const fetchRoom = async ({ roomID, roomName }) => {
     return room.type == 'room' ? room : null
   }
   if (roomName != null && roomName !== '') {
+    console.log('hoge')
     const room = await fetch(`${apiEndpoint}/`, {
       method: 'POST',
       mode: 'cors',
