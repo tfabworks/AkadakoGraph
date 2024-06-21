@@ -1,29 +1,37 @@
 <template>
   <div class="content-wrap">
     <div class="content-area">
-      <div class="roomName">合言葉：{{ roomName }}</div>
+      <div class="roomName"><span>合言葉</span><span>{{ roomName }}</span></div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
         <div v-if="!chart.hidden" class="content-box">
+
           <div class="content-box-header">
-            <div>{{ chart.chartMainSensorID | sensorName }}</div>
             <div class="chart-name">{{ chart.chartName }}</div>
-            <div>{{ chart.chartSubSensorID | sensorKind }}</div>
-            <div>計測開始: {{ chart.chartTimeStart | YmdHMS }} ({{ (Date.now() - chart.chartTimeStart) | toInterval }}前)
+            <div class="chart-hidden-btn-wrap"><a @click="hideChart(chart.chartID)" class="chart-hidden-btn">隠す</a></div>
+            <div class="sensor-wrap">
+              <div class="sensor-main">{{ chart.chartMainSensorID | sensorName }}</div>
+              <div class="sensor-sub">{{ chart.chartSubSensorID | sensorKind }}</div>
             </div>
-            <div>最終更新: {{ chart.chartTimeEnd | YmdHMS }} ({{ (Date.now() - chart.chartTimeEnd) | toInterval }}前)</div>
-            <a @click="hideChart(chart.chartID)" class="chart-hidden-btn">[隠す]</a>
+
+            <div class="chart-time-wrap">
+              <div class="chart-time">計測開始: {{ chart.chartTimeStart | YmdHMS }} ({{ (Date.now() - chart.chartTimeStart) | toInterval }}前)
+              </div>
+              <div class="chart-reload-time">最終更新: {{ chart.chartTimeEnd | YmdHMS }} ({{ (Date.now() - chart.chartTimeEnd) | toInterval }}前)</div>
+            </div>
           </div>
+
           <div class="chart-img">
             <img :src="chart.imageUrl">
           </div>
         </div>
       </div>
-      <div>
-        <a @click="showAllChart">[全て表示する]</a>
+      <div class="chart-show-btn-wrap">
+        <a @click="showAllChart" class="chart-show-btn">全て表示する
         (
-        {{ charts.filter(c => c.hidden).length }} / {{ charts.length }}
+        現在の表示数：{{ charts.filter(c => c.hidden).length }}/{{ charts.length }}
         )
+        </a>
       </div>
     </div>
   </div>
@@ -86,10 +94,25 @@ export default {
 }
 </script>
 <style scoped>
-.roomID {
-  margin-bottom: 10px;
-  font-size: 18px;
+
+.roomName{
+  margin-bottom:10px;
+}
+
+.roomName span:first-of-type{
+  padding: 5px 10px;
+  display: inline-block;
+  margin-right:5px;
+  color: #fff;
+  font-size: 15px;
   font-weight: bold;
+  background: #2FAD65;
+  border-radius: 5px;
+}
+
+.roomName span:last-of-type{
+  font-weight:bold;
+  font-size:16px;
 }
 
 .content-area {
@@ -102,78 +125,142 @@ export default {
   text-align: center;
   width: 100%;
   background: #fff;
-  margin: 0 0 40px 0;
+  margin: 0 0 30px 0;
   padding: 15px;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
 
-.content-box-header {
-  position: relative;
-  display: flex;
-  justify-content: space-between;
-  padding-right: 60px;
-  margin-bottom: 10px;
+.content-box-header{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  position:relative;
 }
 
 .chart-name {
-  width: 50%;
-  margin-right: 15px;
-  text-align: start;
+  margin-bottom:15px;
   font-weight: bold;
   font-size: 18px;
+  width:calc(100% - 120px);
+  text-align:start;
+  white-space:nowrap;
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+}
+
+.chart-hidden-btn-wrap{
+  margin:0 0 15px auto;
 }
 
 .chart-hidden-btn {
-  position: absolute;
-  right: 0;
+  display:inline-block;
+  padding:0 10px 0 40px;
+  margin:auto;
+  line-height:30px;
+  color:#333;
+  font-size:15px;
+  text-align:start;
+  font-weight:bold;
+  border:1px solid #ccc;
+  border-radius:5px;
+  background:url(../../../public/img/icon-hidden.svg)  no-repeat 10px center/22px;
 }
 
-.label-wrap {
-  text-align: start;
+.sensor-wrap{
+  display:flex;
+  gap:15px;
+  margin-bottom:10px;
 }
 
-.label-left,
-.label-right {
-  display: inline-block;
-  margin-bottom: 5px;
-  position: relative;
-  padding-left: 18px;
-  font-weight: bold;
-  white-space: nowrap;
+.sensor-main,.sensor-sub{
+  position:relative;
+  padding-left:30px;
+  font-weight:bold;
 }
 
-.label-left {
-  margin-right: 15px;
+.sensor-sub{
+  color:#00A556;
 }
 
-.label-left:before,
-.label-right:before {
-  display: block;
-  position: absolute;
-  width: 15px;
-  height: 15px;
-  content: "";
-  top: 0;
-  bottom: 0;
-  left: 0;
-  margin: auto;
+.sensor-main:before,.sensor-sub:before{
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  margin:auto;
+  content:"";
+  display:inline-block;
+  width:25px;
+  height:3px;
+  background:#333;
 }
 
-.label-left:before {
-  background: #333;
+.sensor-sub:before{
+  background:#00A556;
 }
 
-.label-right:before {
-  background: #1EAF5A;
+
+.chart-time-wrap{
+  margin-left:auto;
+  margin-bottom:10px;
 }
+
+.chart-time,.chart-reload-time{
+  position:relative;
+  margin-bottom:3px;
+  padding-left:18px;
+  font-size:13px;
+  text-align:start;
+  white-space:nowrap;
+}
+
+.chart-time:before,.chart-reload-time:before{
+  content:"";
+  position:absolute;
+  top:0;
+  bottom:0;
+  left:0;
+  margin:auto;
+  display:inline-block;
+  width:14px;
+  height:14px;
+}
+
+.chart-time:before{
+  background:url(../../../public/img/icon-time.svg) no-repeat right center/contain;
+}
+
+.chart-reload-time:before{
+  background:url(../../../public/img/icon-reload.svg) no-repeat right center/contain;
+}
+
 
 .chart-img {
   margin-bottom: 10px;
 }
 
-.chart-updated {
-  text-align: right;
-  font-size: 12px;
+.chart-img img{
+  display:block;
+  border:1px solid #ccc;
 }
+
+.chart-show-btn-wrap{
+  text-align:center;
+}
+
+.chart-show-btn {
+  display:inline-block;
+  padding:0 10px 0 40px;
+  margin:auto;
+  line-height:40px;
+  color:#333;
+  font-size:15px;
+  text-align:start;
+  font-weight:bold;
+  border:1px solid #ccc;
+  border-radius:5px;
+  background:url(../../../public/img/icon-show.svg) #fff no-repeat 10px center/22px;
+}
+
 </style>
