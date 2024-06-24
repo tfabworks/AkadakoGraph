@@ -243,6 +243,8 @@ export default {
 .chart-img img{
   display:block;
   border:1px solid #ccc;
+  max-width:100%;
+  margin:auto;
 }
 
 .chart-show-btn-wrap{
