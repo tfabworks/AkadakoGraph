@@ -131,15 +131,14 @@ const mutations = {
 const actions = {
   async setupStore({ commit }) {
     // ルームIDをクエリから取得する
-    const urlParams = new URLSearchParams(location.search)
-    if (/^[\w_-]+/.test(urlParams.get('roomID'))) {
-      const room = await fetchRoom({ roomID: urlParams.get('roomID') })
-      console.log(room, urlParams.get('roomID'), urlParams.roomID)
+    const paramRoomID = new URLSearchParams(location.search).get('roomID')
+    if (paramRoomID != null && /^[\w_-]+/.test(paramRoomID)) {
+      const room = await fetchRoom({ roomID: paramRoomID })
       if (room != null && room.type == 'room') {
         commit('setRoomID', room.roomID)
         commit('setRoomName', room.roomName)
       } else {
-        console.error('room not found', urlParams.get('roomID'))
+        console.error('room not found', { paramRoomID })
         commit('setRoomID', '')
         commit('setRoomName', '')
       }
@@ -147,7 +146,6 @@ const actions = {
       commit('setRoomID', '')
       commit('setRoomName', '')
     }
-
     // ユーザIDをlocalStorageからリストアor作成
     if (!/^[0-9a-f-]{32,36}/.test(localStorage.getItem(`${STORAGE_PREFIX}userID`))) {
       localStorage.setItem(`${STORAGE_PREFIX}userID`, crypto.randomUUID())
@@ -163,6 +161,11 @@ const actions = {
   },
   // ルーム名を変更してルームIDを取得する
   async setRoomName({ commit, state }, roomName) {
+    if (roomName == null || roomName == '') {
+      commit('setRoomID', '')
+      commit('setRoomName', '')
+      return
+    }
     const response = await fetch(`${apiEndpoint}/`, {
       method: 'POST',
       mode: 'cors',
@@ -183,7 +186,6 @@ const actions = {
   // ユーザ名を変更してサーバ上のユーザ名も更新する
   async setUserName({ commit, dispatch }, userName) {
     commit('setUserName', userName)
-    commit('setChartName', userName) // 今はユーザ名とチャート名は同じにしているが、将来チャート名を変更したい場合はここを分離する
     return await dispatch('updateChartJson', { force: true, nameOnly: true })
   },
   // チャートJSONを更新する
@@ -275,7 +277,7 @@ const actions = {
             })
         },
         'image/webp',
-        0.01, // クオリティ （参考: 0.01で15KB, 1で50KB)
+        // 1, // クオリティ （参考: 0.01で15KB, 1で50KB)
       )
     }
   },
