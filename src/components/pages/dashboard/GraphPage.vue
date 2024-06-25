@@ -4,10 +4,10 @@
       <div class="btn-bar">
         <ul class="share-info-list">
           <li v-if="shareRoomID">
-            <span>合言葉</span><button @click="shareModalOpen('roomName')">{{ shareRoomName }}</button>
+            <span>共有ID</span><button @click="shareModalOpen">{{ shareRoomName }}</button>
           </li>
           <li v-if="shareRoomID && shareUserName">
-            <span>班名</span><button @click="shareModalOpen('userName')">{{ shareUserName }}</button>
+            <span>端末名</span><button @click="shareModalOpen">{{ shareUserName }}</button>
           </li>
         </ul>
         <ul class="btn-list">
@@ -31,7 +31,8 @@
           </li>
           <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li>
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
-          <li><a @click="shareModalOpen()"><img src="../../../../public/img/icon-share.svg" alt="共有"></a></li>
+          <li><a @click="shareModalOpenFromShareButton"><img src="../../../../public/img/icon-share.svg" alt="共有"></a>
+          </li>
         </ul>
       </div>
     </div>
@@ -71,13 +72,14 @@
       }
         " />
     </section>
+
     <modal name="delete-confirm">
       <div class="modal-header">
         <h2>確認</h2>
       </div>
       <div class="modal-body">
         <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
-        <a id="delete-btn" class="btn-square-little-rich" @click="deleteModalOK">
+        <a class="btn-square-little-rich" @click="deleteModalOK">
           <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
           <span class="btn-text">実行</span>
         </a>
@@ -87,50 +89,36 @@
         </a>
       </div>
     </modal>
-    <modal name="share-modal-roomName">
+
+    <modal name="share-modal" focusTrap="true">
       <div class="modal-header">
         <h2>共有</h2>
       </div>
       <div class="modal-body">
-        <form @submit.prevent="shareModalSaveRoomName" class="modal-form">
-          <label for="shareRoomNameInput">合言葉を入力してください
-            <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue">
-          </label>
+        <form @submit.prevent="shareModalSave" class="modal-form">
+          <div>
+            <label for="shareRoomNameInput">ID</label>
+            <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue" data-lpignore data-1p-ignore>
+            <a tabindex="-1" @click.prevent="shareModalCopyLink">リンクをコピー</a><br>
+            例）〇〇小学校20240625<br>
+            <br>
+            <label for="shareUserNameInput">端末名（省略可能）</label>
+            <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue" data-lpignore data-1p-ignore>
+          </div>
         </form>
         <div class="btn-square-wrap">
-          <a id="delete-btn" class="btn-square-little-rich" @click="shareModalSaveRoomName">
+          <a class="btn-square-little-rich" @click="shareModalSave">
             <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
             <span class="btn-text">保存</span>
           </a>
-          <a id="delete-btn" class="btn-square-little-rich cancel" @click="shareModalClose">
+          <a class="btn-square-little-rich cancel" @click="shareModalClose">
             <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
             <span class="btn-text">閉じる</span>
           </a>
         </div>
       </div>
     </modal>
-    <modal name="share-modal-userName">
-      <div class="modal-header">
-        <h2>共有</h2>
-      </div>
-      <div class="modal-body">
-        <form @submit.prevent="shareModalSaveUserName" class="modal-form">
-          <label for="shareUserNameInput">班名を入力してください（省略可能）<br />
-            <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue">
-          </label>
-        </form>
-        <div class="btn-square-wrap">
-          <a id="delete-btn" class="btn-square-little-rich" @click="shareModalSaveUserName">
-            <img src="../../../../public/img/icon-exe.svg" alt="保存" class="btn-icon">
-            <span class="btn-text">保存</span>
-          </a>
-          <a id="delete-btn" class="btn-square-little-rich cancel" @click="shareModalClose">
-            <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
-            <span class="btn-text">閉じる</span>
-          </a>
-        </div>
-      </div>
-    </modal>
+
     <modal name="download">
       <div class="modal-header">
         <h2>ダウンロード</h2>
@@ -161,6 +149,7 @@
       </div>
     </modal>
   </div>
+
 </template>
 <script>
 import encoding from 'encoding-japanese'
@@ -200,13 +189,10 @@ export default {
         ...[1, 3, 5, 10, 30], // seconds
         ...[1, 3, 5, 10].map((s) => 60 * s), // minutes
       ].map((s) => s * 1000),
-      // shareModalの表示モード切り替えよう
-      shareModalTarget: '',
-      // 入力中の値、POST /api/share が失敗したらクリアされる
+      // 入力中の値
       shareRoomNameInputValue: '',
-      // 入力中の値、PUT chart.json に失敗したら空になる
       shareUserNameInputValue: '',
-      showShareOptionsUserToggled: false,
+      shareModalFromButton: false,
     }
   },
   computed: {
@@ -289,6 +275,9 @@ export default {
     shareUserName() {
       return this.$store.getters['share/userName']
     },
+    shareUserID() {
+      return this.$store.getters['share/userID']
+    },
     shareUrl() {
       return this.$store.getters['share/shareUrl']
     },
@@ -334,11 +323,11 @@ export default {
       }
     },
   },
-  mounted() {
+  async mounted() {
     this.oldKindValue.main = this.graphKind
     this.oldKindValue.sub = this.graphKindSub
-    this.$store.dispatch('share/setupStore')
     this.$store.commit('showConnectStatusOnHeader', true)
+    await this.$store.dispatch('share/setupStore')
     this.shareRoomNameInputValue = this.shareRoomName
     this.shareUserNameInputValue = this.shareUserName
   },
@@ -496,67 +485,50 @@ export default {
     DLModalClose() {
       this.$modal.hide('download')
     },
-    shareModalOpen(target) {
-      if (this.shareRoomName == '' || this.shareRoomID == '') {
-        target = 'roomName'
-      } else {
-        if (this.shareUserName == '' || this.shareUserID == '') {
-          target = 'userName'
-        }
-      }
-      this.shareModalFromButton = (target == null || target === '')
-      this.shareModalTarget = target
-      if (this.shareModalFromButton) {
-        if (target == null || target === '') {
-          this.shareModalOpenTab()
-        }
+
+    // 共有ダイアログを開く、または共有タブを開く
+    shareModalOpenFromShareButton() {
+      if (this.shareRoomName != '' && this.shareUserName != '') {
+        this.shareModalOpenTab()
         return
       }
+      this.shareModalFromButton = true
+      this.shareModalOpen()
+    },
+    shareModalOpen() {
+      console.log('shareModalOpen', { shareRoomName: this.shareRoomName, shareUserName: this.shareUserName })
+      this.$modal.show('share-modal')
+    },
+    shareModalBeforeOpen() {
+      console.log('shareModalBeforeOpen', { shareRoomName: this.shareRoomName, shareUserName: this.shareUserName })
       this.shareRoomNameInputValue = this.shareRoomName
       this.shareUserNameInputValue = this.shareUserName
-      this.$modal.show(`share-modal-${this.shareModalTarget}`)
     },
-    async shareModalSaveRoomName(e) {
-      if (e && typeof e.preventDefault !== 'undefined') {
-        e.preventDefault()
-      }
-      const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
-      if (room != null) {
-        this.shareModalClose()
-        // 共有ボタンからスタートしている場合、ユーザー名が空なら更に入力ダイアログを開く
-        if (this.shareModalFromButton) {
-          if (this.shareUserName == '' || this.shareUserID == '') {
-            this.shareModalOpen('userName')
-          }
+    async shareModalSave() {
+      this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
+      this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
+      if (this.shareRoomNameInputValue != '') {
+        const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
+        if (room == null) {
+          console.error('shareModalSave NG', { roomName: this.shareRoomNameInputValue })
         }
-      } else {
-        // ルームの取得に失敗した場合はエラーを表示する
-        console.error('shareModalSaveRoomName NG', room)
-        this.shareModalClose()
-      }
-    },
-    async shareModalSaveUserName(e) {
-      if (e && typeof e.preventDefault !== 'undefined') {
-        e.preventDefault()
-      }
-      const result = await this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
-      if (!result) {
-        console.error('shareModalSaveUserName NG', { result })
       }
       this.shareModalClose()
-      if (this.shareModalFromButton) {
-        this.shareModalOpenTab()
-      }
     },
     async shareModalCopyLink() {
       await navigator.clipboard.writeText(this.shareUrl)
     },
     shareModalOpenTab() {
+      this.shareModalFromButton = false
       window.open(this.shareUrl, `akadako_share_viewer_${this.shareRoomID}`)
     },
     shareModalClose() {
-      this.$modal.hide(`share-modal-${this.shareModalTarget}`)
+      this.$modal.hide('share-modal')
     },
+    shareModalClosed(e) {
+      console.log('shareModalClosed', { e })
+    },
+
     print() {
       window.print()
     },
@@ -585,9 +557,6 @@ export default {
       if (!this.canOpenShareboard) {
         e.preventDefault()
       }
-    },
-    toggleShareOptions() {
-      this.showShareOptionsUserToggled = !this.showShareOptionsUserToggled
     },
     toggleShare() {
       if (this.shareEnabled) {
