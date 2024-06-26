@@ -254,6 +254,13 @@ export default {
       }
       return null
     },
+    lastMainUnit() {
+      const sensor = SensorMap.get(this.graphKind)
+      if (sensor && sensor.unit != null) {
+        return sensor.unit
+      }
+      return null
+    },
     lastSubValue() {
       const sensor = SensorMap.get(this.graphKindSub)
       if (sensor) {
@@ -263,6 +270,13 @@ export default {
         } else {
           return lastValue.toFixed(sensor.flactionDigits)
         }
+      }
+      return null
+    },
+    lastSubUnit() {
+      const sensor = SensorMap.get(this.graphKindSub)
+      if (sensor && sensor.unit != null) {
+        return sensor.unit
       }
       return null
     },
