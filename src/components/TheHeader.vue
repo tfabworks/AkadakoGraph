@@ -1,7 +1,7 @@
 <template>
   <header class="main-header">
     <h1 class="header-logo">
-      <a><img src="../../public/img/header-logo.svg" alt="AkaDakoグラフ"></a>
+      <a><img :src="headerLogoUrl" alt="AkaDakoグラフ"></a>
     </h1>
     <ConnnectStatus v-if="showConnectStatusOnHeader" />
   </header>
@@ -11,6 +11,13 @@
 import ConnnectStatus from './TheHeaderConnectStatus'
 
 export default {
+  data() {
+    const headerLogoDefault = '/img/header-logo.svg'
+    const headerLogoUrl = location.pathname.startsWith('/share') ? '/img/header-monitoring-logo.svg' : headerLogoDefault
+    return {
+      headerLogoUrl: headerLogoUrl,
+    }
+  },
   computed: {
     showConnectStatusOnHeader() {
       return this.$store.state.showConnectStatusOnHeader
