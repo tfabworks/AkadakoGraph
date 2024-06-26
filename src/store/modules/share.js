@@ -331,16 +331,18 @@ const actions = {
     }, state.reloadInterval)
   },
   hideChart({ commit, state }, chartID) {
-    commit('setHideChartIDs', Object.assign(state.hideChartIDs, { [chartID]: true }))
+    commit('setHideChartIDs', { ...state.hideChartIDs, [chartID]: true })
   },
   showChart({ commit, state }, chartID) {
-    commit('setHideChartIDs', Object.assign(state.hideChartIDs, { [chartID]: false }))
+    const newIDs = { ...state.hideChartIDs }
+    delete newIDs[chartID]
+    commit('setHideChartIDs', newIDs)
   },
   hideAllChart({ commit, state }) {
-    Object.keys(state.roomSnapshot).forEach((chartID) => commit('hideChart', chartID))
+    commit('setHideChartIDs', Object.fromEntries(Object.keys(state.roomSnapshot).map((k) => [k, true])))
   },
-  showAllChart(state) {
-    state.hideChartIDs = {}
+  showAllChart({ commit }) {
+    commit('setHideChartIDs', {})
   },
 }
 
