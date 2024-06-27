@@ -4,7 +4,7 @@
       <div class="btn-bar">
 
         <div class="share-info-wrap">
-          <div class="share-info" v-if="shareRoomID || shareUserName">
+          <div class="share-info" v-if="shareRoomID || (shareRoomID && shareUserName)">
             <span v-if="shareRoomID">
               共有ID：{{ shareRoomName }}
             </span>
