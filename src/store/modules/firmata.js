@@ -308,7 +308,7 @@ const actions = {
       ctx.state.dataGetter = new DataGetter(ctx.state.board)
     }
     // 両軸で描画する場合に同じ時間でプロットするためにここで時間を取得
-    const date = dayjs().tz().format()
+    const date = Date.now()
 
     if (ctx.state.axisInfo.main.shouldRender && ctx.state.axisInfo.sub.shouldRender) {
       // 両方の軸で描画する場合

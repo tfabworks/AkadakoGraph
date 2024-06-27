@@ -158,14 +158,17 @@ export const Sensors = [
   {
     id: 90001,
     name: 'ダミーデータ(ランダム)',
+    flactionDigits: 4,
   },
   {
     id: 90002,
     name: 'ダミーデータ(sin)',
+    flactionDigits: 4,
   },
   {
     id: 90003,
     name: 'ダミーデータ(cos)',
+    flactionDigits: 4,
   },
 ].map((sensor) => {
   sensor.kind = sensor.name

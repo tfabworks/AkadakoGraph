@@ -101,16 +101,16 @@
       </div>
       <div class="modal-body">
         <form @submit.prevent="shareModalSave" class="modal-form">
-            <div class="modal-share-wrap">
-              <label for="shareRoomNameInput">共有ID</label>
-              <div class="modal-share-input-wrap">
-                <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue" data-lpignore data-1p-ignore>
-                <a tabindex="-1" @click.prevent="shareModalCopyLink" class="copy-btn">リンクをコピー</a>
-              </div>
-              <span class="example">例）〇〇小学校20240625</span>
+          <div class="modal-share-wrap">
+            <label for="shareRoomNameInput">共有ID</label>
+            <div class="modal-share-input-wrap">
+              <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue" data-lpignore data-1p-ignore>
+              <a tabindex="-1" @click.prevent="shareModalCopyLink" class="copy-btn">リンクをコピー</a>
+            </div>
+            <span class="example">例）〇〇小学校20240625</span>
 
-              <label for="shareUserNameInput">端末名（省略可能）</label>
-              <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue" data-lpignore data-1p-ignore>
+            <label for="shareUserNameInput">端末名（省略可能）</label>
+            <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue" data-lpignore data-1p-ignore>
           </div>
         </form>
         <div class="btn-square-wrap">
@@ -158,6 +158,7 @@
 
 </template>
 <script>
+import dayjs from 'dayjs'
 import encoding from 'encoding-japanese'
 import ExcelJS from 'exceljs'
 import Vue from 'vue'
@@ -216,7 +217,7 @@ export default {
     showShareOptions: {
       get() {
         return this.showShareOptionsUserToggled || this.shareRoomID !== '' || this.shareUserName !== ''
-      }
+      },
     },
     canOpenShareboard: {
       get() {
@@ -301,9 +302,7 @@ export default {
       return this.$store.getters['share/shareUrl']
     },
     enableDummyBoard() {
-      return this.$store.state.firmata.debugState.enableDummyBoard
-        || 90000 < this.graphKind
-        || 90000 < this.graphKindSub
+      return this.$store.state.firmata.debugState.enableDummyBoard || 90000 < this.graphKind || 90000 < this.graphKindSub
     },
     sensors() {
       if (this.enableDummyBoard) {
@@ -441,6 +440,11 @@ export default {
         return a.x < b.x ? -1 : 1
       })
 
+      // タイムスタムタンプ列を文字列化
+      sourceForDL.forEach((e) => {
+        e.x = dayjs(e.x).tz().format()
+      })
+
       // データをシートに追加
       worksheet.addRows(sourceForDL)
 
@@ -448,11 +452,11 @@ export default {
       const uint8Array = isCsv
         ? isSJIS
           ? new Uint8Array(
-            encoding.convert(await workbook.csv.writeBuffer(), {
-              from: 'UTF8',
-              to: 'SJIS',
-            }),
-          )
+              encoding.convert(await workbook.csv.writeBuffer(), {
+                from: 'UTF8',
+                to: 'SJIS',
+              }),
+            )
           : await workbook.csv.writeBuffer()
         : await workbook.xlsx.writeBuffer()
 
@@ -621,50 +625,50 @@ select {
   position: relative;
   display: flex;
   justify-content: space-between;
-  align-items:center;
+  align-items: center;
   filter: drop-shadow(0 8px 5px #ccc);
 }
 
 /*左上の共有ID、端末名のスタイル*/
-.share-info-wrap{
-  display:flex;
-  align-items:center;
-  width:calc(100% - 250px);
-  max-width:600px;
-  height:40px;
+.share-info-wrap {
+  display: flex;
+  align-items: center;
+  width: calc(100% - 250px);
+  max-width: 600px;
+  height: 40px;
 }
 
 .share-info {
-  display:flex;
-  position:relative;
-  width:100%;
-  padding:10px 40px 10px 10px;
-  border:1px solid #ccc;
-  font-weight:bold;
+  display: flex;
+  position: relative;
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  border: 1px solid #ccc;
+  font-weight: bold;
 }
 
-.share-info span{
-  display:inline-block;
+.share-info span {
+  display: inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width:50%;
+  max-width: 50%;
 }
 
-.share-info span:nth-of-type(1){
-  margin-right:1.5em;
+.share-info span:nth-of-type(1) {
+  margin-right: 1.5em;
 }
 
 .share-info .edit-btn {
-  position:absolute;
-  top:0;
-  bottom:0;
-  right:10px;
-  margin:auto;
-  display:inline-block;
-  width:20px;
-  height:20px;
-  font-size:0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 10px;
+  margin: auto;
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  font-size: 0;
   background: url(../../../../public/img/icon-edit.svg) no-repeat center;
 }
 
@@ -775,12 +779,13 @@ select {
   border-radius: 4px;
   font-weight: bold;
   cursor: pointer;
-  margin-bottom:8px;
+  margin-bottom: 8px;
 }
 
-.sensor-left,.sensor-right{
-  width:200px;
-  max-width:100%;
+.sensor-left,
+.sensor-right {
+  width: 200px;
+  max-width: 100%;
 }
 
 .sensor-left select,
@@ -789,18 +794,18 @@ select {
 }
 
 .sensor-left span {
-  display:block;
-  text-align:left;
-  font-size:15px;
-  font-weight:bold;
+  display: block;
+  text-align: left;
+  font-size: 15px;
+  font-weight: bold;
 }
 
 .sensor-right span {
-  display:block;
-  text-align:right;
-  font-size:15px;
+  display: block;
+  text-align: right;
+  font-size: 15px;
   color: #00A456;
-  font-weight:bold;
+  font-weight: bold;
 }
 
 select:disabled {
@@ -863,63 +868,63 @@ select:disabled {
 }
 
 .modal-form label {
-  margin-bottom:5px;
+  margin-bottom: 5px;
   font-size: 16px;
 }
 
 /*共有モーダルスタイル*/
-.modal-share-wrap{
-  width:350px;
-  margin:auto;
-  text-align:start;
+.modal-share-wrap {
+  width: 350px;
+  margin: auto;
+  text-align: start;
 }
 
-.modal-share-wrap label{
-  display:inline-block;
-  margin-bottom:5px;
+.modal-share-wrap label {
+  display: inline-block;
+  margin-bottom: 5px;
   font-size: 16px;
-  font-weight:bold;
+  font-weight: bold;
 }
 
-.modal-share-input-wrap{
-  display:flex;
-  align-items:center;
-  margin-bottom:5px;
+.modal-share-input-wrap {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
 }
 
-.modal-share-input-wrap #shareRoomNameInput{
+.modal-share-input-wrap #shareRoomNameInput {
   padding: 0 15px;
-  width:calc(100% - 50px);
+  width: calc(100% - 50px);
   height: 40px;
   border: 2px solid #ccc;
-  border-right:none;
-  border-radius:8px 0 0 8px;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
   font-size: 16px;
 }
 
-.modal-share-input-wrap .copy-btn{
-  display:inline-block;
-  font-size:0;
-  width:50px;
-  height:40px;
-  border-radius:0 8px 8px 0;
-  background:url(../../../../public/img/icon-copy.svg)#ddd no-repeat center/25px;
+.modal-share-input-wrap .copy-btn {
+  display: inline-block;
+  font-size: 0;
+  width: 50px;
+  height: 40px;
+  border-radius: 0 8px 8px 0;
+  background: url(../../../../public/img/icon-copy.svg)#ddd no-repeat center/25px;
 }
 
-.modal-share-wrap .example{
-  display:block;
-  margin-bottom:20px;
-  font-size:13px;
-  color:#666;
+.modal-share-wrap .example {
+  display: block;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #666;
 }
 
-.modal-share-wrap #shareUserNameInput{
-  display:block;
+.modal-share-wrap #shareUserNameInput {
+  display: block;
   padding: 0 15px;
-  width:350px;
+  width: 350px;
   height: 40px;
   border: 2px solid #ccc;
-  border-radius:8px;
+  border-radius: 8px;
   font-size: 16px;
 }
 
@@ -970,8 +975,4 @@ select:disabled {
   font-size: 15px;
   font-weight: bold;
 }
-
-
-
-
 </style>
