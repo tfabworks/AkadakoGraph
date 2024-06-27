@@ -20,7 +20,9 @@
         </li>
       </ul>
     </nav>
-    <div class="footer-logo"><a href="https://tfabworks.com/" target="_blank"><img src="../../public/img/footer-logo.svg" alt="TFabWorks"></a></div>
+    <div class="footer-logo">
+<a href="https://tfabworks.com/" target="_blank"><img src="../../public/img/footer-logo.svg" alt="TFabWorks"></a>
+</div>
   </footer>
 </template>
 

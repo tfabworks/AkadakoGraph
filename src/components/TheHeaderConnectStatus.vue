@@ -1,7 +1,7 @@
 <template>
   <section>
     <div :class="{ active: connected, inactive: !connected, 'connect-btn': true }">
-      <button @click="toggleConnection" >
+      <button @click="toggleConnection">
         {{ connectButtonString }}
       </button>
     </div>

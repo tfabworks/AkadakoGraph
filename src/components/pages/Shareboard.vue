@@ -1,18 +1,26 @@
 <template>
   <div class="content-wrap">
     <div class="content-area">
-      <div class="roomName"><span>合言葉</span><span>{{ roomName }}</span></div>
+      <div class="roomName">
+<span>合言葉</span><span>{{ roomName }}</span>
+</div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
         <div v-if="!(chart.chartID in hideChartIDs)" class="content-box">
 
           <div class="content-box-header">
-            <div class="chart-name">{{ chart.chartName }}</div>
-            <div class="chart-hidden-btn-wrap"><a @click="hideChart(chart.chartID)" class="chart-hidden-btn">隠す</a>
+            <div class="chart-name">
+{{ chart.chartName }}
+</div>
+            <div class="chart-hidden-btn-wrap"><a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
             <div class="sensor-wrap">
-              <div v-if="chart.chartMainSensorID" class="sensor-main">{{ chart.chartMainSensorID | sensorName }}</div>
-              <div v-if="chart.chartSubSensorID" class="sensor-sub">{{ chart.chartSubSensorID | sensorKind }}</div>
+              <div v-if="chart.chartMainSensorID" class="sensor-main">
+{{ chart.chartMainSensorID | sensorName }}
+</div>
+              <div v-if="chart.chartSubSensorID" class="sensor-sub">
+{{ chart.chartSubSensorID | sensorKind }}
+</div>
             </div>
 
             <div class="chart-time-wrap">
@@ -30,7 +38,7 @@
         </div>
       </div>
       <div class="chart-show-btn-wrap">
-        <a @click="showAllChart" class="chart-show-btn">全て表示する
+        <a class="chart-show-btn" @click="showAllChart">全て表示する
           (
           現在の表示数：{{ charts.filter(c => c.chartID in hideChartIDs).length }}/{{ charts.length }}
           )
@@ -43,11 +51,6 @@
 <script>
 export default {
   components: {},
-  async mounted() {
-    await this.$store.dispatch('share/setupStore')
-    await this.$store.dispatch('share/reloadRoomSnapshot')
-    console.log(this.$store.state.share.roomSnapshot)
-  },
   data() {
     return {}
   },
@@ -81,6 +84,11 @@ export default {
       console.log('hideChartIDs', this.hideChartIDs)
       return this.$store.state.share.hideChartIDs
     },
+  },
+  async mounted() {
+    await this.$store.dispatch('share/setupStore')
+    await this.$store.dispatch('share/reloadRoomSnapshot')
+    console.log(this.$store.state.share.roomSnapshot)
   },
   methods: {
     hideChart(id) {

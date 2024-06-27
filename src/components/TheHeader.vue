@@ -11,6 +11,9 @@
 import ConnnectStatus from './TheHeaderConnectStatus'
 
 export default {
+  components: {
+    ConnnectStatus,
+  },
   data() {
     const headerLogoDefault = '/img/header-logo.svg'
     const headerLogoUrl = location.pathname.startsWith('/share') ? '/img/header-monitoring-logo.svg' : headerLogoDefault
@@ -22,9 +25,6 @@ export default {
     showConnectStatusOnHeader() {
       return this.$store.state.showConnectStatusOnHeader
     },
-  },
-  components: {
-    ConnnectStatus,
   },
 }
 </script>

@@ -37,6 +37,8 @@ jobs:
       - run: bun run lint
       - run: bun run test
       - run: bun run build
+      # sourcemapをsentoryにアップロード
+      - run: SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN }}" bun run sentry:sourcemaps
       - uses: actions/upload-artifact@v3
         with:
           name: dist
@@ -61,9 +63,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ matrix.region }}
-      # sourcemapをsentoryにアップロード
-      - run: SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN }}" bun run sentry:sourcemaps
-      # sourcemapを削除してからS3にアップロード
+      # sourcemapを削除してS3にアップロード
       - run: find ./dist -name \*.map -delete
       - run: aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME_PRODUCTION }}/
       - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_DISTRIBUTION_PRODUCTION }} --paths "/*"
