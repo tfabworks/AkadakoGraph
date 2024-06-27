@@ -6,7 +6,7 @@
     "serve": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service serve --mode development",
     "build": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service build --mode production",
     "test": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service test:unit",
-    "lint": "biome check --apply .",
+    "lint": "biome check --write .",
     "lint:eslint": "eslint src/** --fix --ext js,vue",
     "pretest": "(cd node_modules/canvas; test -f build/Release/canvas.node || npm run install) #bunだとcanvas.nodeが作られないのでこれだけnpmでビルドするWorkaround"
   },
@@ -28,7 +28,7 @@
     "web-serial-binding": "github:jaz303/web-serial-binding"
   },
   "devDependencies": {
-    "@biomejs/biome": "^1.8.1",
+    "@biomejs/biome": "^1.8.2",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-unit-jest": "^5.0.8",
