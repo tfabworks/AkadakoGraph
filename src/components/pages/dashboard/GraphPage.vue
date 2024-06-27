@@ -29,7 +29,7 @@
               <img src="../../../../public/img/icon-download.svg" alt="ダウンロード">
             </a>
           </li>
-          <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li>
+          <!-- <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li> -->
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
           <li><a @click="shareModalOpenFromShareButton"><img src="../../../../public/img/icon-share.svg" alt="共有"></a>
           </li>
