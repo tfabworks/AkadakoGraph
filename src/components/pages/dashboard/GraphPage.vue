@@ -158,6 +158,7 @@
 
 </template>
 <script>
+import dayjs from 'dayjs'
 import encoding from 'encoding-japanese'
 import ExcelJS from 'exceljs'
 import Vue from 'vue'
@@ -439,6 +440,11 @@ export default {
       // 統合した後の配列を時系列順にソート
       sourceForDL.sort((a, b) => {
         return a.x < b.x ? -1 : 1
+      })
+
+      // タイムスタムタンプ列を文字列化
+      sourceForDL.forEach((e) => {
+        e.x = dayjs(e.x).tz().format()
       })
 
       // データをシートに追加
