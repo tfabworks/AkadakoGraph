@@ -41,7 +41,6 @@
 </template>
 
 <script>
-
 export default {
   components: {},
   async mounted() {
@@ -50,9 +49,7 @@ export default {
     console.log(this.$store.state.share.roomSnapshot)
   },
   data() {
-    return {
-
-    }
+    return {}
   },
   computed: {
     room() {
@@ -66,8 +63,8 @@ export default {
     },
     charts() {
       return (this.$store.state.share.roomSnapshot?.charts ?? [])
-        .map(c => ({ ...c, hidden: this.hideChartIDs[c.chartID] || false }))
-        .sort((a, b) => a.chartName === b.chartName ? 0 : a.chartName < b.chartName ? -1 : 1)
+        .map((c) => ({ ...c, hidden: this.hideChartIDs[c.chartID] || false }))
+        .sort((a, b) => (a.chartName === b.chartName ? 0 : a.chartName < b.chartName ? -1 : 1))
     },
     hideChartIDs() {
       return this.$store.state.share.hideChartIDs
