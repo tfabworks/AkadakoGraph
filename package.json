@@ -8,9 +8,11 @@
     "test": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service test:unit",
     "lint": "biome check --write .",
     "lint:eslint": "eslint src/** --fix --ext js,vue",
-    "pretest": "(cd node_modules/canvas; test -f build/Release/canvas.node || npm run install) #bunだとcanvas.nodeが作られないのでこれだけnpmでビルドするWorkaround"
+    "pretest": "(cd node_modules/canvas; test -f build/Release/canvas.node || npm run install) #bunだとcanvas.nodeが作られないのでこれだけnpmでビルドするWorkaround",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org syun --project akadako-graph-vue ./dist && sentry-cli sourcemaps upload --org syun --project akadako-graph-vue ./dist"
   },
   "dependencies": {
+    "@sentry/cli": "^2.32.1",
     "@serialport/stream": "^9.2.4",
     "buefy": "^0.9.29",
     "chart.js": "2.9.4",
@@ -29,6 +31,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.2",
+    "@sentry/vue": "^8.12.0",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-unit-jest": "^5.0.8",
@@ -53,7 +56,10 @@
       "autoprefixer": {}
     }
   },
-  "browserslist": ["> 1%", "last 2 versions"],
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ],
   "engines": {
     "node": "18.x"
   },
