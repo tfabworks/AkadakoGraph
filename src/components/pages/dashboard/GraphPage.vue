@@ -2,15 +2,19 @@
   <div class="content-area">
     <div>
       <div class="btn-bar">
-        <div class="share-info">
-          <span v-if="shareRoomID">
-            共有ID：{{ shareRoomName }}
-          </span>
-          <span v-if="shareRoomID && shareUserName">
-            端末名：{{ shareUserName }}
-          </span>
-          <a @click="shareModalOpen"編集 class="edit-btn">編集する</a>
+
+        <div class="share-info-wrap">
+          <div class="share-info" v-if="shareRoomID || shareUserName">
+            <span v-if="shareRoomID">
+              共有ID：{{ shareRoomName }}
+            </span>
+            <span v-if="shareRoomID && shareUserName">
+              端末名：{{ shareUserName }}
+            </span>
+            <a @click="shareModalOpen" class="edit-btn">編集する</a>
+          </div>
         </div>
+
         <ul class="btn-list">
           <li>
             <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
@@ -607,24 +611,30 @@ select {
   position: relative;
   display: flex;
   justify-content: space-between;
+  align-items:center;
   filter: drop-shadow(0 8px 5px #ccc);
 }
 
 /*左上の共有ID、端末名のスタイル*/
-.share-info {
-  position:relative;
-  display: flex;
+.share-info-wrap{
+  display:flex;
   align-items:center;
   width:calc(100% - 250px);
   max-width:600px;
   height:40px;
+}
+
+.share-info {
+  display:flex;
+  position:relative;
+  width:100%;
   padding:10px 40px 10px 10px;
-  margin:auto auto auto 0;
   border:1px solid #ccc;
   font-weight:bold;
 }
 
 .share-info span{
+  display:inline-block;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -637,7 +647,10 @@ select {
 
 .share-info .edit-btn {
   position:absolute;
+  top:0;
+  bottom:0;
   right:10px;
+  margin:auto;
   display:inline-block;
   width:20px;
   height:20px;
