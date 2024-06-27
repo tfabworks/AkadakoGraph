@@ -36,7 +36,10 @@ export default {
     },
   },
   methods: {
-    toggleConnection() {
+    toggleConnection(e) {
+      if (e.shiftKey) {
+        this.$store.dispatch('firmata/debugStateSetEnableDummyBoard', true)
+      }
       if (this.connected) {
         this.disConnect()
       } else {

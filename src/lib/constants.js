@@ -155,6 +155,18 @@ export const Sensors = [
     id: 10103,
     name: 'デジタルB2',
   },
+  {
+    id: 90001,
+    name: 'ダミーデータ(ランダム)',
+  },
+  {
+    id: 90002,
+    name: 'ダミーデータ(sin)',
+  },
+  {
+    id: 90003,
+    name: 'ダミーデータ(cos)',
+  },
 ].map((sensor) => {
   sensor.kind = sensor.name
   if (sensor.id < 10000) {

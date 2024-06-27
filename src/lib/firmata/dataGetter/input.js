@@ -78,4 +78,14 @@ export default class InputGetter {
     const raw = this.board.getAnalogValue(3)
     return Math.round((raw / 1023) * 1000) / 10
   }
+
+  dummyDataRandom() {
+    return Math.random()
+  }
+  dummyDataSin() {
+    return Math.sin((Date.now() / 60 / 1000) * 2 * Math.PI)
+  }
+  dummyDataCos() {
+    return Math.cos((Date.now() / 60 / 1000) * 2 * Math.PI)
+  }
 }

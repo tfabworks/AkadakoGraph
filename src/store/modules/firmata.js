@@ -54,14 +54,24 @@ const state = {
   graphValue: JSON.parse(localStorage.getItem('graphValue') || '[]'),
   graphValueSub: JSON.parse(localStorage.getItem('graphValueSub') || '[]'),
   shouldPause: true,
+  //デバッグ用
+  debugState: {
+    enableDummyBoard: false,
+  },
 }
 
 const getters = {
-  connected() {
+  debugState() {
+    return state.debugState
+  },
+  board() {
     if (state.board && state.board.isConnected()) {
       return true
     }
     return false
+  },
+  connected() {
+    return state.board && state.board.isConnected() ? true : false
   },
   values() {
     return {
@@ -87,6 +97,12 @@ const getters = {
 }
 
 const mutations = {
+  setBoard(state, payload) {
+    state.board = payload
+  },
+  setDataGetter(state, payload) {
+    state.dataGetter = payload
+  },
   addValue(state, { isMain, newValue }) {
     const newTime = newValue.x
     const newValueY = newValue.y
@@ -186,6 +202,9 @@ const mutations = {
       state.axisInfo.sub.correctionRate = 1
     }
   },
+  setDebugState(state, payload) {
+    state.debugState = payload
+  },
 }
 
 const actions = {
@@ -220,32 +239,58 @@ const actions = {
         return Promise.reject('This browser does not support Web Serial API.')
       }
 
-      new AkaDakoBoard().connectSerial(serialPortOptions).then((connected) => {
-        if (connected == undefined) {
-          throw new Error('[Serial]board is undefined')
+      return new AkaDakoBoard().connectSerial(serialPortOptions).then((board) => {
+        if (board == undefined) {
+          return Promise.reject('[Serial]board is undefined')
         }
-
-        ctx.state.board = connected
-        connected.once(AkaDakoBoard.RELEASED, () => {
-          ctx.state.board = null
+        ctx.commit('setBoard', board)
+        board.once(AkaDakoBoard.RELEASED, () => {
+          ctx.commit('setBoard', null)
         })
-        ctx.state.dataGetter = new DataGetter(ctx.state.board)
-        return
+        ctx.commit('setDataGetter', new DataGetter(board))
+        return Promise.resolve()
       })
     } catch (e) {
       return Promise.reject(e)
     }
   },
+  dummyConnect({ commit }) {
+    let connected = true
+    const board = new AkaDakoBoard()
+    const getter = new DataGetter(board)
+    board.isConnected = () => connected
+    board.connect = () => {
+      connected = true
+    }
+    board.disconnect = () => {
+      connected = false
+      board.emit(AkaDakoBoard.RELEASED)
+    }
+    board.once(AkaDakoBoard.RELEASED, () => {
+      commit('setBoard', null)
+    })
+    commit('setBoard', board)
+    commit('setDataGetter', getter)
+    console.log('dummyConnect', board.isConnected())
+    return Promise.resolve()
+  },
+
   async connect(ctx) {
-    ctx.dispatch('midiConnect').catch((e) => {
-      console.error(e)
+    ctx.dispatch('midiConnect').catch((err) => {
+      console.error('[MIDI]connect', err)
       ctx.dispatch('serialConnect').catch((err) => {
-        console.error(err)
+        console.error('[Serial]connect', err)
+        console.log('debugState', ctx.state.debugState)
+        if (ctx.state.debugState.enableDummyBoard) {
+          ctx.dispatch('dummyConnect').catch((err) => console.error('[Dummy]connect', err))
+        }
       })
     })
   },
   disConnect(ctx) {
-    ctx.state.board.disconnect()
+    if (ctx.state.board && ctx.state.board.board) {
+      ctx.state.board.disconnect()
+    }
 
     ctx.state.axisInfo.main.shouldRender = false
     ctx.state.axisInfo.sub.shouldRender = false
@@ -395,6 +440,9 @@ const actions = {
       }
       reject()
     })
+  },
+  debugStateSetEnableDummyBoard({ commit, state }, enableDummyBoard) {
+    commit('setDebugState', { ...state.debugState, enableDummyBoard })
   },
 }
 

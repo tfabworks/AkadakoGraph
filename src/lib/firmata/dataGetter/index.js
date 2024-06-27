@@ -83,6 +83,12 @@ export default class DataGetter {
         return this.inputGetter.analogLevelB2()
       } else if (kind === 22) {
         return this.inputGetter.digitalLevelB2()
+      } else if (kind === 90001) {
+        return this.inputGetter.dummyDataRandom()
+      } else if (kind === 90002) {
+        return this.inputGetter.dummyDataSin()
+      } else if (kind === 90003) {
+        return this.inputGetter.dummyDataCos()
       }
       return null
     } catch (e) {

@@ -46,7 +46,7 @@
         <div class="sensor-left">
           <select v-model="graphKind" :disabled="!connected">
             <option :value="null" />
-            <option v-for=" s in Sensors " :key="s.id" :value="s.id">
+            <option v-for=" s in sensors " :key="s.id" :value="s.id">
               {{ s.kind }}
             </option>
           </select>
@@ -63,7 +63,7 @@
         <div class="sensor-right">
           <select v-model="graphKindSub" :disabled="!connected">
             <option :value="null" />
-            <option v-for=" s in Sensors " :key="s.id" :value="s.id">
+            <option v-for=" s in sensors " :key="s.id" :value="s.id">
               {{ s.kind }}
             </option>
           </select>
@@ -190,7 +190,6 @@ export default {
         main: '',
         sub: '',
       },
-      Sensors,
       intervals: [
         ...[1, 3, 5, 10, 30], // seconds
         ...[1, 3, 5, 10].map((s) => 60 * s), // minutes
@@ -300,6 +299,17 @@ export default {
     },
     shareUrl() {
       return this.$store.getters['share/shareUrl']
+    },
+    enableDummyBoard() {
+      return this.$store.state.firmata.debugState.enableDummyBoard
+        || 90000 < this.graphKind
+        || 90000 < this.graphKindSub
+    },
+    sensors() {
+      if (this.enableDummyBoard) {
+        return Sensors
+      }
+      return Sensors.filter((sensor) => !sensor.name.includes('ダミー'))
     },
   },
   watch: {
