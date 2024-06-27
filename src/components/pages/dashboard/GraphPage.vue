@@ -4,14 +4,14 @@
       <div class="btn-bar">
 
         <div class="share-info-wrap">
-          <div class="share-info" v-if="shareRoomID || (shareRoomID && shareUserName)">
+          <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
             <span v-if="shareRoomID">
               共有ID：{{ shareRoomName }}
             </span>
             <span v-if="shareRoomID && shareUserName">
               端末名：{{ shareUserName }}
             </span>
-            <a @click="shareModalOpen" class="edit-btn">編集する</a>
+            <a class="edit-btn" @click="shareModalOpen">編集する</a>
           </div>
         </div>
 
@@ -95,22 +95,22 @@
       </div>
     </modal>
 
-    <modal name="share-modal" focusTrap="true">
+    <modal name="share-modal" focus-trap="true">
       <div class="modal-header">
         <h2>共有（試験運用中）</h2>
       </div>
       <div class="modal-body">
-        <form @submit.prevent="shareModalSave" class="modal-form">
+        <form class="modal-form" @submit.prevent="shareModalSave">
           <div class="modal-share-wrap">
             <label for="shareRoomNameInput">共有ID</label>
             <div class="modal-share-input-wrap">
-              <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue" data-lpignore data-1p-ignore>
-              <a tabindex="-1" @click.prevent="shareModalCopyLink" class="copy-btn">リンクをコピー</a>
+              <input id="shareRoomNameInput" v-model="shareRoomNameInputValue" type="text" data-lpignore data-1p-ignore>
+              <a tabindex="-1" class="copy-btn" @click.prevent="shareModalCopyLink">リンクをコピー</a>
             </div>
             <span class="example">例）〇〇小学校20240625</span>
 
             <label for="shareUserNameInput">端末名（省略可能）</label>
-            <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue" data-lpignore data-1p-ignore>
+            <input id="shareUserNameInput" v-model="shareUserNameInputValue" type="text" data-lpignore data-1p-ignore>
           </div>
         </form>
         <div class="btn-square-wrap">
