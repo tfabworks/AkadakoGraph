@@ -2,14 +2,15 @@
   <div class="content-area">
     <div>
       <div class="btn-bar">
-        <ul class="share-info-list">
-          <li v-if="shareRoomID">
-            <span>共有ID</span><button @click="shareModalOpen">{{ shareRoomName }}</button>
-          </li>
-          <li v-if="shareRoomID && shareUserName">
-            <span>端末名</span><button @click="shareModalOpen">{{ shareUserName }}</button>
-          </li>
-        </ul>
+        <div class="share-info">
+          <span v-if="shareRoomID">
+            共有ID：{{ shareRoomName }}
+          </span>
+          <span v-if="shareRoomID && shareUserName">
+            端末名：{{ shareUserName }}
+          </span>
+          <a @click="shareModalOpen"編集 class="edit-btn">編集する</a>
+        </div>
         <ul class="btn-list">
           <li>
             <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
@@ -45,7 +46,7 @@
               {{ s.kind }}
             </option>
           </select>
-          <input class="last-main-value" type="text" :value="lastMainValue" readonly>
+          <span>現在の値：{{ lastMainValue }} {{ lastMainUnit }}</span>
         </div>
         <div class="interval-selector">
           <select v-model="interval" :disabled="!connected">
@@ -56,13 +57,13 @@
             :start-time="renderTimerStartTime" />
         </div>
         <div class="sensor-right">
-          <input class="last-sub-value" type="text" :value="lastSubValue" readonly>
           <select v-model="graphKindSub" :disabled="!connected">
             <option :value="null" />
             <option v-for=" s in Sensors " :key="s.id" :value="s.id">
               {{ s.kind }}
             </option>
           </select>
+          <span>現在の値：{{ lastSubValue }} {{ lastSubUnit }}</span>
         </div>
       </div>
 
@@ -92,18 +93,20 @@
 
     <modal name="share-modal" focusTrap="true">
       <div class="modal-header">
-        <h2>共有</h2>
+        <h2>共有（試験運用中）</h2>
       </div>
       <div class="modal-body">
         <form @submit.prevent="shareModalSave" class="modal-form">
-          <div>
-            <label for="shareRoomNameInput">ID</label>
-            <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue" data-lpignore data-1p-ignore>
-            <a tabindex="-1" @click.prevent="shareModalCopyLink">リンクをコピー</a><br>
-            例）〇〇小学校20240625<br>
-            <br>
-            <label for="shareUserNameInput">端末名（省略可能）</label>
-            <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue" data-lpignore data-1p-ignore>
+            <div class="modal-share-wrap">
+              <label for="shareRoomNameInput">共有ID</label>
+              <div class="modal-share-input-wrap">
+                <input type="text" id="shareRoomNameInput" v-model="shareRoomNameInputValue" data-lpignore data-1p-ignore>
+                <a tabindex="-1" @click.prevent="shareModalCopyLink" class="copy-btn">リンクをコピー</a>
+              </div>
+              <span class="example">例）〇〇小学校20240625</span>
+
+              <label for="shareUserNameInput">端末名（省略可能）</label>
+              <input type="text" id="shareUserNameInput" v-model="shareUserNameInputValue" data-lpignore data-1p-ignore>
           </div>
         </form>
         <div class="btn-square-wrap">
@@ -111,11 +114,10 @@
             <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
             <span class="btn-text">保存</span>
           </a>
-          <a class="btn-square-little-rich cancel" @click="shareModalClose">
-            <img src="../../../../public/img/icon-cancel.svg" alt="キャンセル" class="btn-icon">
-            <span class="btn-text">閉じる</span>
-          </a>
         </div>
+        <button class="modal-close-btn" @click="shareModalClose">
+          <i class="far fa-times-circle fa-lg" />閉じる
+        </button>
       </div>
     </modal>
 
@@ -594,6 +596,8 @@ select {
   outline: none;
 }
 
+/*-----------共有ID、端末名、右上各種メニューアイコン-----------*/
+
 .btn-bar {
   width: 100vw;
   height: 60px;
@@ -606,86 +610,42 @@ select {
   filter: drop-shadow(0 8px 5px #ccc);
 }
 
-.left-btn-list {
-  left: 0;
-  right: auto;
-}
-
-
-.left-btn-list li:last-of-type,
-.right-btn-list li:last-of-type {
-  border-right: none;
-}
-
-.left-btn-list li a {
-  display: block;
-  padding: 8px;
-  height: 100%;
-}
-
-.left-btn-list a.disable {
-  pointer-events: none;
-  opacity: .3;
-  filter: grayscale(100%);
-}
-
-.left-btn-list li a img {
-  display: block;
-  width: 26px;
-  margin: auto;
-}
-
-.control-btn img {
-  width: 100%;
-}
-
-
-.share-info-list {
+/*左上の共有ID、端末名のスタイル*/
+.share-info {
+  position:relative;
   display: flex;
-  align-items: center;
-  width: calc(100% - 290px);
+  align-items:center;
+  width:calc(100% - 250px);
+  max-width:600px;
+  height:40px;
+  padding:10px 40px 10px 10px;
+  margin:auto auto auto 0;
+  border:1px solid #ccc;
+  font-weight:bold;
 }
 
-.share-info-list li {
-  display: flex;
-  align-items: center;
-}
-
-.share-info-list li:first-of-type {
-  margin-right: 20px;
-  max-width: calc(60% - 20px);
-}
-
-.share-info-list li:last-of-type {
-  max-width: 40%;
-}
-
-.share-info-list li span {
-  padding: 5px 10px;
-  display: inline-block;
-  color: #fff;
-  font-size: 15px;
-  font-weight: bold;
-  background: #2FAD65;
-  border-radius: 5px;
+.share-info span{
   white-space: nowrap;
-}
-
-.share-info-list li button {
-  padding-right: 20px;
-  font-size: 16px;
-  font-weight: bold;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  background: url(../../../../public/img/icon-edit.svg) no-repeat right center/16px;
+  max-width:50%;
 }
 
-.share-info-list li button:hover {
-  cursor: pointer;
-  opacity: .7;
+.share-info span:nth-of-type(1){
+  margin-right:1.5em;
 }
 
+.share-info .edit-btn {
+  position:absolute;
+  right:10px;
+  display:inline-block;
+  width:20px;
+  height:20px;
+  font-size:0;
+  background: url(../../../../public/img/icon-edit.svg) no-repeat center;
+}
+
+/*右上のアイコン一覧のスタイル*/
 .btn-list {
   display: flex;
   padding: 10px 0;
@@ -718,73 +678,10 @@ select {
   filter: grayscale(100%);
 }
 
-.modal-form {
-  width: 100%;
-  text-align: center;
-}
 
-.modal-form label {
-  font-size: 16px;
-}
+/*-----------グラフ内-----------*/
 
-.modal-form input {
-  margin-top: 10px;
-  width: 80%;
-  height: 50px;
-  padding: 0 15px;
-  border-radius: 8px;
-  border: 2px solid #ccc;
-  font-size: 16px;
-}
-
-.btn-square-wrap {
-  display: flex;
-}
-
-.btn-square-little-rich {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 15px;
-  text-decoration: none;
-  color: #FFF;
-  background: #27ae60;
-  /*色*/
-  border: solid 1px #27ae60;
-  /*線色*/
-  border-radius: 4px;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-  margin: 10px 15px;
-  height: 50px;
-}
-
-.btn-square-little-rich.cancel {
-  background: #ff0000;
-  border: solid 1px #ff0000;
-  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.btn-square-little-rich:active {
-  /*押したとき*/
-  border: solid 1px #2c6ac4;
-  box-shadow: none;
-  text-shadow: none;
-}
-
-.btn-icon {
-  display: inline-block;
-  margin-right: 3px;
-  width: 20px;
-  height: auto;
-}
-
-.btn-text {
-  padding: 0 5px;
-  font-size: 15px;
-  font-weight: bold;
-}
-
+/*グラフを囲う白背景*/
 .content-box {
   text-align: center;
   width: 100%;
@@ -795,6 +692,7 @@ select {
   border-radius: 4px;
 }
 
+/*センサー選択プルダウン*/
 #loader {
   display: inline-block;
   position: relative;
@@ -820,6 +718,76 @@ select {
   }
 }
 
+.sensor-select-wrap {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+}
+
+.sensor-select-wrap .interval-selector {
+  position: relative;
+  width: 75px;
+  margin: 0 10px;
+}
+
+.sensor-select-wrap .interval-selector select {
+  width: 100%;
+}
+
+.progress-timer {
+  padding: 0;
+  margin: 0;
+  position: absolute;
+  width: 100%;
+}
+
+.timer__meter {
+  width: 100%;
+}
+
+.sensor-select-wrap select {
+  position: relative;
+  padding: 8px;
+  border: 2px solid #333;
+  border-radius: 4px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-bottom:8px;
+}
+
+.sensor-left,.sensor-right{
+  width:200px;
+  max-width:100%;
+}
+
+.sensor-left select,
+.sensor-right select {
+  width: 100%;
+}
+
+.sensor-left span {
+  display:block;
+  text-align:left;
+  font-size:15px;
+  font-weight:bold;
+}
+
+.sensor-right span {
+  display:block;
+  text-align:right;
+  font-size:15px;
+  color: #00A456;
+  font-weight:bold;
+}
+
+select:disabled {
+  opacity: .5;
+  cursor: auto;
+}
+
+/*-----------モーダル-----------*/
+
+/*モーダル全般スタイル*/
 .modal-header h2 {
   padding: 15px;
   text-align: center;
@@ -835,7 +803,6 @@ select {
   flex-wrap: wrap;
   align-items: center;
   padding: 25px;
-  min-height: 250px;
 }
 
 .modal-body p {
@@ -867,104 +834,121 @@ select {
   margin-right: 4px;
 }
 
-.sensor-select-wrap {
+.modal-form {
+  width: 100%;
+  text-align: center;
+}
+
+.modal-form label {
+  margin-bottom:5px;
+  font-size: 16px;
+}
+
+/*共有モーダルスタイル*/
+.modal-share-wrap{
+  width:350px;
+  margin:auto;
+  text-align:start;
+}
+
+.modal-share-wrap label{
+  display:inline-block;
+  margin-bottom:5px;
+  font-size: 16px;
+  font-weight:bold;
+}
+
+.modal-share-input-wrap{
+  display:flex;
+  align-items:center;
+  margin-bottom:5px;
+}
+
+.modal-share-input-wrap #shareRoomNameInput{
+  padding: 0 15px;
+  width:calc(100% - 50px);
+  height: 40px;
+  border: 2px solid #ccc;
+  border-right:none;
+  border-radius:8px 0 0 8px;
+  font-size: 16px;
+}
+
+.modal-share-input-wrap .copy-btn{
+  display:inline-block;
+  font-size:0;
+  width:50px;
+  height:40px;
+  border-radius:0 8px 8px 0;
+  background:url(../../../../public/img/icon-copy.svg)#ddd no-repeat center/25px;
+}
+
+.modal-share-wrap .example{
+  display:block;
+  margin-bottom:20px;
+  font-size:13px;
+  color:#666;
+}
+
+.modal-share-wrap #shareUserNameInput{
+  display:block;
+  padding: 0 15px;
+  width:350px;
+  height: 40px;
+  border: 2px solid #ccc;
+  border-radius:8px;
+  font-size: 16px;
+}
+
+/*モーダル内のボタン*/
+.btn-square-wrap {
   display: flex;
-  justify-content: space-between;
-  margin-bottom: 15px;
 }
 
-.sensor-select-wrap .interval-selector {
+.btn-square-little-rich {
   position: relative;
-  margin: 0 10px;
-}
-
-.sensor-select-wrap .interval-selector select {
-  width: 75px;
-}
-
-.progress-timer {
-  padding: 0;
-  margin: 0;
-  position: absolute;
-  width: 100%;
-}
-
-.timer__meter {
-  width: 100%;
-}
-
-.sensor-select-wrap select {
-  position: relative;
-  padding: 8px;
-  border: 2px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 15px;
+  text-decoration: none;
+  color: #FFF;
+  background: #27ae60;
+  /*色*/
+  border: solid 1px #27ae60;
+  /*線色*/
   border-radius: 4px;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+  margin: 10px 15px;
+  height: 40px;
+}
+
+.btn-square-little-rich.cancel {
+  background: #ff0000;
+  border: solid 1px #ff0000;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.btn-square-little-rich:active {
+  border: solid 1px #2c6ac4;
+  box-shadow: none;
+  text-shadow: none;
+}
+
+.btn-icon {
+  display: inline-block;
+  margin-right: 3px;
+  width: 20px;
+  height: auto;
+}
+
+.btn-text {
+  padding: 0 5px;
+  font-size: 15px;
   font-weight: bold;
-  cursor: pointer;
 }
 
-.sensor-select-wrap .sensor-left,
-.sensor-select-wrap .sensor-right {
-  display: flex;
-  align-items: flex-start;
-  flex-wrap: wrap;
-}
 
-.sensor-select-wrap .sensor-left select,
-.sensor-select-wrap .sensor-right select {
-  width: 200px;
-}
 
-.sensor-select-wrap .sensor-left input,
-.sensor-select-wrap .sensor-right input {
-  width: 60px;
-  margin: 0 10px;
-}
 
-.sensor-select-wrap .sensor-left select,
-.sensor-select-wrap .sensor-left input {
-  color: #333;
-}
-
-.sensor-select-wrap .sensor-right select,
-.sensor-select-wrap .sensor-right input {
-  color: #060;
-}
-
-select:disabled {
-  opacity: .5;
-  cursor: auto;
-}
-
-input.last-main-value {
-  border: none;
-  text-align: left;
-}
-
-input.last-sub-value {
-  border: none;
-  text-align: right;
-}
-
-@media screen and (max-width:770px) {
-  .sensor-right select {
-    order: -1;
-  }
-
-  .sensor-left,
-  .sensor-right {
-    justify-content: center;
-  }
-
-  .sensor-select-wrap .sensor-left select,
-  .sensor-select-wrap .sensor-right select {
-    width: 100%;
-    margin-bottom: 5px;
-  }
-
-  .sensor-select-wrap .sensor-left input,
-  .sensor-select-wrap .sensor-right input {
-    width: 100%;
-  }
-
-}
 </style>
