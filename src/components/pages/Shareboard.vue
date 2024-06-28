@@ -40,7 +40,7 @@
       <div class="chart-show-btn-wrap">
         <a class="chart-show-btn" @click="showAllChart">全て表示する
           (
-          現在の表示数：{{ charts.filter(c => c.chartID in hideChartIDs).length }}/{{ charts.length }}
+          現在の表示数：{{ charts.filter(c => !(c.chartID in hideChartIDs)).length }}/{{ charts.length }}
           )
         </a>
       </div>
