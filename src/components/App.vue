@@ -17,7 +17,7 @@ import Footer from './TheFooter'
 import Header from './TheHeader'
 import Dashboard from './pages/Dashboard'
 import Shareboard from './pages/Shareboard'
-console.log('VersionInfo', VersionInfo)
+console.log('VersionInfo', { ...VersionInfo })
 
 export default {
   components: {

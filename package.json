@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "serve": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service serve --mode development",
-    "build": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service build --mode production",
-    "test": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service test:unit",
+    "serve": "./scripts/build-env.sh vue-cli-service serve --mode development",
+    "build": "./scripts/build-env.sh vue-cli-service build --mode production",
+    "test": "./scripts/build-env.sh vue-cli-service test:unit",
     "lint": "bun run lint:biome; bun run lint:eslint",
     "lint:biome": "biome migrate --write && biome check --write .",
     "lint:eslint": "eslint src/** --fix --ext js,vue",

@@ -1,7 +1,9 @@
 export const VersionInfo = {
-  commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
-  branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
-  tag: process.env.VUE_APP_GIT_TAG || 'dev',
+  build: new Date().toISOString(),
+  commit: process.env.VUE_APP_GIT_COMMIT || null,
+  commitDate: process.env.VUE_APP_GIT_COMMIT_DATE || null,
+  branch: process.env.VUE_APP_GIT_BRANCH || null,
+  tag: process.env.VUE_APP_GIT_TAG || null,
 }
 
 export const Sensors = [
