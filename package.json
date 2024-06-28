@@ -9,6 +9,7 @@
     "lint": "bun run lint:biome; bun run lint:eslint",
     "lint:biome": "biome migrate --write && biome check --write .",
     "lint:eslint": "eslint src/** --fix --ext js,vue",
+    "prepare": "husky",
     "pretest": "(cd node_modules/canvas; test -f build/Release/canvas.node || npm run install) #bunだとcanvas.nodeが作られないのでこれだけnpmでビルドするWorkaround",
     "sentry:sourcemaps": "sentry-cli sourcemaps inject --org syun --project akadako-graph-vue ./dist && sentry-cli sourcemaps upload --org syun --project akadako-graph-vue ./dist"
   },
