@@ -83,6 +83,9 @@ const mutations = {
   setUserName(state, userName) {
     state.userName = userName
     localStorage.setItem(`${STORAGE_PREFIX}userName`, userName)
+    // チャート名はユーザ名と同じにする
+    state.chartName = userName
+    localStorage.setItem(`${STORAGE_PREFIX}chartName`, userName)
   },
   setChartID(state, chartID) {
     state.chartID = chartID

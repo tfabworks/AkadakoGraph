@@ -2,25 +2,25 @@
   <div class="content-wrap">
     <div class="content-area">
       <div class="roomName">
-<span>合言葉</span><span>{{ roomName }}</span>
-</div>
+        <span>合言葉</span><span>{{ roomName }}</span>
+      </div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
         <div v-if="!(chart.chartID in hideChartIDs)" class="content-box">
 
           <div class="content-box-header">
             <div class="chart-name">
-{{ chart.chartName }}
-</div>
+              {{ chart.chartName }}
+            </div>
             <div class="chart-hidden-btn-wrap"><a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
             <div class="sensor-wrap">
               <div v-if="chart.chartMainSensorID" class="sensor-main">
-{{ chart.chartMainSensorID | sensorName }}
-</div>
+                {{ chart.chartMainSensorID | sensorName }}
+              </div>
               <div v-if="chart.chartSubSensorID" class="sensor-sub">
-{{ chart.chartSubSensorID | sensorKind }}
-</div>
+                {{ chart.chartSubSensorID | sensorKind }}
+              </div>
             </div>
 
             <div class="chart-time-wrap">
