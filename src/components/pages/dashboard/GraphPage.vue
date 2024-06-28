@@ -105,7 +105,7 @@
             <label for="shareRoomNameInput">共有ID</label>
             <div class="modal-share-input-wrap">
               <input id="shareRoomNameInput" v-model="shareRoomNameInputValue" type="text" data-lpignore data-1p-ignore>
-              <a tabindex="-1" class="copy-btn" @click.prevent="shareModalCopyLink">リンクをコピー</a>
+              <a tabindex="-1" class="copy-btn" @click.prevent="shareModalCopyID">IDをコピー</a>
             </div>
             <span class="example">例）〇〇小学校20240625</span>
 
@@ -552,8 +552,8 @@ export default {
         this.shareModalOpenTab()
       }
     },
-    async shareModalCopyLink() {
-      await navigator.clipboard.writeText(this.shareUrl)
+    async shareModalCopyID() {
+      await navigator.clipboard.writeText(this.shareRoomNameInputValue)
     },
     shareModalOpenTab() {
       this.shareModalFromButton = false
