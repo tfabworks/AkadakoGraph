@@ -16,7 +16,7 @@
             </div>
             <div class="sensor-wrap">
               <div v-if="chart.chartMainSensorID" class="sensor-main">
-                {{ chart.chartMainSensorID | sensorName }}
+                {{ chart.chartMainSensorID | sensorKind }}
               </div>
               <div v-if="chart.chartSubSensorID" class="sensor-sub">
                 {{ chart.chartSubSensorID | sensorKind }}
