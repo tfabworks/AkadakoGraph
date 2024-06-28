@@ -548,6 +548,9 @@ export default {
         }
       }
       this.shareModalClose()
+      if (this.shareModalFromButton) {
+        this.shareModalOpenTab()
+      }
     },
     async shareModalCopyLink() {
       await navigator.clipboard.writeText(this.shareUrl)
