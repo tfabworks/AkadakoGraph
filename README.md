@@ -22,14 +22,19 @@ yarn test
 yarn lint
 ```
 </details>
+
+
 <details open>
 <summary>bun の場合</summary>
 
 ```
-# インストール
+# bun自体のインストール（これを実行後に一度ターミナルの開き直しが必要かもしれません）
+curl -fsSL https://bun.sh/install | bash
+
+# 依存パッケージのインストール（package.jsonが更新された場合にも再実行が必要です）
 bun install
 
-# ローカルサーバー
+# ローカルサーバー起動
 bun run serve
 
 # ビルド

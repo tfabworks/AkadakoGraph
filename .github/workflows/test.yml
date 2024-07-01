@@ -28,7 +28,7 @@ jobs:
         run:  diff <(bun bun.lockb) yarn.lock
       - name: Cache node modules
         id: cache-node_modules
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: node_modules
         with:
@@ -39,7 +39,9 @@ jobs:
       - run: bun run lint
       - run: bun run test
       - run: bun run build
-      - uses: actions/upload-artifact@v3
+      # sourcemapをsentoryにアップロード
+      - run: SENTRY_AUTH_TOKEN="${{ secrets.SENTRY_AUTH_TOKEN }}" bun run sentry:sourcemaps
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: ./dist
@@ -54,7 +56,7 @@ jobs:
     needs: CI
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: ./dist
@@ -63,5 +65,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ matrix.region }}
+      # 試験環境ではsourcemapを削除しない
+      # - run: find ./dist -name \*.map -delete
       - run: aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME_TEST }}/
       - run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CF_DISTRIBUTION_TEST }} --paths "/*"

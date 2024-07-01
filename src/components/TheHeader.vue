@@ -1,38 +1,53 @@
 <template>
   <header class="main-header">
     <h1 class="header-logo">
-      <a><img
-        src="../../public/img/header-tfc-logo.png"
-        alt="TFabGraph[AkaDako版]"
-      ></a>
+      <a><img :src="headerLogoUrl" alt="AkaDakoグラフ"></a>
     </h1>
+    <ConnnectStatus v-if="showConnectStatusOnHeader" />
   </header>
 </template>
+
+<script>
+import ConnnectStatus from './TheHeaderConnectStatus'
+
+export default {
+  components: {
+    ConnnectStatus,
+  },
+  data() {
+    const headerLogoDefault = '/img/header-logo.svg'
+    const headerLogoUrl = location.pathname.startsWith('/share') ? '/img/header-monitoring-logo.svg' : headerLogoDefault
+    return {
+      headerLogoUrl: headerLogoUrl,
+    }
+  },
+  computed: {
+    showConnectStatusOnHeader() {
+      return this.$store.state.showConnectStatusOnHeader
+    },
+  },
+}
+</script>
 
 <style scoped>
 .main-header {
   position: relative;
   width: 100%;
-  height: 50px;
+  height: 60px;
+  padding: 0 5%;
   background: #333;
+  display: flex;
+  align-items: center;
 }
 
 .header-logo {
-  position: absolute;
-  top: 50%;
-  left: 5px;
-  transform: translateY(-50%);
-  width: 380px;
-}
-
-@media (max-width: 485px) {
-  .header-logo {
-      max-width: calc(100% - 210px);
-  }
+  margin-right: auto;
 }
 
 .header-logo img {
   display: block;
+  width: auto;
+  height: 44px;
 }
 
 .header-info-area {
@@ -43,6 +58,7 @@
   right: 0;
   height: 50px;
 }
+
 @media (max-width: 485px) {
   .header-info-area {
     max-width: 210px;
@@ -55,22 +71,27 @@
 .header-info-area .select-language {
   padding: 0 20px;
 }
+
 @media (max-width: 485px) {
   .header-info-area .select-language {
     padding: 0;
   }
 }
+
 .header-info-area .select-language .language-list {
   display: flex;
 }
+
 .header-info-area .select-language .language-list li {
   width: 100px;
 }
+
 @media (max-width: 485px) {
   .header-info-area .select-language .language-list li {
     width: 90px;
   }
 }
+
 .header-info-area .select-language .language-list li a {
   display: block;
   padding: 0 15px;
@@ -83,21 +104,26 @@
   font-weight: bold;
   text-align: center;
 }
+
 @media (max-width: 485px) {
   .header-info-area .select-language .language-list li a {
     padding: 0 5px;
   }
 }
+
 .header-info-area .select-language .language-list li:nth-of-type(1) a {
   border-radius: 4px 0 0 4px;
 }
+
 .header-info-area .select-language .language-list li:nth-of-type(2) a {
   border-radius: 0 4px 4px 0;
 }
+
 .header-info-area .select-language .language-list li.active a {
   background: #27ae60;
   color: #fff;
 }
+
 .header-info-area .select-language select {
   font-size: 0.875rem;
   border: 1px solid #ddd;

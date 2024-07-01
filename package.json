@@ -3,48 +3,55 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "serve": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service serve --mode development",
-    "build": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service build --mode production",
-    "test": "VUE_APP_GIT_COMMIT=$(git rev-parse HEAD) VUE_APP_GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD) VUE_APP_GIT_TAG=$(git describe --tags --always) vue-cli-service test:unit",
-    "lint": "eslint src/** --fix --ext js,vue",
-    "pretest": "(cd node_modules/canvas; test -f build/Release/canvas.node || npm run install) #bunだとcanvas.nodeが作られないのでこれだけnpmでビルドするWorkaround"
+    "serve": "./scripts/build-env.sh vue-cli-service serve --mode development",
+    "build": "./scripts/build-env.sh vue-cli-service build --mode production",
+    "test": "./scripts/build-env.sh vue-cli-service test:unit",
+    "lint": "bun run lint:biome; bun run lint:eslint",
+    "lint:biome": "biome migrate --write && biome check --write .",
+    "lint:eslint": "eslint src/** --fix --ext js,vue",
+    "prepare": "husky",
+    "pretest": "(cd node_modules/canvas; test -f build/Release/canvas.node || npm run install) #bunだとcanvas.nodeが作られないのでこれだけnpmでビルドするWorkaround",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org syun --project akadako-graph-vue ./dist && sentry-cli sourcemaps upload --org syun --project akadako-graph-vue ./dist"
   },
   "dependencies": {
+    "@sentry/cli": "^2.32.1",
     "@serialport/stream": "^9.2.4",
-    "buefy": "^0.9.22",
+    "buefy": "^0.9.29",
     "chart.js": "2.9.4",
-    "dayjs": "^1.11.7",
-    "encoding-japanese": "^2.0.0",
-    "exceljs": "^4.3.0",
+    "dayjs": "^1.11.11",
+    "encoding-japanese": "^2.2.0",
+    "exceljs": "^4.4.0",
     "firmata-io": "https://gitpkg.now.sh/yokobond/firmata.js/packages/firmata-io?xcx-g2s",
-    "long": "^5.2.1",
-    "sass": "^1.69.5",
-    "sass-loader": "^13.0.2",
-    "vue": "^2.7.10",
-    "vue-chartjs": "3.5.0",
+    "long": "^5.2.3",
+    "sass": "^1.77.6",
+    "sass-loader": "^14.2.1",
+    "vue": "^2.7.16",
+    "vue-chartjs": "3.5.1",
     "vue-js-modal": "^2.0.1",
     "vuex": "3.6.2",
     "web-serial-binding": "github:jaz303/web-serial-binding"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
+    "@sentry/vue": "^8.13.0",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
     "@vue/cli-plugin-unit-jest": "^5.0.8",
     "@vue/cli-service": "^5.0.8",
-    "@vue/test-utils": "1.3.0",
-    "@vue/vue2-jest": "^29.2.2",
+    "@vue/test-utils": "1.3.6",
+    "@vue/vue2-jest": "^29.2.6",
     "bun-types": "latest",
     "canvas": "^2.11.2",
-    "eslint": "^8.32.0",
-    "eslint-plugin-jest": "^27.2.1",
-    "eslint-plugin-vue": "^9.9.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-vue": "^9.26.0",
     "flush-promises": "^1.0.2",
-    "husky": "^8.0.3",
-    "jest": "^29.3.1",
-    "jest-canvas-mock": "^2.4.0",
-    "node-polyfill-webpack-plugin": "^1.1.4",
-    "node-sass": "^7.0.3",
-    "vue-template-compiler": "^2.7.10"
+    "husky": "^9.0.11",
+    "jest": "^29.7.0",
+    "jest-canvas-mock": "^2.5.2",
+    "node-polyfill-webpack-plugin": "^4.0.0",
+    "node-sass": "^9.0.0",
+    "vue-template-compiler": "^2.7.16"
   },
   "postcss": {
     "plugins": {
@@ -59,6 +66,9 @@
     "node": "18.x"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
-  }
+    "typescript": "^5.2.2"
+  },
+  "trustedDependencies": [
+    "@biomejs/biome"
+  ]
 }

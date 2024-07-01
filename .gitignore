@@ -20,3 +20,7 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Sentry Config File
+.sentryclirc
+.envrc

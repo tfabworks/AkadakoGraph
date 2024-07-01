@@ -1,31 +1,29 @@
 <template>
   <div class="content-wrap">
     <CommonAd />
-    <SideMenu />
     <GraphPage />
   </div>
 </template>
 
 <script>
-import SideMenu from './DashboardSideMenu.vue'
-import GraphPage from './dashboard/GraphPage'
 import CommonAd from '../view/CommonAd.vue'
+import GraphPage from './dashboard/GraphPage'
 export default {
-  components: { 
-    SideMenu,
+  components: {
     GraphPage,
-    CommonAd
-  }
+    CommonAd,
+  },
 }
 </script>
 <style scoped>
 .content-wrap {
   display: flex;
-  justify-content:space-between;
+  justify-content: space-between;
 }
+
 .content-area {
-  padding: 15px 5%;
-  width: calc(100% - 220px);
+  padding: 0 5% 15px 5%;
+  width: 100%;
   background: #f5f5f5;
 }
 </style>

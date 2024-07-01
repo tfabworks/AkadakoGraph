@@ -14,7 +14,7 @@ export default {
     startTime: {
       type: Number,
       default: 0,
-      required: true
+      required: true,
     },
     duration: {
       type: Number,
@@ -23,7 +23,7 @@ export default {
     },
     paused: {
       type: Boolean,
-      default: false
+      default: false,
     },
   },
 
@@ -34,7 +34,7 @@ export default {
       updateTimeoutInterval: 50,
     }
   },
-  
+
   computed: {
     endTime: function () {
       return this.startTime + this.durationN
@@ -48,9 +48,15 @@ export default {
     // 残り時間を mm:ss.xxx に変換
     remainingTimeFormatted: function () {
       const remainingTime = this.remainingTime
-      const minutes = Math.floor(remainingTime / 1000 / 60).toString().padStart(2, '0')
-      const seconds = Math.floor(remainingTime / 1000 % 60).toString().padStart(2, '0')
-      const milliseconds = Math.floor(remainingTime % 1000).toString().padStart(3, '0')
+      const minutes = Math.floor(remainingTime / 1000 / 60)
+        .toString()
+        .padStart(2, '0')
+      const seconds = Math.floor((remainingTime / 1000) % 60)
+        .toString()
+        .padStart(2, '0')
+      const milliseconds = Math.floor(remainingTime % 1000)
+        .toString()
+        .padStart(3, '0')
       return `${minutes}:${seconds}.${milliseconds}`
     },
     isProgressing: function () {
@@ -71,7 +77,7 @@ export default {
     },
   },
   created: function () {
-    if(!this.paused) {
+    if (!this.paused) {
       this.updateTimer()
     }
   },
@@ -82,7 +88,7 @@ export default {
 
   methods: {
     updateTimer() {
-      if(this.paused) {
+      if (this.paused) {
         return
       }
       this.currentTime = Date.now()

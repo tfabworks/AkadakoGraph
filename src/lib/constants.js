@@ -1,8 +1,9 @@
-
 export const VersionInfo = {
-  commit: process.env.VUE_APP_GIT_COMMIT || 'dev',
-  branch: process.env.VUE_APP_GIT_BRANCH || 'dev',
-  tag: process.env.VUE_APP_GIT_TAG || 'dev',
+  build: new Date().toISOString(),
+  commit: process.env.VUE_APP_GIT_COMMIT || null,
+  commitDate: process.env.VUE_APP_GIT_COMMIT_DATE || null,
+  branch: process.env.VUE_APP_GIT_BRANCH || null,
+  tag: process.env.VUE_APP_GIT_TAG || null,
 }
 
 export const Sensors = [
@@ -156,12 +157,27 @@ export const Sensors = [
     id: 10103,
     name: 'デジタルB2',
   },
+  {
+    id: 90001,
+    name: 'ダミーデータ(ランダム)',
+    flactionDigits: 4,
+  },
+  {
+    id: 90002,
+    name: 'ダミーデータ(sin)',
+    flactionDigits: 4,
+  },
+  {
+    id: 90003,
+    name: 'ダミーデータ(cos)',
+    flactionDigits: 4,
+  },
 ].map((sensor) => {
   sensor.kind = sensor.name
-  if(sensor.id < 10000) {
+  if (sensor.id < 10000) {
     sensor.kind = `${sensor.id}.${sensor.kind}`
   }
-  if(typeof sensor.unit !== 'undefined') {
+  if (typeof sensor.unit !== 'undefined') {
     sensor.kind = `${sensor.kind}[${sensor.unit}]`
   }
   return sensor
@@ -170,11 +186,11 @@ export const Sensors = [
 export const SensorMap = new Map(Sensors.map((sensor) => [sensor.id, sensor]))
 
 export const migrateSensorKind20230714 = (kind) => {
-  if(/^\d+$/.test(kind)) {
+  if (/^\d+$/.test(kind)) {
     return kind
   }
   const sensor = Sensors.find((sensor) => sensor.kind.replace(/^\d+\./, '') === kind)
-  if(sensor) {
+  if (sensor) {
     return `${sensor.id}`
   }
   return ''

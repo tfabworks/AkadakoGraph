@@ -1,26 +1,35 @@
 <template>
   <div class="wrapper">
     <Header />
-    <div>
+    <div v-if="currentRoute === '/'">
       <Dashboard />
     </div>
+    <div v-if="currentRoute === '/share'">
+      <Shareboard />
+    </div>
+    <Footer />
   </div>
 </template>
 
 <script>
-import Header from  './TheHeader'
-import Dashboard from './pages/Dashboard'
 import { VersionInfo } from '../lib/constants'
-console.log({VersionInfo})
+import Footer from './TheFooter'
+import Header from './TheHeader'
+import Dashboard from './pages/Dashboard'
+import Shareboard from './pages/Shareboard'
+console.log('VersionInfo', { ...VersionInfo })
 
 export default {
-  components:{ 
+  components: {
     Header,
-    Dashboard 
+    Footer,
+    Dashboard,
+    Shareboard,
   },
   data() {
     return {
-      VersionInfo
+      currentRoute: window.location.pathname,
+      VersionInfo,
     }
   },
 }
@@ -28,24 +37,24 @@ export default {
 
 <style lang="scss">
 @import "~bulma/sass/utilities/_all";
-$primary:  #2c6ac4;
+$primary: #2c6ac4;
 $primary-invert: findColorInvert($primary);
 $gray: #999;
 $gray-invert: findColorInvert($gray);
 $twitter: #4099FF;
 $twitter-invert: findColorInvert($twitter);
 $colors: (
-    "white": ($white, $black),
-    "black": ($black, $white),
-    "light": ($light, $light-invert),
-    "dark": ($dark, $dark-invert),
-    "gray": ($gray, $gray-invert),
-    "primary": ($primary, $primary-invert),
-    "info": ($info, $info-invert),
-    "success": ($success, $success-invert),
-    "warning": ($warning, $warning-invert),
-    "danger": ($danger, $danger-invert),
-    "twitter": ($twitter, $twitter-invert)
+  "white": ($white, $black),
+  "black": ($black, $white),
+  "light": ($light, $light-invert),
+  "dark": ($dark, $dark-invert),
+  "gray": ($gray, $gray-invert),
+  "primary": ($primary, $primary-invert),
+  "info": ($info, $info-invert),
+  "success": ($success, $success-invert),
+  "warning": ($warning, $warning-invert),
+  "danger": ($danger, $danger-invert),
+  "twitter": ($twitter, $twitter-invert)
 );
 $link: $primary;
 $link-invert: $primary-invert;
@@ -60,10 +69,87 @@ $link-focus-border: $primary;
   box-sizing: border-box;
 }
 
-html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code,
-del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset,
-form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer,
-header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video {
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
   margin: 0;
   padding: 0;
   border: 0;
@@ -72,13 +158,23 @@ header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, vi
   vertical-align: baseline;
 }
 
-article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
   display: block;
 }
 
 body {
   line-height: 1;
-  font-family: "ヒラギノ角ゴPro W3","Hiragino Kaku Gothic Pro",Osaka,"メイリオ",Meiryo,"ＭＳ ゴシック",sans-serif;
+  font-family: "ヒラギノ角ゴPro W3", "Hiragino Kaku Gothic Pro", Osaka, "メイリオ", Meiryo, "ＭＳ ゴシック", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   word-wrap: break-word;
@@ -87,15 +183,20 @@ body {
   color: #333;
 }
 
-ol, ul {
+ol,
+ul {
   list-style: none;
 }
 
-blockquote, q {
+blockquote,
+q {
   quotes: none;
 }
 
-style blockquote:before, blockquote:after, q:before, q:after {
+style blockquote:before,
+blockquote:after,
+q:before,
+q:after {
   content: '';
   content: none;
 }
@@ -126,11 +227,13 @@ a:hover {
 #main {
   margin-top: 20px;
 }
+
 .wrapper {
   min-height: 100vh;
   position: relative;
   /* padding-bottom: 312px; */
 }
+
 .footer {
   width: 100vw;
   position: absolute;
