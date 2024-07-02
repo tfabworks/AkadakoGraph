@@ -1,5 +1,5 @@
 <template>
-  <header class="main-header">
+  <header class="main-header" :style="headerBg">
     <h1 class="header-logo">
       <a><img :src="headerLogoUrl" alt="AkaDakoグラフ"></a>
     </h1>
@@ -17,8 +17,11 @@ export default {
   data() {
     const headerLogoDefault = '/img/header-logo.svg'
     const headerLogoUrl = location.pathname.startsWith('/share') ? '/img/header-monitoring-logo.svg' : headerLogoDefault
+    const headerBgDefault = ''
+    const headerBg = location.pathname.startsWith('/share') ? 'background:#C64A2C;' : headerBgDefault
     return {
       headerLogoUrl: headerLogoUrl,
+      headerBg: headerBg,
     }
   },
   computed: {

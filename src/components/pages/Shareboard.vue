@@ -2,7 +2,14 @@
   <div class="content-wrap">
     <div class="content-area">
       <div class="roomName">
-        <span>合言葉</span><span>{{ roomName }}</span>
+        <span>共有ID</span><span>{{ roomName }}</span>
+      </div>
+      <div class="chart-show-btn-wrap">
+        <a class="chart-show-btn" @click="showAllChart">全て表示する
+          (
+          現在の表示数：{{ charts.filter(c => !(c.chartID in hideChartIDs)).length }}/{{ charts.length }}
+          )
+        </a>
       </div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
@@ -37,6 +44,7 @@
           </div>
         </div>
       </div>
+
       <div class="chart-show-btn-wrap">
         <a class="chart-show-btn" @click="showAllChart">全て表示する
           (
@@ -44,6 +52,7 @@
           )
         </a>
       </div>
+
     </div>
   </div>
 </template>
@@ -152,6 +161,7 @@ export default {
 
 .chart-name {
   margin-bottom: 15px;
+  padding:5px 0;
   font-weight: bold;
   font-size: 18px;
   width: calc(100% - 120px);
@@ -251,7 +261,6 @@ export default {
   background: url(../../../public/img/icon-reload.svg) no-repeat right center/contain;
 }
 
-
 .chart-img {
   margin-bottom: 10px;
 }
@@ -265,6 +274,7 @@ export default {
 
 .chart-show-btn-wrap {
   text-align: center;
+  margin-bottom:15px;
 }
 
 .chart-show-btn {
