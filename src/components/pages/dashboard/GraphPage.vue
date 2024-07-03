@@ -26,8 +26,8 @@
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
         </ul>
         <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
-          <a class="shared-active">共有中</a>
-          <a class="shared-stop">停止中</a>
+          <a class="share-active">共有中</a>
+          <a class="share-stop">停止中</a>
           <a class="share-modal-link" @click="shareModalOpen">
             <span v-if="shareRoomID">
               共有ID：{{ shareRoomName }}
@@ -679,7 +679,7 @@ select {
   font-weight: bold;
 }
 
-.shared-active,.shared-stop{
+.share-active,.share-stop{
   display:block;
   width:45px;
   padding:3px 0;
@@ -688,12 +688,12 @@ select {
   white-space:nowrap;
 }
 
-.shared-active{
+.share-active{
   color:#28AE60;
   background: url(../../../../public/img/shared-active.svg) no-repeat center bottom 3px/ 32px;
 }
 
-.shared-stop{
+.share-stop{
   color:#999;
   background: url(../../../../public/img/shared-stop.svg) no-repeat center bottom 3px/ 32px;
 }
