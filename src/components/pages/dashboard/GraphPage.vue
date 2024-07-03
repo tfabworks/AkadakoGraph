@@ -95,7 +95,7 @@
       </div>
     </modal>
 
-    <modal name="share-modal" focus-trap="true">
+    <modal name="share-modal" focus-trap="true" @before-open="shareModalBeforeOpen">
       <div class="modal-header">
         <h2>共有（試験運用中）</h2>
       </div>
@@ -300,6 +300,12 @@ export default {
     },
     shareUrl() {
       return this.$store.getters['share/shareUrl']
+    },
+    shareDefaultRoomName() {
+      return this.$store.getters['share/defaultRoomName']
+    },
+    shareDefaultUserName() {
+      return this.$store.getters['share/defaultUserName']
     },
     enableDummyBoard() {
       return this.$store.state.firmata.debugState.enableDummyBoard || 90000 < this.graphKind || 90000 < this.graphKindSub
@@ -530,13 +536,11 @@ export default {
       this.shareModalOpen()
     },
     shareModalOpen() {
-      console.log('shareModalOpen', { shareRoomName: this.shareRoomName, shareUserName: this.shareUserName })
       this.$modal.show('share-modal')
     },
     shareModalBeforeOpen() {
-      console.log('shareModalBeforeOpen', { shareRoomName: this.shareRoomName, shareUserName: this.shareUserName })
-      this.shareRoomNameInputValue = this.shareRoomName
-      this.shareUserNameInputValue = this.shareUserName
+      this.shareRoomNameInputValue = this.shareDefaultRoomName
+      this.shareUserNameInputValue = this.shareDefaultUserName
     },
     async shareModalSave() {
       this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
@@ -561,9 +565,6 @@ export default {
     },
     shareModalClose() {
       this.$modal.hide('share-modal')
-    },
-    shareModalClosed(e) {
-      console.log('shareModalClosed', { e })
     },
 
     print() {

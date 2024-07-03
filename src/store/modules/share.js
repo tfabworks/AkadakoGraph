@@ -1,5 +1,5 @@
+import * as Sentry from '@sentry/browser'
 /* eslint-disable no-unused-vars */
-
 import { SensorMap, Sensors } from '../../lib/constants'
 
 // チャートの共有ステータス管理
@@ -9,6 +9,7 @@ const state = {
   roomName: '',
   userID: '',
   userName: '',
+  pauseShare: false,
   chartID: '',
   chartName: '',
   chartMainSensorID: 0,
@@ -38,6 +39,9 @@ const getters = {
   roomName: (state) => state.roomName,
   userID: (state) => state.userID,
   userName: (state) => state.userName,
+  defaultRoomName: (state) => defaultIfEmpty(state.roomName, localStorage.getItem(`${STORAGE_PREFIX}roomName`)),
+  defaultUserName: (state) => defaultIfEmpty(state.userName, localStorage.getItem(`${STORAGE_PREFIX}userName`)),
+  pauseShare: (state) => state.pauseShare,
   chartID: (state) => state.chartID,
   chartName: (state) => state.chartName,
   chartTimeStart: (state) => state.chartTimeStart,
@@ -72,13 +76,20 @@ const mutations = {
     }
     const search = urlParams.size > 0 ? `?${urlParams.toString()}` : ''
     window.history.replaceState(null, '', `${window.location.pathname}${search}`)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setTag('roomID', roomID)
   },
   setRoomName(state, roomName) {
     state.roomName = roomName
+    localStorage.setItem(`${STORAGE_PREFIX}roomName`, roomName)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setTag('roomName', roomName)
   },
   setUserID(state, userID) {
     state.userID = userID
     localStorage.setItem(`${STORAGE_PREFIX}userID`, userID)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setUser({ id: state.userID, name: state.userName })
   },
   setUserName(state, userName) {
     state.userName = userName
@@ -86,6 +97,11 @@ const mutations = {
     // チャート名はユーザ名と同じにする
     state.chartName = userName
     localStorage.setItem(`${STORAGE_PREFIX}chartName`, userName)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setUser({ id: state.userID, name: state.userName })
+  },
+  setPauseShare(state, pauseShare) {
+    state.pauseShare = pauseShare
   },
   setChartID(state, chartID) {
     state.chartID = chartID
@@ -154,13 +170,11 @@ const actions = {
       localStorage.setItem(`${STORAGE_PREFIX}userID`, crypto.randomUUID())
     }
     commit('setUserID', localStorage.getItem(`${STORAGE_PREFIX}userID`))
-    commit('setUserName', localStorage.getItem(`${STORAGE_PREFIX}userName`) ?? '')
     // チャートIDをlocalStorageからリストアor作成
     if (!/^[0-9a-f-]{32,36}/.test(localStorage.getItem(`${STORAGE_PREFIX}chartID`))) {
       localStorage.setItem(`${STORAGE_PREFIX}chartID`, crypto.randomUUID())
     }
     commit('setChartID', localStorage.getItem(`${STORAGE_PREFIX}chartID`))
-    commit('setChartName', localStorage.getItem(`${STORAGE_PREFIX}chartName`) ?? '')
   },
   // ルーム名を変更してルームIDを取得する
   async setRoomName({ commit, state }, roomName) {
@@ -177,7 +191,8 @@ const actions = {
       },
       body: JSON.stringify({
         type: 'room',
-        name: roomName,
+        roomName,
+        userID: state.userID,
       }),
     })
     const data = await response.json()
@@ -379,6 +394,15 @@ const fetchRoom = async ({ roomID, roomName, all = false }) => {
     return room != null && room.type == 'room' ? room : null
   }
   return null
+}
+
+const defaultIfEmpty = (...values) => {
+  for (const value of values) {
+    if (value != null && value !== '') {
+      return value
+    }
+  }
+  return ''
 }
 
 export default {
