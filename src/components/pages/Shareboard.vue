@@ -11,14 +11,6 @@
           )
         </a>
       </div>
-      <div class="chart-show-btn-wrap">
-        <a class="chart-show-btn" @click="showAllChart">全て表示する
-          (
-          現在の表示数：{{ charts.filter(c => !(c.chartID in hideChartIDs)).length }}/{{ charts.length }}
-          )
-        </a>
-        合言葉
-      </div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
         <div v-if="!(chart.chartID in hideChartIDs)" class="content-box">
