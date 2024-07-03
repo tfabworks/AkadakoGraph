@@ -3,18 +3,6 @@
     <div>
       <div class="btn-bar">
 
-        <div class="share-info-wrap">
-          <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
-            <span v-if="shareRoomID">
-              共有ID：{{ shareRoomName }}
-            </span>
-            <span v-if="shareRoomID && shareUserName">
-              端末名：{{ shareUserName }}
-            </span>
-            <a class="edit-btn" @click="shareModalOpen">編集する</a>
-          </div>
-        </div>
-
         <ul class="btn-list">
           <li>
             <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
@@ -36,9 +24,23 @@
           </li>
           <!-- <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li> -->
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
-          <li><a @click="shareModalOpenFromShareButton"><img src="../../../../public/img/icon-share.svg" alt="共有"></a>
-          </li>
         </ul>
+        <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
+          <a class="shared-active">共有中</a>
+          <a class="shared-stop">停止中</a>
+          <a class="share-modal-link" @click="shareModalOpen">
+            <span v-if="shareRoomID">
+              共有ID：{{ shareRoomName }}
+            </span>
+            <span v-if="shareRoomID && shareUserName">
+              端末名：{{ shareUserName }}
+            </span>
+          </a>
+        </div>
+        <div class="share-btn">
+          <a @click="shareModalOpenFromShareButton"><img src="../../../../public/img/icon-share.svg" alt="共有"></a>
+        </div>
+
       </div>
     </div>
     <section class="content-box">
@@ -618,7 +620,7 @@ select {
   outline: none;
 }
 
-/*-----------共有ID、端末名、右上各種メニューアイコン-----------*/
+/*-----------共有ID、端末名、各種メニューアイコン-----------*/
 
 .btn-bar {
   width: 100vw;
@@ -628,58 +630,16 @@ select {
   background: #fff;
   position: relative;
   display: flex;
-  justify-content: space-between;
+  jusify-content:right;
   align-items: center;
   filter: drop-shadow(0 8px 5px #ccc);
 }
 
-/*左上の共有ID、端末名のスタイル*/
-.share-info-wrap {
-  display: flex;
-  align-items: center;
-  width: calc(100% - 250px);
-  max-width: 600px;
-  height: 40px;
-}
-
-.share-info {
-  display: flex;
-  position: relative;
-  width: 100%;
-  padding: 10px 40px 10px 10px;
-  border: 1px solid #ccc;
-  font-weight: bold;
-}
-
-.share-info span {
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 50%;
-}
-
-.share-info span:nth-of-type(1) {
-  margin-right: 1.5em;
-}
-
-.share-info .edit-btn {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 10px;
-  margin: auto;
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  font-size: 0;
-  background: url(../../../../public/img/icon-edit.svg) no-repeat center;
-}
-
-/*右上のアイコン一覧のスタイル*/
+/*左上のアイコン一覧のスタイル*/
 .btn-list {
   display: flex;
   padding: 10px 0;
+  margin-right:auto;
 }
 
 .btn-list li {
@@ -709,6 +669,65 @@ select {
   filter: grayscale(100%);
 }
 
+/*共有ID、端末名の枠内スタイル*/
+.share-info {
+  display: flex;
+  position: relative;
+  max-width:calc(100% - 280px);
+  margin-right:10px;
+  border: 1px solid #ccc;
+  font-weight: bold;
+}
+
+.shared-active,.shared-stop{
+  display:block;
+  width:45px;
+  padding:3px 0;
+  text-align:center;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+.shared-active{
+  color:#28AE60;
+  background: url(../../../../public/img/shared-active.svg) no-repeat center bottom 3px/ 32px;
+}
+
+.shared-stop{
+  color:#999;
+  background: url(../../../../public/img/shared-stop.svg) no-repeat center bottom 3px/ 32px;
+}
+
+.share-modal-link{
+  display:flex;
+  width:calc(100% - 45px);
+  color:#333;
+  padding: 10px;
+}
+
+.share-modal-link span {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.share-modal-link span:nth-of-type(1){
+  margin-right:1em;
+}
+
+/*右上の共有ボタン*/
+.share-btn{
+  width:30px;
+}
+
+.share-btn a{
+  display:block;
+}
+.share-btn img{
+  width:100%;
+  height:auto;
+}
 
 /*-----------グラフ内-----------*/
 
