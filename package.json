@@ -33,6 +33,7 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.8.3",
+    "@sentry/types": "^8.13.0",
     "@sentry/vue": "^8.13.0",
     "@vue/cli-plugin-babel": "^5.0.8",
     "@vue/cli-plugin-eslint": "^5.0.8",
