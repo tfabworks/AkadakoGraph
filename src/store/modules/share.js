@@ -171,6 +171,8 @@ const actions = {
       localStorage.setItem(`${STORAGE_PREFIX}userID`, crypto.randomUUID())
     }
     commit('setUserID', localStorage.getItem(`${STORAGE_PREFIX}userID`))
+    // ユーザ名をlocalStorageからリストア
+    commit('setUserName', localStorage.getItem(`${STORAGE_PREFIX}userName`) ?? '')
     // チャートIDをlocalStorageからリストアor作成
     if (!/^[0-9a-f-]{32,36}/.test(localStorage.getItem(`${STORAGE_PREFIX}chartID`))) {
       localStorage.setItem(`${STORAGE_PREFIX}chartID`, crypto.randomUUID())
@@ -316,11 +318,17 @@ const actions = {
     dispatch('updateChartImage')
   },
   canUpdateChart({ rootGetters, state }) {
-    if (state.roomID === '' || state.chartID === '' || state.userID === '' || state.userName === '' || state.sharePaused) {
+    const firmataPaused = rootGetters['firmata/shouldPause']
+    if (state.sharePaused) {
       return false
     }
-    const shouldPause = rootGetters['firmata/shouldPause']
-    if (shouldPause) {
+    if (state.roomID === '' || state.chartID === '' || state.userID === '') {
+      return false
+    }
+    if (state.roomName === '' || state.userName === '') {
+      return false
+    }
+    if (firmataPaused) {
       return false
     }
     // 連続してアップロードを実行しない
