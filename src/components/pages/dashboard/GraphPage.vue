@@ -466,11 +466,11 @@ export default {
       const uint8Array = isCsv
         ? isSJIS
           ? new Uint8Array(
-              encoding.convert(await workbook.csv.writeBuffer(), {
-                from: 'UTF8',
-                to: 'SJIS',
-              }),
-            )
+            encoding.convert(await workbook.csv.writeBuffer(), {
+              from: 'UTF8',
+              to: 'SJIS',
+            }),
+          )
           : await workbook.csv.writeBuffer()
         : await workbook.xlsx.writeBuffer()
 
@@ -551,8 +551,8 @@ export default {
       this.shareUserNameInputValue = this.shareDefaultUserName
     },
     shareModalNoamalize() {
-      this.shareRoomNameInputValue = this.shareRoomNameInputValue.normalize('NFKC')
-      this.shareUserNameInputValue = this.shareUserNameInputValue.normalize('NFKC')
+      this.shareRoomNameInputValue = this.shareRoomNameInputValue.normalize('NFKC').replace(/\s+/g, ' ').trim()
+      this.shareUserNameInputValue = this.shareUserNameInputValue.normalize('NFKC').replace(/\s+/g, ' ').trim()
     },
     shareModalOnKeydownEnter(e) {
       // 日本語入力中のEnterの場合は 229 が入るので真のEnterだけをフックする
