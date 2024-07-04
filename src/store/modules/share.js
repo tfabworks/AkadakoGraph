@@ -318,10 +318,8 @@ const actions = {
     dispatch('updateChartImage')
   },
   canUpdateChart({ rootGetters, state }) {
-    const shouldPause = rootGetters['firmata/shouldPause']
-    const { roomID, roomName, userID, userName, chartID, chartName, sharePaused } = state
-    console.log({ shouldPause, roomID, roomName, userID, userName, chartID, chartName, sharePaused })
-    if (sharePaused) {
+    const firmataPaused = rootGetters['firmata/shouldPause']
+    if (state.sharePaused) {
       return false
     }
     if (state.roomID === '' || state.chartID === '' || state.userID === '') {
@@ -330,8 +328,7 @@ const actions = {
     if (state.roomName === '' || state.userName === '') {
       return false
     }
-    console.log(shouldPause)
-    if (shouldPause) {
+    if (firmataPaused) {
       return false
     }
     // 連続してアップロードを実行しない
