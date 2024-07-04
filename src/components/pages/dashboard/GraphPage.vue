@@ -466,11 +466,11 @@ export default {
       const uint8Array = isCsv
         ? isSJIS
           ? new Uint8Array(
-            encoding.convert(await workbook.csv.writeBuffer(), {
-              from: 'UTF8',
-              to: 'SJIS',
-            }),
-          )
+              encoding.convert(await workbook.csv.writeBuffer(), {
+                from: 'UTF8',
+                to: 'SJIS',
+              }),
+            )
           : await workbook.csv.writeBuffer()
         : await workbook.xlsx.writeBuffer()
 
