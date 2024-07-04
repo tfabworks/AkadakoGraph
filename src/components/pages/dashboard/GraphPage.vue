@@ -667,7 +667,7 @@ select {
   background: #fff;
   position: relative;
   display: flex;
-  jusify-content:right;
+  jusify-content: right;
   align-items: center;
   filter: drop-shadow(0 8px 5px #ccc);
 }
@@ -676,7 +676,7 @@ select {
 .btn-list {
   display: flex;
   padding: 10px 0;
-  margin-right:auto;
+  margin-right: auto;
 }
 
 .btn-list li {
@@ -710,35 +710,36 @@ select {
 .share-info {
   display: flex;
   position: relative;
-  max-width:calc(100% - 280px);
-  margin-right:10px;
+  max-width: calc(100% - 280px);
+  margin-right: 10px;
   border: 1px solid #ccc;
   font-weight: bold;
 }
 
-.share-active,.share-stop{
-  display:block;
-  width:45px;
-  padding:3px 0;
-  text-align:center;
-  font-size:11px;
-  white-space:nowrap;
+.share-active,
+.share-stop {
+  display: block;
+  width: 45px;
+  padding: 3px 0;
+  text-align: center;
+  font-size: 11px;
+  white-space: nowrap;
 }
 
-.share-active{
-  color:#28AE60;
+.share-active {
+  color: #28AE60;
   background: url(../../../../public/img/shared-active.svg) no-repeat center bottom 3px/ 32px;
 }
 
-.share-stop{
-  color:#999;
+.share-stop {
+  color: #999;
   background: url(../../../../public/img/shared-stop.svg) no-repeat center bottom 3px/ 32px;
 }
 
-.share-modal-link{
-  display:flex;
-  width:calc(100% - 45px);
-  color:#333;
+.share-modal-link {
+  display: flex;
+  width: calc(100% - 45px);
+  color: #333;
   padding: 10px;
 }
 
@@ -749,21 +750,22 @@ select {
   text-overflow: ellipsis;
 }
 
-.share-modal-link span:nth-of-type(1){
-  margin-right:1em;
+.share-modal-link span:nth-of-type(1) {
+  margin-right: 1em;
 }
 
 /*右上の共有ボタン*/
-.share-btn{
-  width:30px;
+.share-btn {
+  width: 30px;
 }
 
-.share-btn a{
-  display:block;
+.share-btn a {
+  display: block;
 }
-.share-btn img{
-  width:100%;
-  height:auto;
+
+.share-btn img {
+  width: 100%;
+  height: auto;
 }
 
 /*-----------グラフ内-----------*/
