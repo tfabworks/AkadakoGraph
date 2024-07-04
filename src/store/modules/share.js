@@ -9,7 +9,6 @@ const state = {
   roomName: '',
   userID: '',
   userName: '',
-  pauseShare: false,
   chartID: '',
   chartName: '',
   chartMainSensorID: 0,
@@ -18,7 +17,7 @@ const state = {
   chartTimeEnd: 0,
   chartData: {},
   //UI関連(計測画面)
-  roomNameTmp: '',
+  sharePaused: true,
   updateChartImageLatest: 0,
   updateChartImageIntervalMin: 5000,
   //UI関連(グラフ一覧)
@@ -38,10 +37,10 @@ const getters = {
   roomID: (state) => state.roomID,
   roomName: (state) => state.roomName,
   userID: (state) => state.userID,
-  userName: (state) => state.userName,
+  userName: (state) => defaultIfEmpty(state.userName, localStorage.getItem(`${STORAGE_PREFIX}userName`)),
   defaultRoomName: (state) => defaultIfEmpty(state.roomName, localStorage.getItem(`${STORAGE_PREFIX}roomName`)),
   defaultUserName: (state) => defaultIfEmpty(state.userName, localStorage.getItem(`${STORAGE_PREFIX}userName`)),
-  pauseShare: (state) => state.pauseShare,
+  sharePaused: (state) => state.sharePaused,
   chartID: (state) => state.chartID,
   chartName: (state) => state.chartName,
   chartTimeStart: (state) => state.chartTimeStart,
@@ -105,8 +104,8 @@ const mutations = {
     state.defaultUserName = defaultUserName
     localStorage.setItem(`${STORAGE_PREFIX}userName`, defaultUserName)
   },
-  setPauseShare(state, pauseShare) {
-    state.pauseShare = pauseShare
+  setSharePaused(state, sharePaused) {
+    state.sharePaused = sharePaused
   },
   setChartID(state, chartID) {
     state.chartID = chartID
@@ -125,9 +124,6 @@ const mutations = {
     state.chartTimeEnd = chartTimeEnd
   },
   // UI関連
-  setRoomNameTmp(state, roomNameTmp) {
-    state.roomNameTmp = roomNameTmp
-  },
   setUpdateChartImageLatest(state, updateChartImageLatest) {
     state.updateChartImageLatest = updateChartImageLatest
   },
@@ -201,8 +197,8 @@ const actions = {
       }),
     })
     const data = await response.json()
-    if (data && data.id) {
-      commit('setRoomID', data.id)
+    if (data && data.roomID) {
+      commit('setRoomID', data.roomID)
       commit('setRoomName', data.roomName)
       commit('setDefaultRoomName', data.roomName)
     }
@@ -319,8 +315,8 @@ const actions = {
     commit('setChartTimeEnd', new Date(minmax.max).getTime() || 0)
     dispatch('updateChartImage')
   },
-  canUpdateChart({ commit, rootGetters, state }) {
-    if (state.roomID == '' || state.chartID == '' || state.userID == '') {
+  canUpdateChart({ rootGetters, state }) {
+    if (state.roomID === '' || state.chartID === '' || state.userID === '' || state.userName === '' || state.sharePaused) {
       return false
     }
     const shouldPause = rootGetters['firmata/shouldPause']
