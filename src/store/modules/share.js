@@ -81,7 +81,6 @@ const mutations = {
   },
   setRoomName(state, roomName) {
     state.roomName = roomName
-    localStorage.setItem(`${STORAGE_PREFIX}roomName`, roomName)
     // Sentoryに属性追加
     Sentry.getCurrentScope().setTag('roomName', roomName)
   },
@@ -93,12 +92,18 @@ const mutations = {
   },
   setUserName(state, userName) {
     state.userName = userName
-    localStorage.setItem(`${STORAGE_PREFIX}userName`, userName)
     // チャート名はユーザ名と同じにする
     state.chartName = userName
-    localStorage.setItem(`${STORAGE_PREFIX}chartName`, userName)
     // Sentoryに属性追加
     Sentry.getCurrentScope().setUser({ id: state.userID, name: state.userName })
+  },
+  setDefaultRoomName(state, defaultRoomName) {
+    state.defaultRoomName = defaultRoomName
+    localStorage.setItem(`${STORAGE_PREFIX}roomName`, defaultRoomName)
+  },
+  setDefaultUserName(state, defaultUserName) {
+    state.defaultUserName = defaultUserName
+    localStorage.setItem(`${STORAGE_PREFIX}userName`, defaultUserName)
   },
   setPauseShare(state, pauseShare) {
     state.pauseShare = pauseShare
@@ -198,12 +203,14 @@ const actions = {
     const data = await response.json()
     if (data && data.id) {
       commit('setRoomID', data.id)
-      commit('setRoomName', data.name)
+      commit('setRoomName', data.roomName)
+      commit('setDefaultRoomName', data.roomName)
     }
   },
   // ユーザ名を変更してサーバ上のユーザ名も更新する
   async setUserName({ commit, dispatch }, userName) {
     commit('setUserName', userName)
+    commit('setDefaultUserName', userName)
     return await dispatch('updateChartJson', { force: true, nameOnly: true })
   },
   // チャートJSONを更新する
