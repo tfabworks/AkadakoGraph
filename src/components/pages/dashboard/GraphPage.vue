@@ -106,13 +106,15 @@
           <div class="modal-share-wrap">
             <label for="shareRoomNameInput">共有ID</label>
             <div class="modal-share-input-wrap">
-              <input id="shareRoomNameInput" v-model="shareRoomNameInputValue" type="text" data-lpignore data-1p-ignore>
+              <input id="shareRoomNameInput" v-model="shareRoomNameInputValue" type="text" data-lpignore data-1p-ignore
+                @change="shareModalNoamalize" @focus="shareModalNoamalize" @keydown.enter="shareModalOnKeydownEnter">
               <a tabindex="-1" class="copy-btn" @click.prevent="shareModalCopyID">IDをコピー</a>
             </div>
             <span class="example">例）〇〇小学校20240625</span>
 
             <label for="shareUserNameInput">端末名（省略可能）</label>
-            <input id="shareUserNameInput" v-model="shareUserNameInputValue" type="text" data-lpignore data-1p-ignore>
+            <input id="shareUserNameInput" v-model="shareUserNameInputValue" type="text" data-lpignore data-1p-ignore
+              @change="shareModalNoamalize" @focus="shareModalNoamalize" @keydown.enter="shareModalOnKeydownEnter">
           </div>
         </form>
         <div class="btn-square-wrap">
@@ -543,6 +545,16 @@ export default {
     shareModalBeforeOpen() {
       this.shareRoomNameInputValue = this.shareDefaultRoomName
       this.shareUserNameInputValue = this.shareDefaultUserName
+    },
+    shareModalNoamalize() {
+      this.shareRoomNameInputValue = this.shareRoomNameInputValue.normalize('NFKC')
+      this.shareUserNameInputValue = this.shareUserNameInputValue.normalize('NFKC')
+    },
+    shareModalOnKeydownEnter(e) {
+      // 日本語入力中のEnterの場合は 229 が入るので真のEnterだけをフックする
+      if (e.keyCode == 13) {
+        this.shareModalSave()
+      }
     },
     async shareModalSave() {
       this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
