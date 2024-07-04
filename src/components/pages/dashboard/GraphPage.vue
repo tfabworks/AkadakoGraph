@@ -26,8 +26,8 @@
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
         </ul>
         <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
-          <a class="share-active">共有中</a>
-          <a class="share-stop">停止中</a>
+          <a v-if="!sharePaused" class="share-active" @click="setSharePaused(true)">共有中</a>
+          <a v-if="sharePaused" class="share-stop" @click="setSharePaused(false)">停止中</a>
           <a class="share-modal-link" @click="shareModalOpen">
             <span v-if="shareRoomID">
               共有ID：{{ shareRoomName }}
@@ -210,6 +210,7 @@ export default {
       shouldPause: (state) => state.firmata.shouldPause,
       graphValue: (state) => state.firmata.graphValue,
       graphValueSub: (state) => state.firmata.graphValueSub,
+      sharePaused: 'share/sharePaused',
     }),
     ...mapGetters({
       source: 'firmata/values',
@@ -304,6 +305,9 @@ export default {
     },
     shareUrl() {
       return this.$store.getters['share/shareUrl']
+    },
+    sharePaused() {
+      return this.$store.getters['share/sharePaused']
     },
     shareDefaultRoomName() {
       return this.$store.getters['share/defaultRoomName']
@@ -557,15 +561,33 @@ export default {
       }
     },
     async shareModalSave() {
-      this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
-      this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
-      if (this.shareRoomNameInputValue != '') {
-        const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
-        if (room == null) {
-          console.error('shareModalSave NG', { roomName: this.shareRoomNameInputValue })
+      // ルーム名の変更
+      if (this.shareRoomName !== this.shareRoomNameInputValue) {
+        // ルーム名が空でなくルーム名が変化していたらルーム名を更新する
+        if (this.shareRoomNameInputValue !== '') {
+          await this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
+        }
+        // ルーム名に変更があれば共有を再開する
+        this.$store.commit('share/setSharePaused', false)
+      }
+      // ユーザ名の変更
+      if (this.shareUserName !== this.shareUserNameInputValue) {
+        // ルーム名が空でなくユーザ名が変化していたらユーザ名を更新する
+        if (this.shareRoomName !== '' && this.shareUserNameInputValue !== '') {
+          await this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
+          this.$store.commit('share/setSharePaused', false)
         }
       }
+      this.$store.commit('share/setUserName', this.shareUserNameInputValue)
+      this.$store.commit('share/setDefaultUserName', this.shareUserNameInputValue)
+      // ルーム名が空またはユーザ名が空なら共有を停止する
+      if (this.shareRoomName === '' || this.shareUserName === '') {
+        this.$store.commit('share/setSharePaused', true)
+      }
+
+      // モーダルを閉じる
       this.shareModalClose()
+      // 共有ボタンからモーダルが開かれている場合は共有タブを開く
       if (this.shareModalFromButton) {
         this.shareModalOpenTab()
       }
@@ -579,6 +601,9 @@ export default {
     },
     shareModalClose() {
       this.$modal.hide('share-modal')
+    },
+    setSharePaused(paused) {
+      this.$store.commit('share/setSharePaused', paused)
     },
 
     print() {
@@ -642,7 +667,7 @@ select {
   background: #fff;
   position: relative;
   display: flex;
-  jusify-content:right;
+  jusify-content: right;
   align-items: center;
   filter: drop-shadow(0 8px 5px #ccc);
 }
@@ -651,7 +676,7 @@ select {
 .btn-list {
   display: flex;
   padding: 10px 0;
-  margin-right:auto;
+  margin-right: auto;
 }
 
 .btn-list li {
@@ -685,35 +710,36 @@ select {
 .share-info {
   display: flex;
   position: relative;
-  max-width:calc(100% - 280px);
-  margin-right:10px;
+  max-width: calc(100% - 280px);
+  margin-right: 10px;
   border: 1px solid #ccc;
   font-weight: bold;
 }
 
-.share-active,.share-stop{
-  display:block;
-  width:45px;
-  padding:3px 0;
-  text-align:center;
-  font-size:11px;
-  white-space:nowrap;
+.share-active,
+.share-stop {
+  display: block;
+  width: 45px;
+  padding: 3px 0;
+  text-align: center;
+  font-size: 11px;
+  white-space: nowrap;
 }
 
-.share-active{
-  color:#28AE60;
+.share-active {
+  color: #28AE60;
   background: url(../../../../public/img/shared-active.svg) no-repeat center bottom 3px/ 32px;
 }
 
-.share-stop{
-  color:#999;
+.share-stop {
+  color: #999;
   background: url(../../../../public/img/shared-stop.svg) no-repeat center bottom 3px/ 32px;
 }
 
-.share-modal-link{
-  display:flex;
-  width:calc(100% - 45px);
-  color:#333;
+.share-modal-link {
+  display: flex;
+  width: calc(100% - 45px);
+  color: #333;
   padding: 10px;
 }
 
@@ -724,21 +750,22 @@ select {
   text-overflow: ellipsis;
 }
 
-.share-modal-link span:nth-of-type(1){
-  margin-right:1em;
+.share-modal-link span:nth-of-type(1) {
+  margin-right: 1em;
 }
 
 /*右上の共有ボタン*/
-.share-btn{
-  width:30px;
+.share-btn {
+  width: 30px;
 }
 
-.share-btn a{
-  display:block;
+.share-btn a {
+  display: block;
 }
-.share-btn img{
-  width:100%;
-  height:auto;
+
+.share-btn img {
+  width: 100%;
+  height: auto;
 }
 
 /*-----------グラフ内-----------*/
