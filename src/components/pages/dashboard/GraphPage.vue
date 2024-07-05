@@ -26,7 +26,7 @@
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
         </ul>
         <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
-          <a v-if="!sharePaused" class="share-active" @click="setSharePaused(true)">共有中</a>
+          <a v-if="!sharePaused" class="share-active" @click="setSharePaused(true)">送信中</a>
           <a v-if="sharePaused" class="share-stop" @click="setSharePaused(false)">停止中</a>
           <a class="share-modal-link" @click="shareModalOpen">
             <span v-if="shareRoomID">
