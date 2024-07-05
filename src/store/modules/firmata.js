@@ -303,7 +303,7 @@ const actions = {
       })
   },
   disConnect(ctx) {
-    if (ctx.state.board && ctx.state.board.board) {
+    if (ctx.state.board && ctx.state.board.isConnected()) {
       ctx.state.board.disconnect()
     }
 
