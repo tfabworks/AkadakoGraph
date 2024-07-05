@@ -150,14 +150,14 @@ const mutations = {
       }
       const correctedValueY = newValue.y * state.axisInfo.sub.correctionRate
       if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
-        console.log('firmate/addValue: sub', {
-          target: 'sub',
-          dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
-          newValueY,
-          correctedValueY,
-          correctionRate: state.axisInfo.sub.correctionRate,
-          targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart,
-        })
+        // console.log('firmate/addValue: sub', {
+        //   target: 'sub',
+        //   dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
+        //   newValueY,
+        //   correctedValueY,
+        //   correctionRate: state.axisInfo.sub.correctionRate,
+        //   targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart,
+        // })
       }
       newValue.y = correctedValueY
       state.graphValueSub.push(newValue)
@@ -272,7 +272,6 @@ const actions = {
     })
     commit('setBoard', board)
     commit('setDataGetter', getter)
-    console.log('dummyConnect', board.isConnected())
     return Promise.resolve()
   },
 
