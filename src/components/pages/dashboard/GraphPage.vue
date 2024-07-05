@@ -210,7 +210,7 @@ export default {
       shouldPause: (state) => state.firmata.shouldPause,
       graphValue: (state) => state.firmata.graphValue,
       graphValueSub: (state) => state.firmata.graphValueSub,
-      sharePaused: 'share/sharePaused',
+      firmataPaused: (state) => state.firmata.shouldPause,
     }),
     ...mapGetters({
       source: 'firmata/values',
@@ -218,6 +218,7 @@ export default {
       existValue: 'firmata/existValue',
       renderTimerStartTime: 'firmata/renderTimerStartTime',
       milliSeconds: 'firmata/milliSeconds',
+      sharePaused: 'share/sharePaused',
     }),
     showShareOptions: {
       get() {
@@ -326,6 +327,9 @@ export default {
     },
   },
   watch: {
+    shouldPause: function (newVal) {
+      this.setSharePaused(newVal)
+    },
     graphKind: function (newVal, oldVal) {
       if (this.existValue) {
         if (this.shouldReDo.main) {
@@ -567,15 +571,12 @@ export default {
         if (this.shareRoomNameInputValue !== '') {
           await this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
         }
-        // ルーム名に変更があれば共有を再開する
-        this.$store.commit('share/setSharePaused', false)
       }
       // ユーザ名の変更
       if (this.shareUserName !== this.shareUserNameInputValue) {
         // ルーム名が空でなくユーザ名が変化していたらユーザ名を更新する
         if (this.shareRoomName !== '' && this.shareUserNameInputValue !== '') {
           await this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
-          this.$store.commit('share/setSharePaused', false)
         }
       }
       this.$store.commit('share/setUserName', this.shareUserNameInputValue)
@@ -602,8 +603,16 @@ export default {
     shareModalClose() {
       this.$modal.hide('share-modal')
     },
-    setSharePaused(paused) {
-      this.$store.commit('share/setSharePaused', paused)
+    setSharePaused(sharePaused) {
+      // 共有開始しようとする際にルーム名とユーザ名が空なら無視する
+      if (!sharePaused && this.roomName === '' && this.userName === '') {
+        return
+      }
+      // 共有開始しようとする際に計測停止中なら無視する
+      if (!sharePaused && this.shouldPause) {
+        return
+      }
+      this.$store.commit('share/setSharePaused', sharePaused)
     },
 
     print() {
