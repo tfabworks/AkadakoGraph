@@ -36,11 +36,11 @@ describe('広告表示', () => {
     wrapper.destroy()
   })
 
-  test('広告が1.9秒後には表示されている', async () => {
+  test('広告が1.5秒後には表示されている', async () => {
     expect(wrapper.find('.common-ad').exists()).toBe(true)
     await sleep(1000)
     expect(wrapper.find('.common-ad').exists()).toBe(true)
-    await sleep(900)
+    await sleep(500)
     expect(wrapper.find('.common-ad').exists()).toBe(true)
     wrapper.destroy()
   })
