@@ -3,18 +3,6 @@
     <div>
       <div class="btn-bar">
 
-        <div class="share-info-wrap">
-          <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
-            <span v-if="shareRoomID">
-              共有ID：{{ shareRoomName }}
-            </span>
-            <span v-if="shareRoomID && shareUserName">
-              端末名：{{ shareUserName }}
-            </span>
-            <a class="edit-btn" @click="shareModalOpen">編集する</a>
-          </div>
-        </div>
-
         <ul class="btn-list">
           <li>
             <a v-if="shouldPause" id="play-btn" :class="connected ? '' : 'disable'" @click="reverseShouldPause">
@@ -36,9 +24,23 @@
           </li>
           <!-- <li><a @click="saveChartImage"><img src="../../../../public/img/icon-capture.svg" alt="写真保存"></a></li> -->
           <li><a @click="print"><img src="../../../../public/img/icon-print.svg" alt="印刷"></a></li>
-          <li><a @click="shareModalOpenFromShareButton"><img src="../../../../public/img/icon-share.svg" alt="共有"></a>
-          </li>
         </ul>
+        <div v-if="shareRoomID || (shareRoomID && shareUserName)" class="share-info">
+          <a v-if="!sharePaused" class="share-active" @click="setSharePaused(true)">送信中</a>
+          <a v-if="sharePaused" class="share-stop" @click="setSharePaused(false)">停止中</a>
+          <a class="share-modal-link" @click="shareModalOpen">
+            <span v-if="shareRoomID">
+              共有ID：{{ shareRoomName }}
+            </span>
+            <span v-if="shareRoomID && shareUserName">
+              端末名：{{ shareUserName }}
+            </span>
+          </a>
+        </div>
+        <div class="share-btn">
+          <a @click="shareModalOpenFromShareButton"><img src="../../../../public/img/icon-share.svg" alt="共有"></a>
+        </div>
+
       </div>
     </div>
     <section class="content-box">
@@ -95,7 +97,7 @@
       </div>
     </modal>
 
-    <modal name="share-modal" focus-trap="true">
+    <modal name="share-modal" focus-trap="true" @before-open="shareModalBeforeOpen">
       <div class="modal-header">
         <h2>共有（試験運用中）</h2>
       </div>
@@ -104,13 +106,15 @@
           <div class="modal-share-wrap">
             <label for="shareRoomNameInput">共有ID</label>
             <div class="modal-share-input-wrap">
-              <input id="shareRoomNameInput" v-model="shareRoomNameInputValue" type="text" data-lpignore data-1p-ignore>
+              <input id="shareRoomNameInput" v-model="shareRoomNameInputValue" type="text" data-lpignore data-1p-ignore
+                @change="shareModalNoamalize" @focus="shareModalNoamalize" @keydown.enter="shareModalOnKeydownEnter">
               <a tabindex="-1" class="copy-btn" @click.prevent="shareModalCopyID">IDをコピー</a>
             </div>
             <span class="example">例）〇〇小学校20240625</span>
 
             <label for="shareUserNameInput">端末名（省略可能）</label>
-            <input id="shareUserNameInput" v-model="shareUserNameInputValue" type="text" data-lpignore data-1p-ignore>
+            <input id="shareUserNameInput" v-model="shareUserNameInputValue" type="text" data-lpignore data-1p-ignore
+              @change="shareModalNoamalize" @focus="shareModalNoamalize" @keydown.enter="shareModalOnKeydownEnter">
           </div>
         </form>
         <div class="btn-square-wrap">
@@ -206,6 +210,7 @@ export default {
       shouldPause: (state) => state.firmata.shouldPause,
       graphValue: (state) => state.firmata.graphValue,
       graphValueSub: (state) => state.firmata.graphValueSub,
+      firmataPaused: (state) => state.firmata.shouldPause,
     }),
     ...mapGetters({
       source: 'firmata/values',
@@ -213,6 +218,7 @@ export default {
       existValue: 'firmata/existValue',
       renderTimerStartTime: 'firmata/renderTimerStartTime',
       milliSeconds: 'firmata/milliSeconds',
+      sharePaused: 'share/sharePaused',
     }),
     showShareOptions: {
       get() {
@@ -301,6 +307,15 @@ export default {
     shareUrl() {
       return this.$store.getters['share/shareUrl']
     },
+    sharePaused() {
+      return this.$store.getters['share/sharePaused']
+    },
+    shareDefaultRoomName() {
+      return this.$store.getters['share/defaultRoomName']
+    },
+    shareDefaultUserName() {
+      return this.$store.getters['share/defaultUserName']
+    },
     enableDummyBoard() {
       return this.$store.state.firmata.debugState.enableDummyBoard || 90000 < this.graphKind || 90000 < this.graphKindSub
     },
@@ -312,6 +327,9 @@ export default {
     },
   },
   watch: {
+    shouldPause: function (newVal) {
+      this.setSharePaused(newVal)
+    },
     graphKind: function (newVal, oldVal) {
       if (this.existValue) {
         if (this.shouldReDo.main) {
@@ -530,24 +548,47 @@ export default {
       this.shareModalOpen()
     },
     shareModalOpen() {
-      console.log('shareModalOpen', { shareRoomName: this.shareRoomName, shareUserName: this.shareUserName })
       this.$modal.show('share-modal')
     },
     shareModalBeforeOpen() {
-      console.log('shareModalBeforeOpen', { shareRoomName: this.shareRoomName, shareUserName: this.shareUserName })
-      this.shareRoomNameInputValue = this.shareRoomName
-      this.shareUserNameInputValue = this.shareUserName
+      this.shareRoomNameInputValue = this.shareDefaultRoomName
+      this.shareUserNameInputValue = this.shareDefaultUserName
+    },
+    shareModalNoamalize() {
+      this.shareRoomNameInputValue = this.shareRoomNameInputValue.normalize('NFKC').replace(/\s+/g, ' ').trim()
+      this.shareUserNameInputValue = this.shareUserNameInputValue.normalize('NFKC').replace(/\s+/g, ' ').trim()
+    },
+    shareModalOnKeydownEnter(e) {
+      // 日本語入力中のEnterの場合は 229 が入るので真のEnterだけをフックする
+      if (e.keyCode == 13) {
+        this.shareModalSave()
+      }
     },
     async shareModalSave() {
-      this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
-      this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
-      if (this.shareRoomNameInputValue != '') {
-        const room = await this.$store.dispatch('share/getRoom', { roomName: this.shareRoomNameInputValue })
-        if (room == null) {
-          console.error('shareModalSave NG', { roomName: this.shareRoomNameInputValue })
+      // ルーム名の変更
+      if (this.shareRoomName !== this.shareRoomNameInputValue) {
+        // ルーム名が空でなくルーム名が変化していたらルーム名を更新する
+        if (this.shareRoomNameInputValue !== '') {
+          await this.$store.dispatch('share/setRoomName', this.shareRoomNameInputValue)
         }
       }
+      // ユーザ名の変更
+      if (this.shareUserName !== this.shareUserNameInputValue) {
+        // ルーム名が空でなくユーザ名が変化していたらユーザ名を更新する
+        if (this.shareRoomName !== '' && this.shareUserNameInputValue !== '') {
+          await this.$store.dispatch('share/setUserName', this.shareUserNameInputValue)
+        }
+      }
+      this.$store.commit('share/setUserName', this.shareUserNameInputValue)
+      this.$store.commit('share/setDefaultUserName', this.shareUserNameInputValue)
+      // ルーム名が空またはユーザ名が空なら共有を停止する
+      if (this.shareRoomName === '' || this.shareUserName === '') {
+        this.$store.commit('share/setSharePaused', true)
+      }
+
+      // モーダルを閉じる
       this.shareModalClose()
+      // 共有ボタンからモーダルが開かれている場合は共有タブを開く
       if (this.shareModalFromButton) {
         this.shareModalOpenTab()
       }
@@ -562,8 +603,16 @@ export default {
     shareModalClose() {
       this.$modal.hide('share-modal')
     },
-    shareModalClosed(e) {
-      console.log('shareModalClosed', { e })
+    setSharePaused(sharePaused) {
+      // 共有開始しようとする際にルーム名とユーザ名が空なら無視する
+      if (!sharePaused && this.roomName === '' && this.userName === '') {
+        return
+      }
+      // 共有開始しようとする際に計測停止中なら無視する
+      if (!sharePaused && this.shouldPause) {
+        return
+      }
+      this.$store.commit('share/setSharePaused', sharePaused)
     },
 
     print() {
@@ -617,7 +666,7 @@ select {
   outline: none;
 }
 
-/*-----------共有ID、端末名、右上各種メニューアイコン-----------*/
+/*-----------共有ID、端末名、各種メニューアイコン-----------*/
 
 .btn-bar {
   width: 100vw;
@@ -627,58 +676,16 @@ select {
   background: #fff;
   position: relative;
   display: flex;
-  justify-content: space-between;
+  jusify-content: right;
   align-items: center;
   filter: drop-shadow(0 8px 5px #ccc);
 }
 
-/*左上の共有ID、端末名のスタイル*/
-.share-info-wrap {
-  display: flex;
-  align-items: center;
-  width: calc(100% - 250px);
-  max-width: 600px;
-  height: 40px;
-}
-
-.share-info {
-  display: flex;
-  position: relative;
-  width: 100%;
-  padding: 10px 40px 10px 10px;
-  border: 1px solid #ccc;
-  font-weight: bold;
-}
-
-.share-info span {
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 50%;
-}
-
-.share-info span:nth-of-type(1) {
-  margin-right: 1.5em;
-}
-
-.share-info .edit-btn {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 10px;
-  margin: auto;
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  font-size: 0;
-  background: url(../../../../public/img/icon-edit.svg) no-repeat center;
-}
-
-/*右上のアイコン一覧のスタイル*/
+/*左上のアイコン一覧のスタイル*/
 .btn-list {
   display: flex;
   padding: 10px 0;
+  margin-right: auto;
 }
 
 .btn-list li {
@@ -708,6 +715,67 @@ select {
   filter: grayscale(100%);
 }
 
+/*共有ID、端末名の枠内スタイル*/
+.share-info {
+  display: flex;
+  position: relative;
+  max-width: calc(100% - 280px);
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  font-weight: bold;
+}
+
+.share-active,
+.share-stop {
+  display: block;
+  width: 45px;
+  padding: 3px 0;
+  text-align: center;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.share-active {
+  color: #28AE60;
+  background: url(../../../../public/img/shared-active.svg) no-repeat center bottom 3px/ 32px;
+}
+
+.share-stop {
+  color: #999;
+  background: url(../../../../public/img/shared-stop.svg) no-repeat center bottom 3px/ 32px;
+}
+
+.share-modal-link {
+  display: flex;
+  width: calc(100% - 45px);
+  color: #333;
+  padding: 10px;
+}
+
+.share-modal-link span {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.share-modal-link span:nth-of-type(1) {
+  margin-right: 1em;
+}
+
+/*右上の共有ボタン*/
+.share-btn {
+  width: 30px;
+}
+
+.share-btn a {
+  display: block;
+}
+
+.share-btn img {
+  width: 100%;
+  height: auto;
+}
 
 /*-----------グラフ内-----------*/
 

@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/browser'
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
 import utc from 'dayjs/plugin/utc'
@@ -149,14 +150,14 @@ const mutations = {
       }
       const correctedValueY = newValue.y * state.axisInfo.sub.correctionRate
       if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
-        console.log('firmate/addValue: sub', {
-          target: 'sub',
-          dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
-          newValueY,
-          correctedValueY,
-          correctionRate: state.axisInfo.sub.correctionRate,
-          targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart,
-        })
+        // console.log('firmate/addValue: sub', {
+        //   target: 'sub',
+        //   dataCountSinceStart: state.axisInfo.sub.dataCountSinceStart,
+        //   newValueY,
+        //   correctedValueY,
+        //   correctionRate: state.axisInfo.sub.correctionRate,
+        //   targetValueForCorrectionOnStart: sensor.targetValueForCorrectionOnStart,
+        // })
       }
       newValue.y = correctedValueY
       state.graphValueSub.push(newValue)
@@ -271,24 +272,37 @@ const actions = {
     })
     commit('setBoard', board)
     commit('setDataGetter', getter)
-    console.log('dummyConnect', board.isConnected())
     return Promise.resolve()
   },
 
   async connect(ctx) {
-    ctx.dispatch('midiConnect').catch((err) => {
-      console.error('[MIDI]connect', err)
-      ctx.dispatch('serialConnect').catch((err) => {
-        console.error('[Serial]connect', err)
-        console.log('debugState', ctx.state.debugState)
-        if (ctx.state.debugState.enableDummyBoard) {
-          ctx.dispatch('dummyConnect').catch((err) => console.error('[Dummy]connect', err))
-        }
+    ctx
+      .dispatch('midiConnect')
+      .then(() => {
+        Sentry.getCurrentScope().setTag('boardType', 'midi')
       })
-    })
+      .catch((err) => {
+        console.error('[MIDI]connect', err)
+        ctx
+          .dispatch('serialConnect')
+          .then(() => {
+            Sentry.getCurrentScope().setTag('boardType', 'serial')
+          })
+          .catch((err) => {
+            console.error('[Serial]connect', err)
+            if (ctx.state.debugState.enableDummyBoard) {
+              ctx
+                .dispatch('dummyConnect')
+                .then(() => {
+                  Sentry.getCurrentScope().setTag('boardType', 'dummy')
+                })
+                .catch((err) => console.error('[Dummy]connect', err))
+            }
+          })
+      })
   },
   disConnect(ctx) {
-    if (ctx.state.board && ctx.state.board.board) {
+    if (ctx.state.board && ctx.state.board.isConnected()) {
       ctx.state.board.disconnect()
     }
 

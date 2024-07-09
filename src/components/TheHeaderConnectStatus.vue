@@ -54,32 +54,29 @@ export default {
 }
 </script>
 <style scoped>
-
 .connect-btn {
-  margin-top:-6px;
-}
-.connect-btn button{
-  width:120px;
-  padding:0 5px 0 60px;
-  height:26px;
-  line-height:26px;
-  text-align:start;
-  box-shadow: 0 6px #999;
-  border-radius:4px;
-  font-weight:bold;
-  background:url(/public/img/connect-inactive.svg) #efefef no-repeat left center/contain;
+  margin-top: -6px;
 }
 
-.connect-btn.active button{
-  background:url(/public/img/connect-active.svg) #efefef no-repeat left center/contain;
+.connect-btn button {
+  width: 120px;
+  padding: 0 5px 0 60px;
+  height: 26px;
+  line-height: 26px;
+  text-align: start;
+  box-shadow: 0 6px #999;
+  border-radius: 4px;
+  font-weight: bold;
+  background: url(/public/img/connect-inactive.svg) #efefef no-repeat left center/contain;
+}
+
+.connect-btn.active button {
+  background: url(/public/img/connect-active.svg) #efefef no-repeat left center/contain;
   transform: translateY(4px);
   box-shadow: 0 3px #999;
 }
 
-.connect-btn button:hover{
-  opacity:.7;
+.connect-btn button:hover {
+  opacity: .7;
 }
-
-
-
 </style>

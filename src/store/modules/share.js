@@ -1,5 +1,5 @@
+import * as Sentry from '@sentry/browser'
 /* eslint-disable no-unused-vars */
-
 import { SensorMap, Sensors } from '../../lib/constants'
 
 // チャートの共有ステータス管理
@@ -17,7 +17,7 @@ const state = {
   chartTimeEnd: 0,
   chartData: {},
   //UI関連(計測画面)
-  roomNameTmp: '',
+  sharePaused: true,
   updateChartImageLatest: 0,
   updateChartImageIntervalMin: 5000,
   //UI関連(グラフ一覧)
@@ -37,7 +37,10 @@ const getters = {
   roomID: (state) => state.roomID,
   roomName: (state) => state.roomName,
   userID: (state) => state.userID,
-  userName: (state) => state.userName,
+  userName: (state) => defaultIfEmpty(state.userName, localStorage.getItem(`${STORAGE_PREFIX}userName`)),
+  defaultRoomName: (state) => defaultIfEmpty(state.roomName, localStorage.getItem(`${STORAGE_PREFIX}roomName`)),
+  defaultUserName: (state) => defaultIfEmpty(state.userName, localStorage.getItem(`${STORAGE_PREFIX}userName`)),
+  sharePaused: (state) => state.sharePaused,
   chartID: (state) => state.chartID,
   chartName: (state) => state.chartName,
   chartTimeStart: (state) => state.chartTimeStart,
@@ -72,20 +75,37 @@ const mutations = {
     }
     const search = urlParams.size > 0 ? `?${urlParams.toString()}` : ''
     window.history.replaceState(null, '', `${window.location.pathname}${search}`)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setTag('roomID', roomID)
   },
   setRoomName(state, roomName) {
     state.roomName = roomName
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setTag('roomName', roomName)
   },
   setUserID(state, userID) {
     state.userID = userID
     localStorage.setItem(`${STORAGE_PREFIX}userID`, userID)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setUser({ id: state.userID, name: state.userName })
   },
   setUserName(state, userName) {
     state.userName = userName
-    localStorage.setItem(`${STORAGE_PREFIX}userName`, userName)
     // チャート名はユーザ名と同じにする
     state.chartName = userName
-    localStorage.setItem(`${STORAGE_PREFIX}chartName`, userName)
+    // Sentoryに属性追加
+    Sentry.getCurrentScope().setUser({ id: state.userID, name: state.userName })
+  },
+  setDefaultRoomName(state, defaultRoomName) {
+    state.defaultRoomName = defaultRoomName
+    localStorage.setItem(`${STORAGE_PREFIX}roomName`, defaultRoomName)
+  },
+  setDefaultUserName(state, defaultUserName) {
+    state.defaultUserName = defaultUserName
+    localStorage.setItem(`${STORAGE_PREFIX}userName`, defaultUserName)
+  },
+  setSharePaused(state, sharePaused) {
+    state.sharePaused = sharePaused
   },
   setChartID(state, chartID) {
     state.chartID = chartID
@@ -104,9 +124,6 @@ const mutations = {
     state.chartTimeEnd = chartTimeEnd
   },
   // UI関連
-  setRoomNameTmp(state, roomNameTmp) {
-    state.roomNameTmp = roomNameTmp
-  },
   setUpdateChartImageLatest(state, updateChartImageLatest) {
     state.updateChartImageLatest = updateChartImageLatest
   },
@@ -154,13 +171,13 @@ const actions = {
       localStorage.setItem(`${STORAGE_PREFIX}userID`, crypto.randomUUID())
     }
     commit('setUserID', localStorage.getItem(`${STORAGE_PREFIX}userID`))
+    // ユーザ名をlocalStorageからリストア
     commit('setUserName', localStorage.getItem(`${STORAGE_PREFIX}userName`) ?? '')
     // チャートIDをlocalStorageからリストアor作成
     if (!/^[0-9a-f-]{32,36}/.test(localStorage.getItem(`${STORAGE_PREFIX}chartID`))) {
       localStorage.setItem(`${STORAGE_PREFIX}chartID`, crypto.randomUUID())
     }
     commit('setChartID', localStorage.getItem(`${STORAGE_PREFIX}chartID`))
-    commit('setChartName', localStorage.getItem(`${STORAGE_PREFIX}chartName`) ?? '')
   },
   // ルーム名を変更してルームIDを取得する
   async setRoomName({ commit, state }, roomName) {
@@ -177,18 +194,21 @@ const actions = {
       },
       body: JSON.stringify({
         type: 'room',
-        name: roomName,
+        roomName,
+        userID: state.userID,
       }),
     })
     const data = await response.json()
-    if (data && data.id) {
-      commit('setRoomID', data.id)
-      commit('setRoomName', data.name)
+    if (data && data.roomID) {
+      commit('setRoomID', data.roomID)
+      commit('setRoomName', data.roomName)
+      commit('setDefaultRoomName', data.roomName)
     }
   },
   // ユーザ名を変更してサーバ上のユーザ名も更新する
   async setUserName({ commit, dispatch }, userName) {
     commit('setUserName', userName)
+    commit('setDefaultUserName', userName)
     return await dispatch('updateChartJson', { force: true, nameOnly: true })
   },
   // チャートJSONを更新する
@@ -297,12 +317,18 @@ const actions = {
     commit('setChartTimeEnd', new Date(minmax.max).getTime() || 0)
     dispatch('updateChartImage')
   },
-  canUpdateChart({ commit, rootGetters, state }) {
-    if (state.roomID == '' || state.chartID == '' || state.userID == '') {
+  canUpdateChart({ rootGetters, state }) {
+    const firmataPaused = rootGetters['firmata/shouldPause']
+    if (state.sharePaused) {
       return false
     }
-    const shouldPause = rootGetters['firmata/shouldPause']
-    if (shouldPause) {
+    if (state.roomID === '' || state.chartID === '' || state.userID === '') {
+      return false
+    }
+    if (state.roomName === '' || state.userName === '') {
+      return false
+    }
+    if (firmataPaused) {
       return false
     }
     // 連続してアップロードを実行しない
@@ -379,6 +405,15 @@ const fetchRoom = async ({ roomID, roomName, all = false }) => {
     return room != null && room.type == 'room' ? room : null
   }
   return null
+}
+
+const defaultIfEmpty = (...values) => {
+  for (const value of values) {
+    if (value != null && value !== '') {
+      return value
+    }
+  }
+  return ''
 }
 
 export default {
