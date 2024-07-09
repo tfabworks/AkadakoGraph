@@ -589,7 +589,7 @@ export default {
       // モーダルを閉じる
       this.shareModalClose()
       // 共有ボタンからモーダルが開かれている場合は共有タブを開く
-      if (this.shareModalFromButton) {
+      if (this.shareModalFromButton && this.shareRoomName !== '') {
         this.shareModalOpenTab()
       }
     },
