@@ -88,6 +88,7 @@ export const Sensors = [
     unit: '%',
     flactionDigits: 3,
     resolutuon: 0.1,
+    targetValueForCorrectionOnStart: 20.9,
   },
   {
     id: 17,
