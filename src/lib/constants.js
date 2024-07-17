@@ -88,6 +88,7 @@ export const Sensors = [
     unit: '%',
     flactionDigits: 3,
     resolutuon: 0.1,
+    targetValueForCorrectionOnStart: 20.9,
   },
   {
     id: 17,
@@ -126,35 +127,35 @@ export const Sensors = [
     name: '人感', //実はデジタルB2
   },
   {
-    id: 10000,
+    id: 50,
     name: 'アナログA1',
   },
   {
-    id: 10001,
+    id: 51,
     name: 'アナログA2',
   },
   {
-    id: 10002,
+    id: 52,
     name: 'アナログB1',
   },
   {
-    id: 10003,
+    id: 53,
     name: 'アナログB2',
   },
   {
-    id: 10100,
+    id: 54,
     name: 'デジタルA1',
   },
   {
-    id: 10101,
+    id: 55,
     name: 'デジタルA2',
   },
   {
-    id: 10102,
+    id: 56,
     name: 'デジタルB1',
   },
   {
-    id: 10103,
+    id: 57,
     name: 'デジタルB2',
   },
   {
