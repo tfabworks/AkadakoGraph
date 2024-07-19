@@ -27,20 +27,81 @@ const serialPortOptions = {
   ],
 }
 
-// クエリパラメータ→localStorageの順で優先で採用
-const defaultAxisInfo = (() => {
-  const sL_localStorage = migrateSensorKind20230714(localStorage.getItem('graphKind'))
-  const sR_localStorage = migrateSensorKind20230714(localStorage.getItem('graphKindSub'))
-  const { sL, sR } = Object.fromEntries(new URLSearchParams(location.search))
-  const axisInfo = {
-    main: parseInt(sL) || parseInt(sL_localStorage),
-    sub: parseInt(sR) || parseInt(sR_localStorage),
+const parseJson = (json) => {
+  try {
+    return JSON.parse(json)
+  } catch (_) {
+    return undefined
   }
-  localStorage.setItem('graphKind', axisInfo.main)
-  localStorage.setItem('graphKindSub', axisInfo.sub)
-  console.log('defaultAxisInfo', axisInfo, { sL, sR })
-  return axisInfo
-})()
+}
+
+const saveStateToStorage = (state) => {
+  for (const [k, v] of Object.entries(state)) {
+    localStorage.setItem(k, JSON.stringify(v))
+  }
+}
+
+const loadStateFromStorage = () => {
+  migrateLocalStorage()
+  const sensors = parseJson(localStorage.getItem('sensors'))
+  const values0 = parseJson(localStorage.getItem('values0')) || []
+  const values1 = parseJson(localStorage.getItem('values1')) || []
+  return { sensors, values0, values1 }
+}
+
+const migrateLocalStorage = () => {
+  // localStorage のキーを変更
+  if (localStorage.getItem('graphKind') != null || localStorage.getItem('graphKindSub') != null) {
+    const sensors = [parseInt(migrateSensorKind20230714(localStorage.getItem('graphKind'))) || 0, parseInt(migrateSensorKind20230714(localStorage.getItem('graphKindSub'))) || 0]
+    localStorage.setItem('sensors', JSON.stringify(sensors))
+    localStorage.removeItem('graphKind')
+    localStorage.removeItem('graphKindSub')
+  }
+  if (localStorage.getItem('graphValue') != null || localStorage.getItem('graphValueSub') != null) {
+    localStorage.setItem('values0', JSON.stringify(parseJson(localStorage.getItem('graphValue')) || []))
+    localStorage.setItem('values1', JSON.stringify(parseJson(localStorage.getItem('graphValueSub')) || []))
+    localStorage.removeItem('graphValue')
+    localStorage.removeItem('graphValueSub')
+  }
+}
+
+const loadStateFromSearch = () => {
+  const params = new URLSearchParams(location.search)
+  let sensors = null
+  if (params.has('sensors')) {
+    const [s0 = 0, s1 = 0] = params
+      .get('sensors')
+      .split(',')
+      .map((v) => parseInt(v) || 0)
+    sensors = [s0, s1]
+    // クエリパラメータからデフォルト値を取得したら事故防止のためにクエリパラメータを削除する
+    params.delete('sensors')
+    const url = new URL(location.href)
+    url.search = params.toString()
+    history.replaceState({ path: url.href }, '', url.href)
+  }
+  return { sensors }
+}
+
+const loadState = () => {
+  const state = loadStateFromStorage()
+  const search = loadStateFromSearch()
+  // クエリがセンサーパラメータを持ち
+  if (search.sensors) {
+    // ストレージと異なる場合はクエリなら優先する
+    if (state.sensors[0] !== search.sensors[0] || state.sensors[1] !== search.sensors[1]) {
+      state.sensors = search.sensors
+      // センサーを切り替える時はデータを削除する
+      state.values0 = []
+      state.values1 = []
+      // ストレージに保存する
+      saveStateToStorage(state)
+    }
+  }
+  return state
+}
+
+const defaultState = loadState()
 
 const state = {
   board: null,
@@ -48,22 +109,22 @@ const state = {
   milliSeconds: 1000,
   axisInfo: {
     main: {
-      shouldRender: defaultAxisInfo.main ? true : false,
-      kind: defaultAxisInfo.main,
+      shouldRender: defaultState.sensors[0] ? true : false,
+      kind: defaultState.sensors[0],
       dataCountSinceStart: 0,
       correctionRate: 1,
     },
     sub: {
-      shouldRender: defaultAxisInfo.sub ? true : false,
-      kind: defaultAxisInfo.sub,
+      shouldRender: defaultState.sensors[1] ? true : false,
+      kind: defaultState.sensors[1],
       dataCountSinceStart: 0,
       correctionRate: 1,
     },
   },
   renderTimer: null,
   renderTimerStartTime: 0,
-  graphValue: JSON.parse(localStorage.getItem('graphValue') || '[]'),
-  graphValueSub: JSON.parse(localStorage.getItem('graphValueSub') || '[]'),
+  graphValue: defaultState.values0,
+  graphValueSub: defaultState.values1,
   shouldPause: true,
   //デバッグ用
   debugState: {
@@ -147,7 +208,7 @@ const mutations = {
       })
       newValue.y = correctedValueY
       state.graphValue.push(newValue)
-      localStorage.setItem('graphValue', JSON.stringify(state.graphValue))
+      saveStateToStorage({ values0: state.graphValue })
     } else {
       state.axisInfo.sub.dataCountSinceStart += 1
       // スタート時の補正目標値が存在する場合は補正レートを更新する
@@ -171,33 +232,33 @@ const mutations = {
       }
       newValue.y = correctedValueY
       state.graphValueSub.push(newValue)
-      localStorage.setItem('graphValueSub', JSON.stringify(state.graphValueSub))
+      saveStateToStorage({ values1: state.graphValueSub })
     }
   },
   resetValue(state, target) {
     if (target == 'main') {
       state.graphValue = []
-      localStorage.setItem('graphValue', JSON.stringify([]))
+      saveStateToStorage({ values0: [] })
     } else if (target == 'sub') {
       state.graphValueSub = []
-      localStorage.setItem('graphValueSub', JSON.stringify([]))
+      saveStateToStorage({ values1: [] })
     } else if (target == 'all') {
       state.graphValue = []
-      localStorage.setItem('graphValue', JSON.stringify([]))
+      saveStateToStorage({ values0: [] })
       state.graphValueSub = []
-      localStorage.setItem('graphValueSub', JSON.stringify([]))
+      saveStateToStorage({ values1: [] })
     }
   },
   setKind(state, payload) {
-    state.axisInfo.main.kind = payload
-    localStorage.setItem('graphKind', payload)
+    state.axisInfo.main.kind = parseInt(payload)
+    saveStateToStorage({ sensors: [state.axisInfo.main.kind, state.axisInfo.sub.kind] })
     state.axisInfo.main.shouldRender = payload ? true : false
     state.axisInfo.main.dataCountSinceStart = 0
     state.axisInfo.main.correctionRate = 1
   },
   setKindSub(state, payload) {
     state.axisInfo.sub.kind = payload
-    localStorage.setItem('graphKindSub', payload)
+    saveStateToStorage({ sensors: [state.axisInfo.main.kind, state.axisInfo.sub.kind] })
     state.axisInfo.sub.shouldRender = payload ? true : false
     state.axisInfo.sub.dataCountSinceStart = 0
     state.axisInfo.sub.correctionRate = 1

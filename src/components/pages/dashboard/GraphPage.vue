@@ -397,16 +397,8 @@ export default {
       // それぞれの軸のデータがあればローカルストレージから項目名を取得
       // ローカルストレージに値がなければ「主軸」等の名前を付ける
       // データが無い場合は空欄にする
-      const graphKind = (
-        SensorMap.get(parseInt(localStorage.getItem('graphKind'))) || {
-          kind: '',
-        }
-      ).kind
-      const graphKindSub = (
-        SensorMap.get(parseInt(localStorage.getItem('graphKindSub'))) || {
-          kind: '',
-        }
-      ).kind
+      const graphKind = (SensorMap.get(this.graphKind) || { kind: '' }).kind
+      const graphKindSub = (SensorMap.get(this.graphKindSub) || { kind: '' }).kind
       const valueHeader = {
         main: this.graphValue.length ? (graphKind ? graphKind : '主軸') : '',
         sub: this.graphValueSub.length ? (graphKindSub ? graphKindSub : '第2軸') : '',
