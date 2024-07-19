@@ -43,7 +43,7 @@ const saveStateToStorage = (state) => {
 
 const loadStateFromStorage = () => {
   migrateLocalStorage()
-  const sensors = parseJson(localStorage.getItem('sensors'))
+  const sensors = parseJson(localStorage.getItem('sensors')) || [0, 0]
   const values0 = parseJson(localStorage.getItem('values0')) || []
   const values1 = parseJson(localStorage.getItem('values1')) || []
   return { sensors, values0, values1 }
@@ -67,7 +67,7 @@ const migrateLocalStorage = () => {
 
 const loadStateFromSearch = () => {
   const params = new URLSearchParams(location.search)
-  let sensors = null
+  let sensors = [0, 0]
   if (params.has('sensors')) {
     const [s0 = 0, s1 = 0] = params
       .get('sensors')
@@ -86,6 +86,7 @@ const loadStateFromSearch = () => {
 const loadState = () => {
   const state = loadStateFromStorage()
   const search = loadStateFromSearch()
+  console.log(state, search)
   // クエリがセンサーパラメータを持ち
   if (search.sensors) {
     // ストレージと異なる場合はクエリなら優先する
@@ -102,7 +103,6 @@ const loadState = () => {
 }
 
 const defaultState = loadState()
-
 const state = {
   board: null,
   dataGetter: null,
