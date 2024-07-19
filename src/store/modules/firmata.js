@@ -67,7 +67,7 @@ const migrateLocalStorage = () => {
 
 const loadStateFromSearch = () => {
   const params = new URLSearchParams(location.search)
-  let sensors = [0, 0]
+  let sensors = null
   if (params.has('sensors')) {
     const [s0 = 0, s1 = 0] = params
       .get('sensors')
@@ -86,7 +86,6 @@ const loadStateFromSearch = () => {
 const loadState = () => {
   const state = loadStateFromStorage()
   const search = loadStateFromSearch()
-  console.log(state, search)
   // クエリがセンサーパラメータを持ち
   if (search.sensors) {
     // ストレージと異なる場合はクエリなら優先する
