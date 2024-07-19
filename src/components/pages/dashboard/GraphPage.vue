@@ -80,13 +80,13 @@
         " />
     </section>
 
-    <modal name="delete-confirm">
+    <modal name="delete-confirm" focus-trap="true">
       <div class="modal-header">
         <h2>確認</h2>
       </div>
       <div class="modal-body">
         <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
-        <a class="btn-square-little-rich" @click="deleteModalOK">
+        <a class="btn-square-little-rich" tabindex="0" @click="deleteModalOK" @keydown.enter="deleteModalOK">
           <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
           <span class="btn-text">実行</span>
         </a>
