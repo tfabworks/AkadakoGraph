@@ -518,6 +518,11 @@ export default {
       this.deleteCallFrom = callFrom
       this.deleteModalOKCallback = okCallback
       this.deleteModalNGCallback = ngCallback
+      if (callFrom === 'main' || callFrom === 'sub') {
+        // センサー切り替えでは確認ダイアログを出さない
+        this.deleteModalOK()
+        return
+      }
       this.$modal.show('delete-confirm')
     },
     deleteModalClose() {
