@@ -27,10 +27,20 @@ const serialPortOptions = {
   ],
 }
 
-const tmpAxisInfo = {
-  main: parseInt(migrateSensorKind20230714(localStorage.getItem('graphKind'))),
-  sub: parseInt(migrateSensorKind20230714(localStorage.getItem('graphKindSub'))),
-}
+// クエリパラメータ→localStorageの順で優先で採用
+const defaultAxisInfo = (() => {
+  const sL_localStorage = migrateSensorKind20230714(localStorage.getItem('graphKind'))
+  const sR_localStorage = migrateSensorKind20230714(localStorage.getItem('graphKindSub'))
+  const { sL, sR } = Object.fromEntries(new URLSearchParams(location.search))
+  const axisInfo = {
+    main: parseInt(sL) || parseInt(sL_localStorage),
+    sub: parseInt(sR) || parseInt(sR_localStorage),
+  }
+  localStorage.setItem('graphKind', axisInfo.main)
+  localStorage.setItem('graphKindSub', axisInfo.sub)
+  console.log('defaultAxisInfo', axisInfo, { sL, sR })
+  return axisInfo
+})()
 
 const state = {
   board: null,
@@ -38,14 +48,14 @@ const state = {
   milliSeconds: 1000,
   axisInfo: {
     main: {
-      shouldRender: tmpAxisInfo.main ? true : false,
-      kind: tmpAxisInfo.main,
+      shouldRender: defaultAxisInfo.main ? true : false,
+      kind: defaultAxisInfo.main,
       dataCountSinceStart: 0,
       correctionRate: 1,
     },
     sub: {
-      shouldRender: tmpAxisInfo.sub ? true : false,
-      kind: tmpAxisInfo.sub,
+      shouldRender: defaultAxisInfo.sub ? true : false,
+      kind: defaultAxisInfo.sub,
       dataCountSinceStart: 0,
       correctionRate: 1,
     },
