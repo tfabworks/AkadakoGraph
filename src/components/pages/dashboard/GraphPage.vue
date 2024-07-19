@@ -80,13 +80,13 @@
         " />
     </section>
 
-    <modal name="delete-confirm">
+    <modal name="delete-confirm" focus-trap="true">
       <div class="modal-header">
         <h2>確認</h2>
       </div>
       <div class="modal-body">
         <p>この操作を実行すると現在表示されているデータが全て削除されますが本当によろしいですか?</p>
-        <a class="btn-square-little-rich" @click="deleteModalOK">
+        <a class="btn-square-little-rich" tabindex="0" @click="deleteModalOK" @keydown.enter="deleteModalOK">
           <img src="../../../../public/img/icon-exe.svg" alt="実行" class="btn-icon">
           <span class="btn-text">実行</span>
         </a>
@@ -397,16 +397,8 @@ export default {
       // それぞれの軸のデータがあればローカルストレージから項目名を取得
       // ローカルストレージに値がなければ「主軸」等の名前を付ける
       // データが無い場合は空欄にする
-      const graphKind = (
-        SensorMap.get(parseInt(localStorage.getItem('graphKind'))) || {
-          kind: '',
-        }
-      ).kind
-      const graphKindSub = (
-        SensorMap.get(parseInt(localStorage.getItem('graphKindSub'))) || {
-          kind: '',
-        }
-      ).kind
+      const graphKind = (SensorMap.get(this.graphKind) || { kind: '' }).kind
+      const graphKindSub = (SensorMap.get(this.graphKindSub) || { kind: '' }).kind
       const valueHeader = {
         main: this.graphValue.length ? (graphKind ? graphKind : '主軸') : '',
         sub: this.graphValueSub.length ? (graphKindSub ? graphKindSub : '第2軸') : '',
@@ -526,6 +518,11 @@ export default {
       this.deleteCallFrom = callFrom
       this.deleteModalOKCallback = okCallback
       this.deleteModalNGCallback = ngCallback
+      if (callFrom === 'main' || callFrom === 'sub') {
+        // センサー切り替えでは確認ダイアログを出さない
+        this.deleteModalOK()
+        return
+      }
       this.$modal.show('delete-confirm')
     },
     deleteModalClose() {
