@@ -43,7 +43,7 @@ const saveStateToStorage = (state) => {
 
 const loadStateFromStorage = () => {
   migrateLocalStorage()
-  const sensors = parseJson(localStorage.getItem('sensors'))
+  const sensors = parseJson(localStorage.getItem('sensors')) || [0, 0]
   const values0 = parseJson(localStorage.getItem('values0')) || []
   const values1 = parseJson(localStorage.getItem('values1')) || []
   return { sensors, values0, values1 }
@@ -102,7 +102,6 @@ const loadState = () => {
 }
 
 const defaultState = loadState()
-
 const state = {
   board: null,
   dataGetter: null,
