@@ -61,27 +61,27 @@ export default class DataGetter {
         return await this.o2co2.getTemperature()
       } else if (kind === 19) {
         return await this.o2co2.getHumidity()
-      } else if (kind === 10000) {
-        return this.inputGetter.analogLevelA1()
-      } else if (kind === 10001) {
-        return this.inputGetter.analogLevelA2()
-      } else if (kind === 10002) {
-        return this.inputGetter.analogLevelB1()
-      } else if (kind === 10003) {
-        return this.inputGetter.analogLevelB2()
-      } else if (kind === 10100) {
-        return this.inputGetter.digitalLevelA1()
-      } else if (kind === 10101) {
-        return this.inputGetter.digitalLevelA2()
-      } else if (kind === 10102) {
-        return this.inputGetter.digitalLevelB1()
-      } else if (kind === 10103) {
-        return this.inputGetter.digitalLevelB2()
       } else if (kind === 20) {
         return this.inputGetter.analogLevelA1()
       } else if (kind === 21) {
         return this.inputGetter.analogLevelB2()
       } else if (kind === 22) {
+        return this.inputGetter.digitalLevelB2()
+      } else if (kind === 50) {
+        return this.inputGetter.analogLevelA1()
+      } else if (kind === 51) {
+        return this.inputGetter.analogLevelA2()
+      } else if (kind === 52) {
+        return this.inputGetter.analogLevelB1()
+      } else if (kind === 53) {
+        return this.inputGetter.analogLevelB2()
+      } else if (kind === 54) {
+        return this.inputGetter.digitalLevelA1()
+      } else if (kind === 55) {
+        return this.inputGetter.digitalLevelA2()
+      } else if (kind === 56) {
+        return this.inputGetter.digitalLevelB1()
+      } else if (kind === 57) {
         return this.inputGetter.digitalLevelB2()
       } else if (kind === 90001) {
         return this.inputGetter.dummyDataRandom()
