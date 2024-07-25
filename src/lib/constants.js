@@ -127,6 +127,13 @@ export const Sensors = [
     name: '人感', //実はデジタルB2
   },
   {
+    id: 23,
+    name: '電圧', //実はアナログA1
+    unit: 'V',
+    flactionDigits: 2,
+    correctionRate: 1 / 20, // 入力値を1/20にする
+  },
+  {
     id: 50,
     name: 'アナログA1',
   },
