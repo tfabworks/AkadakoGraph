@@ -193,7 +193,11 @@ const mutations = {
         if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
           state.axisInfo.main.correctionRate = sensor.targetValueForCorrectionOnStart / newValueY
         } else {
-          state.axisInfo.main.correctionRate = 1
+          if (typeof sensor.correctionRate !== 'undefined') {
+            state.axisInfo.main.correctionRate = sensor.correctionRate
+          } else {
+            state.axisInfo.main.correctionRate = 1
+          }
         }
       }
       const correctedValueY = newValue.y * state.axisInfo.main.correctionRate
@@ -215,7 +219,11 @@ const mutations = {
         if (typeof sensor.targetValueForCorrectionOnStart !== 'undefined') {
           state.axisInfo.sub.correctionRate = sensor.targetValueForCorrectionOnStart / newValueY
         } else {
-          state.axisInfo.sub.correctionRate = 1
+          if (typeof sensor.correctionRate !== 'undefined') {
+            state.axisInfo.sub.correctionRate = sensor.correctionRate
+          } else {
+            state.axisInfo.sub.correctionRate = 1
+          }
         }
       }
       const correctedValueY = newValue.y * state.axisInfo.sub.correctionRate

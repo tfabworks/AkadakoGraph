@@ -67,6 +67,8 @@ export default class DataGetter {
         return this.inputGetter.analogLevelB2()
       } else if (kind === 22) {
         return this.inputGetter.digitalLevelB2()
+      } else if (kind === 23) {
+        return this.inputGetter.analogLevelA1()
       } else if (kind === 50) {
         return this.inputGetter.analogLevelA1()
       } else if (kind === 51) {
