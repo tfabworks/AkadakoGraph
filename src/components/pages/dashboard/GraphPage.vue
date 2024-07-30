@@ -46,7 +46,7 @@
     <section class="content-box">
       <div class="sensor-select-wrap">
         <div class="sensor-left">
-          <select v-model="graphKind" :disabled="!connected">
+          <select v-model="graphKind" class="unmask-me" :disabled="!connected">
             <option :value="null" />
             <option v-for=" s in sensors " :key="s.id" :value="s.id">
               {{ s.kind }}
@@ -55,7 +55,7 @@
           <span>現在の値：{{ lastMainValue }} {{ lastMainUnit }}</span>
         </div>
         <div class="interval-selector">
-          <select v-model="interval" :disabled="!connected">
+          <select v-model="interval" class="unmask-me" :disabled="!connected">
             <option v-for=" ms in intervals " :key="ms" :value="ms">
               {{ ms < 60000 ? ms / 1000 + '秒' : ms / 60000 + '分' }} </option>
           </select>
@@ -63,7 +63,7 @@
             :start-time="renderTimerStartTime" />
         </div>
         <div class="sensor-right">
-          <select v-model="graphKindSub" :disabled="!connected">
+          <select v-model="graphKindSub" class="unmask-me" :disabled="!connected">
             <option :value="null" />
             <option v-for=" s in sensors " :key="s.id" :value="s.id">
               {{ s.kind }}

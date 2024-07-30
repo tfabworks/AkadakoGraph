@@ -53,20 +53,33 @@ Vue.filter('toInterval', (interval) => toInterval(interval))
 // Vue2 用のSentry設定
 // https://sentry.io/organizations/syun/projects/akadako-graph-vue/getting-started/?product=performance-monitoring&product=session-replay&siblingOption=vue2
 const setupSentry = () => {
-  const isProduction = location.hostname === 'graph.akadako.com'
-  const isStaging = location.hostname === 'test-graph.akadako.com'
-  const environment = isProduction ? 'production' : isStaging ? 'staging' : 'development'
+  const isProduction = /^graph\.(akadako\.com|699\.jp|tfabworks\.com)$/.test(location.hostname)
+  const isStaging = /^test-graph\.(akadako\.com|699\.jp|tfabworks\.com)$/.test(location.hostname)
+  const isDevelopment = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
+  const isCI = process.env.VUE_APP_CI !== undefined
+  const environment = isProduction ? 'production' : isStaging ? 'staging' : isDevelopment ? 'development' : isCI ? 'ci' : 'unknown'
   const release = process.env.VUE_APP_GIT_COMMIT
   Sentry.init({
     Vue,
     dsn: 'https://460e027b6f5ba4ba6289414c3124f6a6@o181906.ingest.us.sentry.io/4507502995898368',
-    integrations: [Sentry.browserTracingIntegration(), Sentry.replayIntegration()],
     environment,
     release,
+    integrations: [
+      Sentry.browserTracingIntegration(),
+      Sentry.extraErrorDataIntegration(), // エラーの追加データを有効化する
+      Sentry.replayIntegration({
+        maskAllText: false, // ユーザプライバシー保護のためにテキストをマスクするか
+        blockAllMedia: false, // ユーザプライバシー保護のためにメディアをブロックするか
+        mask: ['.mask-me'], // マスクすべき要素のCSSクラス
+        unmask: ['.unmask-me'], // マスクしたくない要素のCSSクラス
+      }),
+      Sentry.replayCanvasIntegration(), // キャンバスのリプレイを有効化する
+      // Sentry.feedbackIntegration({ colorScheme: 'system' }), // ユーザーフィードバックを有効化する
+    ],
     // Performance Monitoring
     tracesSampleRate: 1.0, //  Capture 100% of the transactions
     // Set 'tracePropagationTargets' to control for which URLs distributed tracing should be enabled
-    tracePropagationTargets: ['localhost', /^https:\/\/graph\.akadako\.com\//, /^https:\/\/test-graph\.akadako\.com\//],
+    tracePropagationTargets: ['localhost', '127.0.0.1', '[::1]', /^https:\/\/graph\.(akadako\.com|699\.jp|tfabworks\.com)\//, /^https:\/\/test-graph\.(akadako\.com|699\.jp|tfabworks\.com)\//],
     // Session Replay
     replaysSessionSampleRate: 0.1, // This sets the sample rate at 10%. You may want to change it to 100% while in development and then sample at a lower rate in production.
     replaysOnErrorSampleRate: 1.0, // If you're not already sampling the entire session, change the sample rate to 100% when sampling sessions where errors occur.
