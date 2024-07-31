@@ -94,7 +94,7 @@ const mutations = {
     // チャート名はユーザ名と同じにする
     state.chartName = userName
     // Sentoryに属性追加
-    Sentry.getCurrentScope().setUser({ id: state.userID, name: state.userName })
+    Sentry.getCurrentScope().setUser({ id: state.userID, username: state.userName })
   },
   setDefaultRoomName(state, defaultRoomName) {
     state.defaultRoomName = defaultRoomName
