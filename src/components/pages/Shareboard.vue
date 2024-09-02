@@ -17,7 +17,7 @@
               {{ chart.chartName }}
             </div>
             <div class="chart-menu-btn-wrap">
-              <a class="chart-json-btn" :href="`https://${window.location.host}/share/${roomID}/${chart.chartID}/values.json`" target="_blank">JSON URL取得</a>
+              <a class="chart-json-btn">JSON URL取得</a>
               <a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
             <div class="sensor-wrap">
