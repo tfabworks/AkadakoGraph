@@ -180,7 +180,7 @@ export default {
   },
   data() {
     return {
-      interval: 1000,
+      interval: parseInt(localStorage.getItem('interval')) || 1000,
       shouldReDo: {
         main: true,
         sub: true,
@@ -359,11 +359,16 @@ export default {
     interval: function (newValue, oldValue) {
       if (this.shouldReDo.interval) {
         // this.deleteModalOpen('interval', () =>
-        this.$store.dispatch('firmata/setMilliSeconds', Number(newValue)).catch(() => {
-          console.error('unexpected interval value.')
-          this.shouldReDo = false
-          this.interval = oldValue
-        })
+        this.$store
+          .dispatch('firmata/setMilliSeconds', Number(newValue))
+          .then(() => {
+            localStorage.setItem('interval', newValue)
+          })
+          .catch(() => {
+            console.error('unexpected interval value.')
+            this.shouldReDo = false
+            this.interval = oldValue
+          })
         // })
       } else {
         this.shouldReDo.interval = true
