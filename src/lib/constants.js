@@ -1,3 +1,5 @@
+import { deviationFilter } from './datautil'
+
 export const VersionInfo = {
   build: new Date().toISOString(),
   commit: process.env.VUE_APP_GIT_COMMIT || null,
@@ -21,6 +23,7 @@ export const Sensors = [
     id: 3,
     name: '気圧',
     unit: 'hPa',
+    filters: [deviationFilter(5, 10)],
   },
   {
     id: 4,

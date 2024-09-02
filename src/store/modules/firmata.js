@@ -211,6 +211,16 @@ const mutations = {
       })
       newValue.y = correctedValueY
       state.graphValue.push(newValue)
+      if (sensor.filters) {
+        //TODO ここの実装はとりあえず気圧のみの実装で指定方法などがとてもアドホックなので、もっといい方法を考える
+        for (const filter of sensor.filters) {
+          const { filteredIndex } = filter(state.graphValue.map((v) => v.y))
+          //直近のデータはフィルタ対象にしない
+          const filteredIndex2 = filteredIndex.filter((i) => i < state.graphValue.length - 2)
+          state.graphValue = state.graphValue.filter((_, i) => !filteredIndex2.includes(i))
+        }
+      }
+
       saveStateToStorage({ values0: state.graphValue })
     } else {
       state.axisInfo.sub.dataCountSinceStart += 1
