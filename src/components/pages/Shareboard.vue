@@ -17,7 +17,9 @@
               {{ chart.chartName }}
             </div>
             <div class="chart-menu-btn-wrap">
-              <a class="chart-json-btn">JSON URL取得</a>
+              <a v-if="chart.pinned" class="chart-pinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINを解除する</a>
+              <a v-if="!chart.pinned" class="chart-unpinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINをセットする</a>
+              <a class="chart-json-btn" :href="chart.valuesJsonUrl" target="_blank">JSON URL取得</a>
               <a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
             <div class="sensor-wrap">
@@ -99,6 +101,9 @@ export default {
     console.log(this.$store.state.share.roomSnapshot)
   },
   methods: {
+    updatePin(chartID, pinned) {
+      this.$store.dispatch('share/updatePinned', { chartID, pinned }).then(() => this.$store.dispatch('share/reloadRoomSnapshot'))
+    },
     hideChart(id) {
       this.hideChartIDs[id] = true
       this.$store.dispatch('share/hideChart', id)
@@ -174,6 +179,28 @@ export default {
   display:flex;
   align-items:center;
   margin: 0 0 15px auto;
+}
+
+.chart-pinned-btn {
+  display: inline-block;
+  margin-right:10px;
+  width:36px;
+  height:0;
+  padding-top:36px;
+  background: url(../../../public/img/icon-json.svg) no-repeat center;
+  overflow:hidden;
+  filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%); /* アイコンが用意されるまでのつなぎで赤くする */
+}
+
+.chart-unpinned-btn {
+  display: inline-block;
+  margin-right:10px;
+  width:36px;
+  height:0;
+  padding-top:36px;
+  background: url(../../../public/img/icon-json.svg) no-repeat center;
+  overflow:hidden;
+  filter: invert(8%) sepia(99%) saturate(7044%) hue-rotate(247deg) brightness(100%) contrast(145%); /* アイコンが用意されるまでのつなぎで青くする */
 }
 
 .chart-json-btn {

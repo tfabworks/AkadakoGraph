@@ -211,6 +211,16 @@ const actions = {
     commit('setDefaultUserName', userName)
     return await dispatch('updateChartJson', { force: true, nameOnly: true })
   },
+  async updatePinned({ commit, state }, { chartID, pinned }) {
+    return await fetch(`${apiEndpoint}/${state.roomID}/${chartID}/`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ pinned }),
+    }).then(() => commit('setPinned', { chartID, pinned }))
+  },
   // チャートJSONを更新する
   async updateChartJson({ commit, dispatch, state, rootGetters }, { force = false, nameOnly = false }) {
     // 連続してアップロードを実行しないユーザ名変更だけは反映する
