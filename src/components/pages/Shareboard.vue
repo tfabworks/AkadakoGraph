@@ -19,7 +19,9 @@
             <div class="chart-name">
               {{ chart.chartName }}
             </div>
-            <div class="chart-hidden-btn-wrap"><a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
+            <div class="chart-menu-btn-wrap">
+              <a class="chart-json-btn">JSON URL取得</a>
+              <a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
             <div class="sensor-wrap">
               <div v-if="chart.chartMainSensorID" class="sensor-main">
@@ -164,29 +166,36 @@ export default {
   padding:5px 0;
   font-weight: bold;
   font-size: 18px;
-  width: calc(100% - 120px);
+  width: calc(100% - 100px);
   text-align: start;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.chart-hidden-btn-wrap {
+.chart-menu-btn-wrap {
+  display:flex;
+  align-items:center;
   margin: 0 0 15px auto;
+}
+
+.chart-json-btn {
+  display: inline-block;
+  margin-right:10px;
+  width:36px;
+  height:0;
+  padding-top:36px;
+  background: url(../../../public/img/icon-json.svg) no-repeat center;
+  overflow:hidden;
 }
 
 .chart-hidden-btn {
   display: inline-block;
-  padding: 0 10px 0 40px;
-  margin: auto;
-  line-height: 30px;
-  color: #333;
-  font-size: 15px;
-  text-align: start;
-  font-weight: bold;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background: url(../../../public/img/icon-hidden.svg) no-repeat 10px center/22px;
+  width:28px;
+  height:0;
+  padding-top:28px;
+  background: url(../../../public/img/icon-hidden.svg) no-repeat center;
+  overflow:hidden;
 }
 
 .sensor-wrap {
