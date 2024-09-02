@@ -53,7 +53,6 @@ export const deviationFilter = (windowSize = 5, deviationThreshold = 3) => {
       // 許容範囲外ならnullを返す（または他の適切な値）
       return null
     }
-    console.log('data', data)
     const filteredData = data.map(filter)
     return {
       filteredData,
