@@ -1,9 +1,6 @@
 <template>
   <div class="content-wrap">
     <div class="content-area">
-      <div class="roomName">
-        <span>共有ID</span><span>{{ roomName }}</span>
-      </div>
       <div class="chart-show-btn-wrap">
         <a class="chart-show-btn" @click="showAllChart">全て表示する
           (
