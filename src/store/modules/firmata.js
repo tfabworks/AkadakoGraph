@@ -46,7 +46,8 @@ const loadStateFromStorage = () => {
   const sensors = parseJson(localStorage.getItem('sensors')) || [0, 0]
   const values0 = parseJson(localStorage.getItem('values0')) || []
   const values1 = parseJson(localStorage.getItem('values1')) || []
-  return { sensors, values0, values1 }
+  const interval = parseInt(localStorage.getItem('interval')) || 1000
+  return { sensors, values0, values1, interval }
 }
 
 const migrateLocalStorage = () => {
@@ -105,7 +106,7 @@ const defaultState = loadState()
 const state = {
   board: null,
   dataGetter: null,
-  milliSeconds: 1000,
+  milliSeconds: defaultState.interval,
   axisInfo: {
     main: {
       shouldRender: defaultState.sensors[0] ? true : false,
@@ -528,6 +529,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       if (milliSecondsList.includes(payload)) {
         ctx.state.milliSeconds = payload
+        saveStateToStorage({ interval: payload })
         // 既存のタイマーがあれば解除
         if (ctx.state.renderTimer) {
           clearTimeout(ctx.state.renderTimer)
