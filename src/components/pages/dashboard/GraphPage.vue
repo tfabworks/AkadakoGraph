@@ -180,7 +180,7 @@ export default {
   },
   data() {
     return {
-      interval: 1000,
+      interval: parseInt(localStorage.getItem('interval')) || 1000,
       shouldReDo: {
         main: true,
         sub: true,

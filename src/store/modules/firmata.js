@@ -46,7 +46,8 @@ const loadStateFromStorage = () => {
   const sensors = parseJson(localStorage.getItem('sensors')) || [0, 0]
   const values0 = parseJson(localStorage.getItem('values0')) || []
   const values1 = parseJson(localStorage.getItem('values1')) || []
-  return { sensors, values0, values1 }
+  const interval = parseInt(localStorage.getItem('interval')) || 1000
+  return { sensors, values0, values1, interval }
 }
 
 const migrateLocalStorage = () => {
@@ -105,7 +106,7 @@ const defaultState = loadState()
 const state = {
   board: null,
   dataGetter: null,
-  milliSeconds: 1000,
+  milliSeconds: defaultState.interval,
   axisInfo: {
     main: {
       shouldRender: defaultState.sensors[0] ? true : false,
@@ -211,6 +212,16 @@ const mutations = {
       })
       newValue.y = correctedValueY
       state.graphValue.push(newValue)
+      if (sensor.filters) {
+        //TODO ここの実装はとりあえず気圧のみの実装で指定方法などがとてもアドホックなので、もっといい方法を考える
+        for (const filter of sensor.filters) {
+          const { filteredIndex } = filter(state.graphValue.map((v) => v.y))
+          //直近のデータはフィルタ対象にしない
+          const filteredIndex2 = filteredIndex.filter((i) => i < state.graphValue.length - 2)
+          state.graphValue = state.graphValue.filter((_, i) => !filteredIndex2.includes(i))
+        }
+      }
+
       saveStateToStorage({ values0: state.graphValue })
     } else {
       state.axisInfo.sub.dataCountSinceStart += 1
@@ -518,6 +529,7 @@ const actions = {
     return new Promise((resolve, reject) => {
       if (milliSecondsList.includes(payload)) {
         ctx.state.milliSeconds = payload
+        saveStateToStorage({ interval: payload })
         // 既存のタイマーがあれば解除
         if (ctx.state.renderTimer) {
           clearTimeout(ctx.state.renderTimer)

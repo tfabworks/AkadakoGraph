@@ -211,6 +211,16 @@ const actions = {
     commit('setDefaultUserName', userName)
     return await dispatch('updateChartJson', { force: true, nameOnly: true })
   },
+  async updatePinned({ commit, state }, { chartID, pinned }) {
+    return await fetch(`${apiEndpoint}/${state.roomID}/${chartID}/`, {
+      method: 'POST',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ pinned }),
+    }).then(() => commit('setPinned', { chartID, pinned }))
+  },
   // チャートJSONを更新する
   async updateChartJson({ commit, dispatch, state, rootGetters }, { force = false, nameOnly = false }) {
     // 連続してアップロードを実行しないユーザ名変更だけは反映する
@@ -271,38 +281,55 @@ const actions = {
     return chartRes
   },
   // チャート画像をアップロードする（JSONアップロードも同時に行われる）
-  async updateChartImage({ dispatch, commit, state }) {
+  async updateChartImage({ dispatch, commit, state, rootGetters }) {
     // 連続してアップロードを実行しない
     if (!(await dispatch('canUpdateChart'))) {
       return
     }
     commit('setUpdateChartImageLatest', new Date().getTime())
-    const canvasElement = document.body.querySelector('canvas')
-    if (canvasElement) {
-      canvasElement.toBlob(
-        async (blob) => {
-          const imageBlob = blob
-          await fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.webp`, {
-            mode: 'cors',
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'image/webp',
-            },
-            body: imageBlob,
-          })
-            .then((res) => {
-              if (res.ok) {
-                dispatch('updateChartJson', { force: true })
-              }
+
+    const uploadImage = new Promise((resolve, reject) => {
+      const canvasElement = document.body.querySelector('canvas')
+      if (canvasElement) {
+        canvasElement.toBlob(
+          (blob) => {
+            const imageBlob = blob
+            fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/chart.webp`, {
+              mode: 'cors',
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'image/webp',
+              },
+              body: imageBlob,
             })
-            .catch((e) => {
-              console.error('updateChartImage', e)
-            })
-        },
-        'image/webp',
-        // 1, // クオリティ （参考: 0.01で15KB, 1で50KB)
-      )
-    }
+              .then(resolve)
+              .catch(reject)
+          },
+          'image/webp',
+          1, // クオリティ （参考: 0.01で15KB, 1で50KB)
+        )
+      }
+    })
+    const uploadJson = fetch(`${apiEndpoint}/${state.roomID}/${state.chartID}/values.json`, {
+      method: 'PUT',
+      mode: 'cors',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'values',
+        values: rootGetters['firmata/values'],
+      }),
+    })
+    Promise.all([uploadImage, uploadJson])
+      .then(([imageRes, jsonRes]) => {
+        if (imageRes.ok && jsonRes.ok) {
+          dispatch('updateChartJson', { force: true })
+        }
+      })
+      .catch((e) => {
+        console.error('updateChartImage', e)
+      })
   },
   // チャート描画が完了したらチャートJSONの時間を更新する
   async onChartRendered({ dispatch, state, commit, rootGetters }, { dataset }) {

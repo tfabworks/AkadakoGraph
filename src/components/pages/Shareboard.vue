@@ -1,9 +1,6 @@
 <template>
   <div class="content-wrap">
     <div class="content-area">
-      <div class="roomName">
-        <span>共有ID</span><span>{{ roomName }}</span>
-      </div>
       <div class="chart-show-btn-wrap">
         <a class="chart-show-btn" @click="showAllChart">全て表示する
           (
@@ -19,7 +16,13 @@
             <div class="chart-name">
               {{ chart.chartName }}
             </div>
-            <div class="chart-hidden-btn-wrap"><a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
+            <div class="chart-menu-btn-wrap">
+              <!--
+              <a v-if="chart.pinned" class="chart-pinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINを解除する</a>
+              <a v-if="!chart.pinned" class="chart-unpinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINをセットする</a>
+              -->
+              <a class="chart-json-btn" :href="chart.valuesJsonUrl" target="_blank">JSON URL取得</a>
+              <a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
             <div class="sensor-wrap">
               <div v-if="chart.chartMainSensorID" class="sensor-main">
@@ -100,6 +103,9 @@ export default {
     console.log(this.$store.state.share.roomSnapshot)
   },
   methods: {
+    updatePin(chartID, pinned) {
+      this.$store.dispatch('share/updatePinned', { chartID, pinned }).then(() => this.$store.dispatch('share/reloadRoomSnapshot'))
+    },
     hideChart(id) {
       this.hideChartIDs[id] = true
       this.$store.dispatch('share/hideChart', id)
@@ -164,29 +170,58 @@ export default {
   padding:5px 0;
   font-weight: bold;
   font-size: 18px;
-  width: calc(100% - 120px);
+  width: calc(100% - 100px);
   text-align: start;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.chart-hidden-btn-wrap {
+.chart-menu-btn-wrap {
+  display:flex;
+  align-items:center;
   margin: 0 0 15px auto;
+}
+
+.chart-pinned-btn {
+  display: inline-block;
+  margin-right:10px;
+  width:36px;
+  height:0;
+  padding-top:36px;
+  background: url(../../../public/img/icon-json.svg) no-repeat center;
+  overflow:hidden;
+  filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%); /* アイコンが用意されるまでのつなぎで赤くする */
+}
+
+.chart-unpinned-btn {
+  display: inline-block;
+  margin-right:10px;
+  width:36px;
+  height:0;
+  padding-top:36px;
+  background: url(../../../public/img/icon-json.svg) no-repeat center;
+  overflow:hidden;
+  filter: invert(8%) sepia(99%) saturate(7044%) hue-rotate(247deg) brightness(100%) contrast(145%); /* アイコンが用意されるまでのつなぎで青くする */
+}
+
+.chart-json-btn {
+  display: inline-block;
+  margin-right:10px;
+  width:36px;
+  height:0;
+  padding-top:36px;
+  background: url(../../../public/img/icon-json.svg) no-repeat center;
+  overflow:hidden;
 }
 
 .chart-hidden-btn {
   display: inline-block;
-  padding: 0 10px 0 40px;
-  margin: auto;
-  line-height: 30px;
-  color: #333;
-  font-size: 15px;
-  text-align: start;
-  font-weight: bold;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background: url(../../../public/img/icon-hidden.svg) no-repeat 10px center/22px;
+  width:28px;
+  height:0;
+  padding-top:28px;
+  background: url(../../../public/img/icon-hidden.svg) no-repeat center;
+  overflow:hidden;
 }
 
 .sensor-wrap {
