@@ -17,8 +17,10 @@
               {{ chart.chartName }}
             </div>
             <div class="chart-menu-btn-wrap">
+              <!--
               <a v-if="chart.pinned" class="chart-pinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINを解除する</a>
               <a v-if="!chart.pinned" class="chart-unpinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINをセットする</a>
+              -->
               <a class="chart-json-btn" :href="chart.valuesJsonUrl" target="_blank">JSON URL取得</a>
               <a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
