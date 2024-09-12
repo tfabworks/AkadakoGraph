@@ -17,10 +17,8 @@
               {{ chart.chartName }}
             </div>
             <div class="chart-menu-btn-wrap">
-              <!--
-              <a v-if="chart.pinned" class="chart-pinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINを解除する</a>
-              <a v-if="!chart.pinned" class="chart-unpinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">削除防止PINをセットする</a>
-              -->
+              <a v-if="chart.pinned" class="chart-pinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">自動削除</a>
+              <a v-if="!chart.pinned" class="chart-unpinned-btn" @click="updatePin(chart.chartID, !chart.pinned)">自動削除</a>
               <a class="chart-json-btn" :href="chart.valuesJsonUrl" target="_blank">JSON URL取得</a>
               <a class="chart-hidden-btn" @click="hideChart(chart.chartID)">隠す</a>
             </div>
@@ -170,7 +168,7 @@ export default {
   padding:5px 0;
   font-weight: bold;
   font-size: 18px;
-  width: calc(100% - 100px);
+  width: calc(100% - 150px);
   text-align: start;
   white-space: nowrap;
   overflow: hidden;
@@ -183,26 +181,27 @@ export default {
   margin: 0 0 15px auto;
 }
 
-.chart-pinned-btn {
+.chart-pinned-btn,.chart-unpinned-btn{
   display: inline-block;
   margin-right:10px;
-  width:36px;
-  height:0;
-  padding-top:36px;
-  background: url(../../../public/img/icon-json.svg) no-repeat center;
-  overflow:hidden;
-  filter: invert(15%) sepia(95%) saturate(6932%) hue-rotate(358deg) brightness(95%) contrast(112%); /* アイコンが用意されるまでのつなぎで赤くする */
+  width:60px;
+  height:36px;
+  font-size:12px;
+  color:#333;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+.chart-pinned-btn:hover,.chart-unpinned-btn:hover{
+  opacity:1;
+}
+
+.chart-pinned-btn {
+  background: url(../../../public/img/toggle-off.svg) no-repeat center bottom/ 40px;
 }
 
 .chart-unpinned-btn {
-  display: inline-block;
-  margin-right:10px;
-  width:36px;
-  height:0;
-  padding-top:36px;
-  background: url(../../../public/img/icon-json.svg) no-repeat center;
-  overflow:hidden;
-  filter: invert(8%) sepia(99%) saturate(7044%) hue-rotate(247deg) brightness(100%) contrast(145%); /* アイコンが用意されるまでのつなぎで青くする */
+  background: url(../../../public/img/toggle-on.svg) no-repeat center bottom/ 40px;
 }
 
 .chart-json-btn {
