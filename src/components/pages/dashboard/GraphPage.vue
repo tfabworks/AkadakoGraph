@@ -734,12 +734,12 @@ select {
 
 .share-active {
   color: #28AE60;
-  background: url(../../../../public/img/shared-active.svg) no-repeat center bottom 3px/ 32px;
+  background: url(../../../../public/img/toggle-on.svg) no-repeat center bottom 3px/ 32px;
 }
 
 .share-stop {
   color: #999;
-  background: url(../../../../public/img/shared-stop.svg) no-repeat center bottom 3px/ 32px;
+  background: url(../../../../public/img/toggle-off.svg) no-repeat center bottom 3px/ 32px;
 }
 
 .share-modal-link {
