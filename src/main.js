@@ -1,9 +1,13 @@
 import App from '@/components/App'
+import { replaceWindowTimerFunctions } from '@kawaz/worker-timer'
 import * as Sentry from '@sentry/vue'
 import Buefy from 'buefy'
 import Vue from 'vue'
 import { SensorMap } from './lib/constants'
 import store from './store'
+
+// setTimeout/setInterval を worker-timer に置換する
+replaceWindowTimerFunctions()
 
 Vue.use(Buefy)
 
