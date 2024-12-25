@@ -7,6 +7,7 @@
           現在の表示数：{{ charts.filter(c => !(c.chartID in hideChartIDs)).length }}/{{ charts.length }}
           )
         </a>
+        <a :href="csvZipUrl" download>CSVダウンロード</a>
       </div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
@@ -87,6 +88,12 @@ export default {
     },
     reloadIntervalHint() {
       return this.$store.state.share.reloadIntervalHint
+    },
+    apiEndpoint() {
+      return this.$store.state.share.apiEndpoint
+    },
+    csvZipUrl() {
+      return `${this.apiEndpoint}/${this.roomID}?csvzip=1`
     },
   },
   watch: {

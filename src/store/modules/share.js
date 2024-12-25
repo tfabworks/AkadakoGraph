@@ -57,6 +57,7 @@ const getters = {
 
 const STORAGE_PREFIX = 'akadako_share_'
 const apiEndpoint = /(localhost|127.0.0.1|::|:\d+)/.test(window.location.origin) ? 'https://test-graph.akadako.com/api/share' : '/api/share'
+state.apiEndpoint = apiEndpoint
 
 const mutations = {
   setRoomSnapshot(state, roomSnapshot) {
