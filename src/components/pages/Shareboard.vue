@@ -7,6 +7,7 @@
           現在の表示数：{{ charts.filter(c => !(c.chartID in hideChartIDs)).length }}/{{ charts.length }}
           )
         </a>
+        <a class="chart-csv-btn" :href="csvZipUrl" download>ダウンロード</a>
       </div>
       <div v-for="chart in room.charts" :key="chart.chartID">
         <!-- <pre>DEBUG: {{ chart }}</pre> -->
@@ -87,6 +88,12 @@ export default {
     },
     reloadIntervalHint() {
       return this.$store.state.share.reloadIntervalHint
+    },
+    apiEndpoint() {
+      return this.$store.state.share.apiEndpoint
+    },
+    csvZipUrl() {
+      return `${this.apiEndpoint}/${this.roomID}?csvzip=1`
     },
   },
   watch: {
@@ -307,21 +314,41 @@ export default {
 }
 
 .chart-show-btn-wrap {
-  text-align: center;
+  position:relative;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
   margin-bottom:15px;
 }
 
-.chart-show-btn {
+.chart-show-btn,.chart-csv-btn{
   display: inline-block;
   padding: 0 10px 0 40px;
-  margin: auto;
   line-height: 40px;
+  margin:5px;
   color: #333;
   font-size: 15px;
   text-align: start;
   font-weight: bold;
   border: 1px solid #ccc;
   border-radius: 5px;
+}
+
+.chart-show-btn {
   background: url(../../../public/img/icon-show.svg) #fff no-repeat 10px center/22px;
 }
+
+.chart-csv-btn{
+  position:absolute;
+  right:-5px;
+  background: url(../../../public/img/icon-dl.svg) #fff no-repeat 10px center/22px;
+}
+
+@media screen and (max-width:700px){
+  .chart-csv-btn{
+    position:relative;
+  }
+}
+
+
 </style>

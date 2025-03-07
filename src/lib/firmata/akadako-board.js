@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events'
+// import { clearTimeout, setTimeout } from '@kawaz/worker-timer'
 import SerialPort from '@serialport/stream'
 import bindTransport from 'firmata-io'
 import WSABinding from 'web-serial-binding'

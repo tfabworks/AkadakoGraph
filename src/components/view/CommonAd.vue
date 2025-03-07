@@ -4,7 +4,7 @@
     class="common-ad"
   >
     <img
-      src="https://tfabworks.com/static/commonAdImage.png"
+      src="https://tfabworks.com/static/commonAdImage.gif"
       class="common-ad-img"
     >
     <div class="sk-fading-circle">
